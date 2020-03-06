@@ -6,7 +6,7 @@ This is a full stack web development project (that has only just been started) w
 
 Front-end: ReactJS with SCSS \
 Back-end: Java (probably with Spring framework) \
-Database: MongoDB for messages/chats, MySQL for user accounts, authentication etc. \
+Database: MongoDB for messages/chats, MySQL for user accounts, authentication etc. 
 
 ## Further aspirations
 
