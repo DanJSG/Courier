@@ -1,0 +1,26 @@
+.container {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2fr 6fr 2fr;
+}
+
+.message-list {
+    display: grid;
+    /* grid-template-rows: 5% 89% 5%; */
+    grid-template-rows: 1fr 8fr 1fr;
+}
+
+.message-builder {
+    margin: 0;
+    align-content: center;
+    display: grid;
+}
+
+.message-builder form {
+    display: grid;
+    column-gap: 2px;
+    grid-template-columns: 8fr 2fr;
+}

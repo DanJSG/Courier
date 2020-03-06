@@ -29,7 +29,7 @@ class MessageBuilder extends React.Component {
 
     render() {
         return(
-            <div>
+            <div className="message-builder">
                 <form onSubmit={this.handleSendMessage}>
                     <input type="text" name="message"></input>
                     <button>Send</button>
