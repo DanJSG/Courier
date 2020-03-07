@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Message {
 	
-	@JsonProperty("messageText")
+	@JsonProperty
 	private String messageText;
 	
-	@JsonProperty("timestamp")
+	@JsonProperty
 	private String timestamp;
 	
-	@JsonProperty("sender")
+	@JsonProperty
 	private String sender;
 	
-	@JsonProperty("receiver")
+	@JsonProperty
 	private String receiver;
 	
 	public Message() {};

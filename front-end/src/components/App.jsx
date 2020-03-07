@@ -23,7 +23,6 @@ import '../css/App.css'
 
  * 
  * */
-
 class App extends React.Component {
 
   constructor(props) {
