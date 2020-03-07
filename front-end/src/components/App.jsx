@@ -23,7 +23,6 @@ import '../css/App.css'
 
  * 
  * */
-
 class App extends React.Component {
 
   constructor(props) {
@@ -50,7 +49,8 @@ class App extends React.Component {
               ]
             }
           }
-      ]
+      ],
+      wsConnection: new WebSocket("ws://localhost:8080/api/ws")
     }
   }
 
@@ -59,15 +59,24 @@ class App extends React.Component {
       return "You must enter a message to send.";
     }
     this.setState((prevState) => prevState.messages.push(message));
-    const request = new XMLHttpRequest();
-    request.open("POST", "http://localhost:8080/api/send");
-    request.setRequestHeader("token", message.sender);
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.send(JSON.stringify(message));
-    // console.log(JSON.stringify(message));
-    // console.log(message);
-    const response = request.response;
-    console.log(response);
+    if(!this.state.wsConnection) {
+      return;
+    }
+    this.state.wsConnection.send(JSON.stringify(message));
+  }
+
+  componentDidMount() {
+    console.log("Component mounted.");
+    this.state.wsConnection.addEventListener("message", (e) => {
+      console.log(e.data);
+      this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
+    });
+  }
+
+  componentWillUnmount() {
+    if(this.state.wsConnection) {
+      this.state.wsConnection.close();
+    }
   }
 
   render() {

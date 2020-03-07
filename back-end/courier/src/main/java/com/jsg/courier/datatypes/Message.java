@@ -1,18 +1,22 @@
 package com.jsg.courier.datatypes;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Message {
 	
+	@JsonProperty
 	private String messageText;
+	
+	@JsonProperty
 	private String timestamp;
+	
+	@JsonProperty
 	private String sender;
+	
+	@JsonProperty
 	private String receiver;
 	
-	public Message(String messageText, String timestamp, String sender, String receiver) {
-		this.messageText = messageText;
-		this.timestamp = timestamp;
-		this.sender = sender;
-		this.receiver = receiver;
-	}
+	public Message() {};
 	
 	public void print() {
 		System.out.println("Message: " + this.messageText);
@@ -20,5 +24,4 @@ public class Message {
 		System.out.println("Sender: " + this.sender);
 		System.out.println("receiver: " + this.receiver);
 	}
-	
 }
