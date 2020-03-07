@@ -29,7 +29,8 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.handleSendMessage = this.handleSendMessage.bind(this);
-    this.handleUsernameChange = this.handleUsernameChange.bind(this);
+    this.handleConnect = this.handleConnect.bind(this);
+    this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
     this.state = {
       messages: [],
       wsConnection: null, //new WebSocket("ws://localhost:8080/api/ws"),
@@ -62,37 +63,52 @@ class App extends React.Component {
 
   componentDidMount() {
     console.log("Component mounted.");
-    this.setState({loadTime: new Date().toTimeString(), seed: Math.random() * 100});
-
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws")}, () => {
-      this.state.wsConnection.addEventListener("open", () => {
-        console.log("Connection opened...")
-      })
-      this.state.wsConnection.addEventListener("message", (e) => {
-        console.log(e.data);
-        const receivedMessage = JSON.parse(e.data);
-        if(receivedMessage.id !== this.state.sessionId) {
-          this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
-        }
-      });
-    })
-
-    // this.state.wsConnection.addEventListener("open", () => {
-    //   console.log("Connection opened...")
-    // })
-    // this.state.wsConnection.addEventListener("message", (e) => {
-    //   console.log(e.data);
-    //   const receivedMessage = JSON.parse(e.data);
-    //   if(receivedMessage.id !== this.state.sessionId) {
-    //     this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
-    //   }
-    // });
+    this.setState({
+      loadTime: new Date().toTimeString(),
+      seed: Math.random() * 100
+    });
   }
 
   componentWillUnmount() {
     if(this.state.wsConnection) {
       this.state.wsConnection.close();
     }
+  }
+
+  handleConnect(e) {
+    e.preventDefault();
+    const username = e.target.elements.username.value.trim();
+    if(!username) {
+      // TODO pass error back to ChatInfo component
+      console.log("No username provided.")
+      return "No username provided.";
+    }
+    const whitespaceExpr = new RegExp("[ \t\r\n]")
+    if(username.match(whitespaceExpr)) {
+      // TODO pass error back to ChatInfo component
+      console.log("Cannot have spaces in username.")
+      return "Cannot have spaces in username."
+    }
+    this.setState((prevState) => {return {
+      wsConnection: new WebSocket("ws://localhost:8080/api/ws", [username.toString()]),
+      username: username,
+      sessionId: (username + prevState.loadTime + prevState.seed + navigator.userAgent).hashCode().toString()
+    }},
+      () => this.addWebSocketEventListeners()
+    );
+  }
+
+  addWebSocketEventListeners() {
+    this.state.wsConnection.addEventListener("open", () => {
+      console.log(`Connection opened with protocol name ${this.state.username}`);
+    });
+    this.state.wsConnection.addEventListener("message", (e) => {
+      console.log(e.data);
+      const receivedMessage = JSON.parse(e.data);
+      if(receivedMessage.id !== this.state.sessionId) {
+        this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
+      }
+    });
   }
 
   handleSendMessage(messageText) {
@@ -116,22 +132,12 @@ class App extends React.Component {
     }
   }
 
-  handleUsernameChange(username) {
-    this.setState((prevState) => {
-      return {
-        username: username,
-        sessionId: (username + prevState.loadTime + prevState.seed + navigator.userAgent).hashCode().toString()
-      }
-    });
-
-  }
-
   render() {
     return (
       <div className="container">
         <ChatList chats={this.state.chats}></ChatList>
         <MessageList handleSendMessage={this.handleSendMessage} messages={this.state.messages}></MessageList>
-        <ChatInfo chat={this.state.chats[0]} handleUsernameChange={this.handleUsernameChange}></ChatInfo>
+        <ChatInfo handleConnect={this.handleConnect} chat={this.state.chats[0]} handleUsernameChange={this.handleUsernameChange}></ChatInfo>
       </div>
     );
   }
