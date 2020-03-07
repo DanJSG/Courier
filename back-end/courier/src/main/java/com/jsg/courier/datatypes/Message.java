@@ -30,4 +30,8 @@ public class Message {
 		System.out.println("sessionId: " + this.id);
 		System.out.println("}");
 	}
+	
+	public String getId() {
+		return id;
+	}
 }
