@@ -13,14 +13,14 @@ class MessageBuilder extends React.Component {
     handleSendMessage(e) {
         e.preventDefault();
         const messageText = e.target.elements.message.value.trim();
-        const message = {
-            messageText: messageText,
-            timestamp: new Date().toTimeString(),
-            sender: "SENDER",
-            receiver: "RECEIVER"
-        }
+        // const message = {
+        //     messageText: messageText,
+        //     timestamp: new Date().toTimeString(),
+        //     sender: "SENDER",
+        //     receiver: "RECEIVER"
+        // }
         e.target.elements.message.value = null;
-        const errorMsg = this.props.handleSendMessage(message);
+        const errorMsg = this.props.handleSendMessage(messageText);
         this.setState(() => ({errorMsg: errorMsg}));
         if(!errorMsg) {
             e.target.elements.message.value = '';
