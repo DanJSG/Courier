@@ -14,7 +14,7 @@ function ChatInfo(props) {
             </form>
             <h3>Members:</h3>
             <ul>
-                {props.currentChat.members.map((member) => <li key={member.sessionId}>{member.sessionId}</li>)}
+                {props.currentChat.members.map((member) => <li key={member.sessionId}>{member.username} [{member.sessionId}]</li>)}
             </ul>
         </div>
     );

@@ -17,41 +17,42 @@ import com.jsg.courier.datatypes.User;
 public class SocketHandler extends TextWebSocketHandler {
 	
 	private List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-	private List<User> userList = new CopyOnWriteArrayList<>();
+	private List<String> sessionsIdList = new CopyOnWriteArrayList<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		message.print();
-		broadcast(message);
+		broadcastMessage(message);
 	}
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
-		if(userList.contains(new User(headers[0], headers[1]))) {
+		if(sessionsIdList.contains(headers[0])) {
 			System.out.println("Already connected.");
 			return;
 		}
 		sessions.add(session);
-		userList.add(new User(headers[0], headers[1]));
+		sessionsIdList.add(headers[0]);
 		System.out.println("WebSocket connection established between server and session with details: " + headers[0] + ", " + headers[1]);
-		getSessions(session);
+		broadcastSessions();
 	}
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
 		sessions.remove(session);
-		userList.remove(new User(headers[0], headers[1]));
+		sessionsIdList.remove(headers[0]);
 		System.out.println("WebSocket connection closed.");
 	}
 	
-	private void broadcast(Message message) throws Exception {
+	private void broadcastMessage(Message message) throws Exception {
 		System.out.println("(broadcast)Session size is: " + sessions.size());
 		for(WebSocketSession session : sessions) {
-			String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
+			String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
+			System.out.println("Session ID is: " + headers[0]);
 			if(headers[0].equals(message.getId())) {
 				System.out.println("Not sending to session: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
 				continue;
@@ -60,10 +61,10 @@ public class SocketHandler extends TextWebSocketHandler {
 		}
 	}
 	
-	private void getSessions(WebSocketSession session) throws Exception {
-		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
+	private void broadcastSessions() throws Exception {
 		String json = "`[";
 		for(int i=0; i<sessions.size(); i++) {
+			String[] headers = sessions.get(i).getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
 			json += (new TextMessage(objectMapper.writeValueAsString(new User(headers[0], headers[1])))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
@@ -71,6 +72,8 @@ public class SocketHandler extends TextWebSocketHandler {
 		}
 		json += "]";
 		System.out.println(json);
-		session.sendMessage(new TextMessage(json));
+		for(WebSocketSession session : sessions) {
+			session.sendMessage(new TextMessage(json));
+		}
 	}
 }

@@ -95,6 +95,9 @@ class App extends React.Component {
       return "Cannot contain commas.";
     }
     const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode().toString();
+    if(this.state.wsConnection && this.state.username !== username) {
+      this.state.wsConnection.close();
+    }
     this.setState((prevState) => {return {
       wsConnection: new WebSocket("ws://localhost:8080/api/ws", [sessionId, username]),
       username: username,
