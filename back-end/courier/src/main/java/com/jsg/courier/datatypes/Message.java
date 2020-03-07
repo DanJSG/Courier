@@ -11,6 +11,9 @@ public class Message {
 	private String timestamp;
 	
 	@JsonProperty
+	private String id;
+	
+	@JsonProperty
 	private String sender;
 	
 	@JsonProperty
@@ -19,9 +22,12 @@ public class Message {
 	public Message() {};
 	
 	public void print() {
-		System.out.println("Message: " + this.messageText);
-		System.out.println("Time: " + this.timestamp);
-		System.out.println("Sender: " + this.sender);
+		System.out.println("{");
+		System.out.println("messageText: " + this.messageText);
+		System.out.println("timestamp: " + this.timestamp);
+		System.out.println("sender: " + this.sender);
 		System.out.println("receiver: " + this.receiver);
+		System.out.println("sessionId: " + this.id);
+		System.out.println("}");
 	}
 }

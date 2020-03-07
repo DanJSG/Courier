@@ -19,6 +19,5 @@ public class MessageController {
 		System.out.println("Message received!");
 		System.out.println(token);
 		message.print();
-	}
-	
+	}	
 }
