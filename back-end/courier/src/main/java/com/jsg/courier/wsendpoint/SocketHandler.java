@@ -30,7 +30,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
 		sessions.add(session);
-		System.out.println("WebSocket connection established.");
+		System.out.println("WebSocket connection established between server and session with ID: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
 	}
 	
 	@Override
@@ -41,6 +41,10 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	public void broadcast(Message message) throws Exception {
 		for(WebSocketSession session : sessions) {
+			if(session.getHandshakeHeaders().getFirst("sec-websocket-protocol").equals(message.getId())) {
+				System.out.println("Not sending to session: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
+				continue;
+			}
 			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 		}
 	}

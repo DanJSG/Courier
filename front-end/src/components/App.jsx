@@ -83,16 +83,11 @@ class App extends React.Component {
       console.log("No username provided.")
       return "No username provided.";
     }
-    const whitespaceExpr = new RegExp("[ \t\r\n]")
-    if(username.match(whitespaceExpr)) {
-      // TODO pass error back to ChatInfo component
-      console.log("Cannot have spaces in username.")
-      return "Cannot have spaces in username."
-    }
+    const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode().toString();
     this.setState((prevState) => {return {
-      wsConnection: new WebSocket("ws://localhost:8080/api/ws", [username.toString()]),
+      wsConnection: new WebSocket("ws://localhost:8080/api/ws", [sessionId]),
       username: username,
-      sessionId: (username + prevState.loadTime + prevState.seed + navigator.userAgent).hashCode().toString()
+      sessionId: sessionId
     }},
       () => this.addWebSocketEventListeners()
     );
@@ -100,14 +95,15 @@ class App extends React.Component {
 
   addWebSocketEventListeners() {
     this.state.wsConnection.addEventListener("open", () => {
-      console.log(`Connection opened with protocol name ${this.state.username}`);
+      console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
     });
     this.state.wsConnection.addEventListener("message", (e) => {
       console.log(e.data);
       const receivedMessage = JSON.parse(e.data);
-      if(receivedMessage.id !== this.state.sessionId) {
-        this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
-      }
+      this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
+      // if(receivedMessage.id !== this.state.sessionId) {
+      //   this.setState((prevState) => prevState.messages.push(JSON.parse(e.data)));
+      // }
     });
   }
 
