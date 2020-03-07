@@ -20,8 +20,6 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
-//		System.out.println(message.getPayload());
-//		System.out.println(message);
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		message.print();
 		broadcast(message);
