@@ -69,7 +69,13 @@ class App extends React.Component {
   addWebSocketEventListeners() {
     this.state.wsConnection.addEventListener("open", () => {
       console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
+      console.log(this.state.wsConnection);
     });
+    this.state.wsConnection.addEventListener("error", () => {
+      alert("Failed to connect to chat room server.")
+      console.log("WebSocket connection failed.")
+      console.log(this.state.wsConnection);
+    })
     this.state.wsConnection.addEventListener("message", (e) => {
       if(e.data.charAt(0) !== "`") {
         const receivedMessage = JSON.parse(e.data);
@@ -94,6 +100,9 @@ class App extends React.Component {
     }
     if(!this.state.username || !this.state.sessionId) {
       return "You must enter a username to start sending messages.";
+    }
+    if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
+      return "You are not connected to the chat room server.";
     }
     const message = {
       messageText: messageText,
