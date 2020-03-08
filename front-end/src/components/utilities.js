@@ -16,3 +16,12 @@ String.prototype.containsDisallowedChars = function(disallowedChars) {
     }
     return false;
 }
+
+/**
+ * Method to get the UTC date string from a millisecond integer.
+ */
+Number.prototype.getUTCDateStringMilliseconds = function() {
+    const date = new Date();
+    date.setUTCMilliseconds(this)
+    return date.toUTCString();
+}

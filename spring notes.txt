@@ -1,0 +1,12 @@
+Spring notes:
+
+	If you are getting null for a repository or something similar, this is probably because it is being implemented like this:
+	
+		Repository repo = new Repository()
+		
+	Or because one of its parent classes is being instantiated like this.
+	
+	To solve this, use the autowired annotation:
+	
+		@Autowired
+		Repository repo;

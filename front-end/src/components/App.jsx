@@ -53,7 +53,7 @@ class App extends React.Component {
       console.log("Cannpt contain whitespace or commas.");
       return "Cannot contain commas.";
     }
-    const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode().toString();
+    const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode();
     if(this.state.wsConnection && this.state.username !== username) {
       this.state.wsConnection.close();
     }
@@ -76,6 +76,7 @@ class App extends React.Component {
     this.state.wsConnection.addEventListener("message", (e) => {
       if(e.data.charAt(0) !== "`") {
         const receivedMessage = JSON.parse(e.data);
+        receivedMessage.timestamp = receivedMessage.timestamp.getUTCDateStringMilliseconds();
         this.setState((prevState) => prevState.messages.push(receivedMessage));
         return;
       }
@@ -103,7 +104,7 @@ class App extends React.Component {
     }
     const message = {
       messageText: messageText,
-      timestamp: new Date().toTimeString(),
+      timestamp: new Date().toUTCString(),
       id: this.state.sessionId,
       sender: this.state.username,
       receiver: "ALL"
