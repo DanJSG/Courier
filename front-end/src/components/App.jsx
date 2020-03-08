@@ -2,28 +2,9 @@ import React from 'react';
 import MessageList from './MessageList';
 import ChatList from './ChatList';
 import ChatInfo from './ChatInfo';
-import hashCode from './utilities';
-import '../css/App.css'
+import './utilities';
+import '../css/App.css';
 
-/* 
- * chats json structure:
- 
- chats: [
-    {
-      name: "Chat 1",
-      id: "SOMETHING I'VE NOT DECIDED ON YET",
-      members: {
-        sender: "SENDER",
-        receivers: [
-          "RECEIVER 1",
-          "RECEIVER 2"
-        ]
-      }
-    }
-  ]
-
- * 
- * */
 class App extends React.Component {
 
   constructor(props) {
@@ -33,37 +14,16 @@ class App extends React.Component {
     this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
     this.state = {
       messages: [],
-      wsConnection: null, //new WebSocket("ws://localhost:8080/api/ws"),
+      wsConnection: null,
       username: null,
       sessionId: null,
       loadTime: null,
       seed: null,
-
       currentChat: {
         name: "Chat Room",
         members: []
       },
-
-      chats: [{
-        name: "Chat 1",
-        id: 'jkhdf',
-        members: {
-          sender: "SENDER",
-          receivers: [
-            "RECEIVER 1",
-            "Receiver 2"
-          ]}}, {
-            name: "Group Chat",
-            id: 'ijfhdgdf',
-            members: {
-              sender: "SENDER",
-              receivers: [
-                "RECEIVER 1",
-                "Receiver 2"
-              ]
-            }
-          }
-      ],
+      chats: [],
     }
   }
 
@@ -89,8 +49,7 @@ class App extends React.Component {
       console.log("No username provided.");
       return "No username provided.";
     }
-    const regex = new RegExp("[,\t\r\n ]");
-    if(username.match(regex)) {
+    if(username.containsDisallowedChars("[,\t\r\n ]")) {
       console.log("Cannpt contain whitespace or commas.");
       return "Cannot contain commas.";
     }
@@ -108,30 +67,27 @@ class App extends React.Component {
   }
 
   addWebSocketEventListeners() {
-    console.log("USERNAME: " + this.state.username);
-    console.log("SESSION ID: " + this.state.sessionId);
     this.state.wsConnection.addEventListener("open", () => {
       console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
     });
+    this.state.wsConnection.addEventListener("error", () => {
+      alert("Failed to connect to chat room server.")
+    })
     this.state.wsConnection.addEventListener("message", (e) => {
-      console.log(e.data);
-      if(e.data.charAt(0) === "`") {
-        // console.log("CHAT MEMBERS");
-        const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
-        this.setState((prevState) => {
-          return {
-            currentChat: {
-              name: prevState.currentChat.name,
-              members: chatMembers
-            }
-          }
-        })
-        console.log(this.state.currentChat.members);
+      if(e.data.charAt(0) !== "`") {
+        const receivedMessage = JSON.parse(e.data);
+        this.setState((prevState) => prevState.messages.push(receivedMessage));
         return;
       }
-      const receivedMessage = JSON.parse(e.data);
-      // console.log(receivedMessage);
-      this.setState((prevState) => prevState.messages.push(receivedMessage));
+      const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
+      this.setState((prevState) => {
+        return {
+          currentChat: {
+            name: prevState.currentChat.name,
+            members: chatMembers
+          }
+        }
+      }) 
     });
   }
 
@@ -141,6 +97,9 @@ class App extends React.Component {
     }
     if(!this.state.username || !this.state.sessionId) {
       return "You must enter a username to start sending messages.";
+    }
+    if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
+      return "You are not connected to the chat room server.";
     }
     const message = {
       messageText: messageText,

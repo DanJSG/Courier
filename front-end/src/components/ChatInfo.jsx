@@ -1,7 +1,6 @@
 import React from 'react';
 
 function ChatInfo(props) {
-    // <input type="text" name="username" onChange={(e) => props.handleUsernameChange(e.target.value)} />
     return(
         <div>
             <h1>{props.currentChat.name}</h1>
