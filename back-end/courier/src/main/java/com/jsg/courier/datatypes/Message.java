@@ -1,17 +1,22 @@
 package com.jsg.courier.datatypes;
 
+import java.util.Date;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@Document("messages")
 public class Message {
 	
 	@JsonProperty
 	private String messageText;
 	
 	@JsonProperty
-	private String timestamp;
+	private Date timestamp;
 	
-	@JsonProperty
-	private String id;
+	@JsonProperty("id")
+	private int sessionId;
 	
 	@JsonProperty
 	private String sender;
@@ -27,11 +32,11 @@ public class Message {
 		System.out.println("timestamp: " + this.timestamp);
 		System.out.println("sender: " + this.sender);
 		System.out.println("receiver: " + this.receiver);
-		System.out.println("sessionId: " + this.id);
+		System.out.println("sessionId: " + this.sessionId);
 		System.out.println("}");
 	}
 	
-	public String getId() {
-		return id;
+	public int getId() {
+		return sessionId;
 	}
 }

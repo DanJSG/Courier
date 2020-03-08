@@ -3,7 +3,8 @@ package com.jsg.courier.api.websocket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,30 +13,36 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.User;
+import com.jsg.courier.repositories.MessageRepositoryInterface;
 
-@Component
+@Service
 public class SocketHandler extends TextWebSocketHandler {
 	
-	private List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-	private List<String> sessionsIdList = new CopyOnWriteArrayList<>();
+	@Autowired
+	MessageRepositoryInterface repo;
+	
+	private static List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+	private static List<Integer> sessionsIdList = new CopyOnWriteArrayList<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		message.print();
+		repo.save(message);
 		broadcastMessage(message);
 	}
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
-		if(sessionsIdList.contains(headers[0])) {
+		if(sessionsIdList.contains(Integer.parseInt(headers[0]))) {
 			System.out.println("Already connected.");
 			return;
 		}
 		sessions.add(session);
-		sessionsIdList.add(headers[0]);
+		sessionsIdList.add(Integer.parseInt(headers[0]));
+		getChatHistory(session);
 		System.out.println("WebSocket connection established between server and session with details: " + headers[0] + ", " + headers[1]);
 		broadcastSessions();
 	}
@@ -44,7 +51,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
 		sessions.remove(session);
-		sessionsIdList.remove(headers[0]);
+		sessionsIdList.remove(Integer.parseInt(headers[0]));
 		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
@@ -54,7 +61,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		for(WebSocketSession session : sessions) {
 			String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
 			System.out.println("Session ID is: " + headers[0]);
-			if(headers[0].equals(message.getId())) {
+			if(Integer.parseInt(headers[0]) == message.getId()) {
 				System.out.println("Not sending to session: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
 				continue;
 			}
@@ -77,4 +84,12 @@ public class SocketHandler extends TextWebSocketHandler {
 			session.sendMessage(new TextMessage(json));
 		}
 	}
+	
+	private void getChatHistory(WebSocketSession session) throws Exception {
+		List<Message> messages = repo.findAll();
+		for(Message message : messages) {
+			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+		}
+	}
+	
 }
