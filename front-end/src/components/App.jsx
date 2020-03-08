@@ -69,12 +69,9 @@ class App extends React.Component {
   addWebSocketEventListeners() {
     this.state.wsConnection.addEventListener("open", () => {
       console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
-      console.log(this.state.wsConnection);
     });
     this.state.wsConnection.addEventListener("error", () => {
       alert("Failed to connect to chat room server.")
-      console.log("WebSocket connection failed.")
-      console.log(this.state.wsConnection);
     })
     this.state.wsConnection.addEventListener("message", (e) => {
       if(e.data.charAt(0) !== "`") {
