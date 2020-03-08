@@ -1,4 +1,4 @@
-package com.jsg.courier.wsendpoint;
+package com.jsg.courier.api.websocket;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -1,4 +1,4 @@
-package com.jsg.courier.wsendpoint;
+package com.jsg.courier.api.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
