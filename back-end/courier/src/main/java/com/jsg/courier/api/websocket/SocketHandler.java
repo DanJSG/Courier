@@ -1,4 +1,4 @@
-package com.jsg.courier.wsendpoint;
+package com.jsg.courier.api.websocket;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,11 +41,12 @@ public class SocketHandler extends TextWebSocketHandler {
 	}
 	
 	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
 		sessions.remove(session);
 		sessionsIdList.remove(headers[0]);
 		System.out.println("WebSocket connection closed.");
+		broadcastSessions();
 	}
 	
 	private void broadcastMessage(Message message) throws Exception {

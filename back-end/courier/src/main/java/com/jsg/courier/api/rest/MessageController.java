@@ -1,4 +1,4 @@
-package com.jsg.courier.api;
+package com.jsg.courier.api.rest;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
