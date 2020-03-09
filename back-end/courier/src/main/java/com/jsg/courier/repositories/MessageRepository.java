@@ -7,6 +7,8 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
 import com.mongodb.MongoClient;
@@ -41,19 +43,23 @@ public class MessageRepository implements CustomRepository<Message>{
 
 	@Override
 	public List<Message> findAll(String collectionName) throws Exception {
+		return findAll(collectionName, -1);
+	}
+
+	@Override
+	public List<Message> findAll(String collectionName, int limit) throws Exception {
 		MongoCollection<Document> collection = this.database.getCollection(collectionName);
-		FindIterable<Document> documents = collection.find().projection(Projections.excludeId());
+		FindIterable<Document> documents;
+		if(limit >= 0) {
+			documents = collection.find().projection(Projections.excludeId()).limit(limit);
+		} else {
+			documents = collection.find().projection(Projections.excludeId());
+		}
 		List<Message> results = new ArrayList<Message>();
 		for(Document document : documents) {
 			results.add(objectMapper.readValue(document.toJson(), Message.class));
 		}
 		return results;
-	}
-
-	@Override
-	public List<Message> findAll(String collectionName, int limit) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
