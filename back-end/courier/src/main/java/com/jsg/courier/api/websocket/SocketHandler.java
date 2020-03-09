@@ -13,23 +13,26 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.User;
+import com.jsg.courier.repositories.MessageRepository;
 import com.jsg.courier.repositories.MessageRepositoryInterface;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
 	
-	@Autowired
-	MessageRepositoryInterface repo;
+//	@Autowired
+//	MessageRepositoryInterface repo;
 	
 	private static List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 	private static List<Integer> sessionsIdList = new CopyOnWriteArrayList<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
+	private static MessageRepository customRepo = new MessageRepository();
+	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		message.print();
-		repo.save(message);
+		customRepo.save(message, "messages");
 		broadcastMessage(message);
 	}
 	
@@ -51,7 +54,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
 		sessions.remove(session);
-		sessionsIdList.remove(Integer.parseInt(headers[0]));
+		sessionsIdList.remove((Object)Integer.parseInt(headers[0]));
 		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
@@ -86,7 +89,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	}
 	
 	private void getChatHistory(WebSocketSession session) throws Exception {
-		List<Message> messages = repo.findAll();
+		List<Message> messages = customRepo.findAll("messages");
 		for(Message message : messages) {
 			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 		}

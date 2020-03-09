@@ -1,7 +1,5 @@
 package com.jsg.courier.datatypes;
 
-import java.util.Date;
-
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,7 +11,7 @@ public class Message {
 	private String messageText;
 	
 	@JsonProperty
-	private Date timestamp;
+	private String timestamp;
 	
 	@JsonProperty("id")
 	private int sessionId;
