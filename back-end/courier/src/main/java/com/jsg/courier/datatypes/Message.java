@@ -2,17 +2,17 @@ package com.jsg.courier.datatypes;
 
 import java.util.Date;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.jsg.courier.utilities.MongoDateDeserializer;
 
-@Document("messages")
 public class Message {
 	
 	@JsonProperty
 	private String messageText;
 	
 	@JsonProperty
+	@JsonDeserialize(using = MongoDateDeserializer.class)
 	private Date timestamp;
 	
 	@JsonProperty("id")

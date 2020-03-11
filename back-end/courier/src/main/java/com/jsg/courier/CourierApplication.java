@@ -10,5 +10,4 @@ public class CourierApplication {
 		SpringApplication.run(CourierApplication.class, args);
 		System.out.println("This application is now running...");
 	}
-
 }
