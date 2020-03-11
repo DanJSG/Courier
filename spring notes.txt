@@ -10,3 +10,13 @@ Spring notes:
 	
 		@Autowired
 		Repository repo;
+		
+		Getting started with Spring:
+
+	-> Initialise project at https://start.spring.io/
+	-> Extract files from Zip
+	-> In Eclipse, import an existing Maven project
+	-> Make sure to uncomment spring-boot-starter-data-jpa or errors will occur
+	-> Create a run configuration with the following:
+		- Base Directory: ${project_loc:<PROJECT NAME>}
+		- Goals: spring-boot:run
