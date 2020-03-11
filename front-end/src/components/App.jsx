@@ -78,6 +78,7 @@ class App extends React.Component {
         const receivedMessage = JSON.parse(e.data);
         console.log("Received message over websocket:")
         console.log(receivedMessage);
+        receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
         this.setState((prevState) => prevState.messages.push(receivedMessage));
         return;
       }
@@ -110,7 +111,6 @@ class App extends React.Component {
       sender: this.state.username,
       receiver: "ALL"
     }
-    console.log(JSON.stringify(message));
     this.setState((prevState) => prevState.messages.push(message));
     if(this.state.wsConnection) {
       this.state.wsConnection.send(JSON.stringify(message));
