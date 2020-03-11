@@ -76,9 +76,8 @@ class App extends React.Component {
     this.state.wsConnection.addEventListener("message", (e) => {
       if(e.data.charAt(0) !== "`") {
         const receivedMessage = JSON.parse(e.data);
+        console.log("Received message over websocket:")
         console.log(receivedMessage);
-        console.log(new Date(receivedMessage.timestamp));
-        // receivedMessage.timestamp = receivedMessage.timestamp.getUTCDateStringMilliseconds();
         this.setState((prevState) => prevState.messages.push(receivedMessage));
         return;
       }
@@ -104,7 +103,6 @@ class App extends React.Component {
     if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
       return "You are not connected to the chat room server.";
     }
-    const dateTime = new Date();
     const message = {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
