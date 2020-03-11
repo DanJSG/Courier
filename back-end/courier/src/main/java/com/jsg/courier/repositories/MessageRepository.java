@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -60,15 +61,23 @@ public class MessageRepository implements MongoRepository<Message>{
 	}
 
 	@Override
-	public List<Message> findAllWhere(String collectionName) {
-		// TODO Auto-generated method stub
-		return null;
+	public <V>List<Message> findAllWhereEquals(String field, V value, String collectionName) throws Exception {
+		BasicDBObject query = new BasicDBObject();
+		query.put(field, value);
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		FindIterable<Document> documents = collection.find(query);
+		List<Message> results = new ArrayList<Message>();
+		for(Document document : documents) {
+			results.add(objectMapper.readValue(document.toJson(), Message.class));
+		}
+		return results;
 	}
 
 	@Override
-	public int count(String collectionName) {
-		// TODO Auto-generated method stub
-		return 0;
+	public long count(String collectionName) {
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		long count = collection.countDocuments();
+		return count;
 	}
 
 	@Override
