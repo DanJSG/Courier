@@ -2,7 +2,7 @@ package com.jsg.courier.repositories;
 
 import java.util.List;
 
-public interface CustomRepository<T> {
+public interface MongoRepository<T> {
 	
 	public void createCollection(String name);
 	

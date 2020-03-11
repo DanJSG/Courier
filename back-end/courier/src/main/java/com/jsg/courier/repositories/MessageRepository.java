@@ -15,7 +15,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
 
 @Repository
-public class MessageRepository implements CustomRepository<Message>{
+public class MessageRepository implements MongoRepository<Message>{
 
 	private MongoClient connection;
 	private MongoDatabase database;
