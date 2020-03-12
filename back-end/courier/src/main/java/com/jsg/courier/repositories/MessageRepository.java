@@ -126,5 +126,10 @@ public class MessageRepository implements MongoRepository<Message>{
 		} 
 		return false;
 	}
+
+	@Override
+	public void closeConnection() throws Exception {
+		this.connection.close();
+	}
 	
 }

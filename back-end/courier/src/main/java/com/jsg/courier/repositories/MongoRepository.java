@@ -26,4 +26,6 @@ public interface MongoRepository<T> {
 	
 	public Boolean exists(String id, String collectionName) throws Exception;
 	
+	public void closeConnection() throws Exception;
+	
 }
