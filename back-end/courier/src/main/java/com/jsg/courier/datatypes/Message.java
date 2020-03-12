@@ -15,7 +15,7 @@ public class Message {
 	@JsonDeserialize(using = MongoDateDeserializer.class)
 	private Date timestamp;
 	
-	@JsonProperty("id")
+	@JsonProperty
 	private int sessionId;
 	
 	@JsonProperty
@@ -36,7 +36,7 @@ public class Message {
 		System.out.println("}");
 	}
 	
-	public int getId() {
+	public int getSessionId() {
 		return sessionId;
 	}
 }

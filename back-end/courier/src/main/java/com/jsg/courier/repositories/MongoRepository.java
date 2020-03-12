@@ -12,9 +12,9 @@ public interface MongoRepository<T> {
 	
 	public List<T> findAll(String collectionName, int limit) throws Exception;
 	
-	public List<T> findAllWhere(String collectionName) throws Exception;
+	public <V> List<T> findAllWhereEquals(String field, V value, String collectionName) throws Exception;
 	
-	public int count(String collectionName);
+	public long count(String collectionName);
 	
 	public void delete(T item, String collectionName) throws Exception;
 	
@@ -22,6 +22,8 @@ public interface MongoRepository<T> {
 	
 	public void deleteAll(String collectionName);
 	
-	public Boolean exists(T item, String collectionName);
+	public Boolean exists(T item, String collectionName) throws Exception;
+	
+	public Boolean exists(String id, String collectionName) throws Exception;
 	
 }

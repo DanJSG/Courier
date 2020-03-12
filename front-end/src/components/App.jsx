@@ -107,7 +107,7 @@ class App extends React.Component {
     const message = {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
-      id: this.state.sessionId,
+      sessionId: this.state.sessionId,
       sender: this.state.username,
       receiver: "ALL"
     }
