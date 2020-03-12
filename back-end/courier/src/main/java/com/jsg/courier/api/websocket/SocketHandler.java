@@ -59,7 +59,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		for(WebSocketSession session : sessions) {
 			String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
 			System.out.println("Session ID is: " + headers[0]);
-			if(Integer.parseInt(headers[0]) == message.getId()) {
+			if(Integer.parseInt(headers[0]) == message.getSessionId()) {
 				System.out.println("Not sending to session: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
 				continue;
 			}

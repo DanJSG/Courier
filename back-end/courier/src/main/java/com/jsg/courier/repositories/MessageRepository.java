@@ -50,7 +50,7 @@ public class MessageRepository implements MongoRepository<Message>{
 	public List<Message> findAll(String collectionName, int limit) throws Exception {
 		MongoCollection<Document> collection = this.database.getCollection(collectionName);
 		FindIterable<Document> documents;
-		if(limit >= 0) {
+		if(limit > 0) {
 			documents = collection.find().projection(Projections.excludeId()).limit(limit);
 		} else {
 			documents = collection.find().projection(Projections.excludeId());
