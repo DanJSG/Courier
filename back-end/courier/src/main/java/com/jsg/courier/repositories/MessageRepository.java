@@ -3,7 +3,9 @@ package com.jsg.courier.repositories;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.BSONObject;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,27 +83,48 @@ public class MessageRepository implements MongoRepository<Message>{
 	}
 
 	@Override
-	public void delete(Message item, String collectionName) {
-		// TODO Auto-generated method stub
-		
+	public void delete(Message item, String collectionName) throws Exception {
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		BasicDBObject query = new BasicDBObject();
+		query.putAll((BSONObject) BasicDBObject.parse(objectMapper.writeValueAsString(item)));
+		collection.deleteOne(query);
 	}
 
 	@Override
 	public void delete(String id, String collectionName) {
-		// TODO Auto-generated method stub
-		
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(id));
+		collection.deleteOne(query);
 	}
 
 	@Override
 	public void deleteAll(String collectionName) {
-		// TODO Auto-generated method stub
-		
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		BasicDBObject query = new BasicDBObject();
+		collection.deleteMany(query);
 	}
 
 	@Override
-	public Boolean exists(Message item, String collectionName) {
-		// TODO Auto-generated method stub
-		return null;
+	public Boolean exists(Message item, String collectionName) throws Exception {
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		BasicDBObject query = new BasicDBObject();
+		query.putAll((BSONObject) BasicDBObject.parse(objectMapper.writeValueAsString(item)));
+		if(collection.countDocuments(query) > 0) {
+			return true;
+		} 
+		return false;
+	}
+
+	@Override
+	public Boolean exists(String id, String collectionName) throws Exception {
+		MongoCollection<Document> collection = this.database.getCollection(collectionName);
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(id));
+		if(collection.countDocuments(query) > 0) {
+			return true;
+		} 
+		return false;
 	}
 	
 }

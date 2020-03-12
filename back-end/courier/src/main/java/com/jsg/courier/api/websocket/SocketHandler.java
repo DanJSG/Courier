@@ -21,13 +21,13 @@ public class SocketHandler extends TextWebSocketHandler {
 	private static List<Integer> sessionsIdList = new CopyOnWriteArrayList<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
-	private static MessageRepository customRepo = new MessageRepository();
+	private static MessageRepository repo = new MessageRepository();
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		message.print();
-		customRepo.save(message, "messages");
+		repo.save(message, "messages");
 		broadcastMessage(message);
 	}
 	
@@ -84,7 +84,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	}
 	
 	private void getChatHistory(WebSocketSession session) throws Exception {
-		List<Message> messages = customRepo.findAll("messages");
+		List<Message> messages = repo.findAll("messages");
 		for(Message message : messages) {
 			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 		}
