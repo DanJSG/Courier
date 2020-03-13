@@ -24,7 +24,7 @@ public class Message {
 	@JsonProperty
 	private String receiver;
 	
-	public Message() {};
+	public Message() {}
 	
 	public void print() {
 		System.out.println("{");

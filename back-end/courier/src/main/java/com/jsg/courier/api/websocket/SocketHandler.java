@@ -1,7 +1,7 @@
 package com.jsg.courier.api.websocket;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -12,13 +12,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.repositories.MessageRepository;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
-	
-	private static List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-	private static List<Integer> sessionsIdList = new CopyOnWriteArrayList<>();
+		
+	private static ConcurrentHashMap<Integer, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 		
 	@Override
@@ -33,52 +33,56 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
-		if(sessionsIdList.contains(Integer.parseInt(headers[0]))) {
-			System.out.println("Already connected.");
-			return;
-		}
-		sessions.add(session);
-		sessionsIdList.add(Integer.parseInt(headers[0]));
+		WebSocketHeaders headers = new WebSocketHeaders(session);	
+		if(sessions.containsKey(headers.getSessionId()));
+		sessions.put(headers.getSessionId(), session);
 		getChatHistory(session);
-		System.out.println("WebSocket connection established between server and session with details: " + headers[0] + ", " + headers[1]);
+		System.out.println("WebSocket connection established between server and session with details: " + headers.getSessionId() + ", " + headers.getUsername());
 		broadcastSessions();
 	}
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
-		sessions.remove(session);
-		sessionsIdList.remove((Object)Integer.parseInt(headers[0]));
+		WebSocketHeaders headers = new WebSocketHeaders(session);
+		if(sessions.remove(headers.getSessionId()) == null) {
+			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + headers.getSessionId());
+			return;
+		};
 		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
 	
 	private void broadcastMessage(Message message) throws Exception {
 		System.out.println("(broadcast)Session size is: " + sessions.size());
-		for(WebSocketSession session : sessions) {
-			String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
-			System.out.println("Session ID is: " + headers[0]);
-			if(Integer.parseInt(headers[0]) == message.getSessionId()) {
-				System.out.println("Not sending to session: " + session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
-				continue;
+		sessions.forEach((sessionId, session) -> {
+			if(sessionId == message.getSessionId()) {
+				System.out.println("Not sending to session: " + sessionId);
+				// this works similarly to continue in a foreach lambda function
+				return;
 			}
-			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-		}
+			try {
+				session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+		});
 	}
 	
 	private void broadcastSessions() throws Exception {
 		String json = "`[";
-		for(int i=0; i<sessions.size(); i++) {
-			String[] headers = sessions.get(i).getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");		
-			json += (new TextMessage(objectMapper.writeValueAsString(new User(headers[0], headers[1])))).getPayload();
+		int i = 0;
+		for(WebSocketSession session : sessions.values()) {
+			WebSocketHeaders headers = new WebSocketHeaders(session);
+			json += (new TextMessage(objectMapper.writeValueAsString(new User(headers.getSessionId(), headers.getUsername())))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
 			}
+			i++;
 		}
 		json += "]";
 		System.out.println(json);
-		for(WebSocketSession session : sessions) {
+		for(WebSocketSession session : sessions.values()) {
 			session.sendMessage(new TextMessage(json));
 		}
 	}
