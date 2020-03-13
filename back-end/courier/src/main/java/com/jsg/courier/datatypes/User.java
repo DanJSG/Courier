@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class User {
 	
 	@JsonProperty
-	private String sessionId;
+	private int sessionId;
 	
 	@JsonProperty
 	private String username;
 	
-	public User() {};
+	public User() {}
 	
-	public User(String sessionId, String username) {
+	public User(int sessionId, String username) {
 		this.sessionId = sessionId;
 		this.username = username;
 	}
