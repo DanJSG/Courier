@@ -28,6 +28,4 @@ public class WebSocketHeaders {
 		return this.username;
 	}
 	
-	
-	
 }

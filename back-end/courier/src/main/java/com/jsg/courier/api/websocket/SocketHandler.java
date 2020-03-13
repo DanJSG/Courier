@@ -34,7 +34,10 @@ public class SocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		WebSocketHeaders headers = new WebSocketHeaders(session);	
-		if(sessions.containsKey(headers.getSessionId()));
+		if(sessions.containsKey(headers.getSessionId())) {
+			System.out.println("WebSocket connection already exists between server and session: " + headers.getSessionId());
+			return;
+		}
 		sessions.put(headers.getSessionId(), session);
 		getChatHistory(session);
 		System.out.println("WebSocket connection established between server and session with details: " + headers.getSessionId() + ", " + headers.getUsername());
