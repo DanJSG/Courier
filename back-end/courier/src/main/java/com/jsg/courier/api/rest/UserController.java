@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jsg.courier.datatypes.User;
-import com.jsg.courier.repositories.UserRepository;
+import com.jsg.courier.repositories.UserRepositoryOld;
 
 @RestController
 @RequestMapping("/api/account")
@@ -23,7 +23,7 @@ public class UserController {
 	public @ResponseBody String createAccount(@RequestBody Map<String, String> email) throws Exception {
 		System.out.println(email.get("email"));
 		User user = new User(email.get("email"));
-		UserRepository repo = new UserRepository();
+		UserRepositoryOld repo = new UserRepositoryOld();
 		String response = repo.save(user);
 		System.out.println(user.getId());
 		return response;

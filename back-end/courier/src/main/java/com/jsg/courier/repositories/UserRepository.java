@@ -1,53 +1,59 @@
 package com.jsg.courier.repositories;
 
-import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Statement;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.jsg.courier.datatypes.JSONResponse;
 import com.jsg.courier.datatypes.User;
 
-public class UserRepository {
+public class UserRepository extends MySQLRepository implements SQLRepository<User> {
 	
-	Connection connection;
-	
-	public UserRepository() throws Exception {
-		Properties properties = new Properties();
-		properties.put("user", "localDev");
-		properties.put("password", "l0c4l_d3v!");
-		connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/courier", properties);
+	public UserRepository() {
+		this.tableName = "users.accounts";
 	}
 	
-	public String save(User user) throws Exception {
-		Statement statement = connection.createStatement();
-		String queryTemplate = "INSERT INTO `users.accounts` (email) VALUES (\"%s\");";
-		String query = String.format(queryTemplate, user.getEmail());
-//		String query = "INSERT INTO `users.accounts` (email) VALUES (\"" + user.getEmail() + "\")";
+	@Override
+	public Boolean save(User item) {
 		try {
-			statement.execute(query);
-		} catch (SQLIntegrityConstraintViolationException e) {
-			// TODO determine own response code to include here
-			return new JSONResponse(e.getErrorCode(),
-					"Could not create new user. An account with that email address already exists.").toString();
+			super.save("email", item.getEmail());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		user.setId(((BigInteger) find("id", user.getEmail())).longValue());
-		return new JSONResponse(200, "Created new user with email address " + user.getEmail() + ".").toString();
 	}
-	
-	// TODO FIX THIS MESS OF A FUNCTION --> THE GENERICS ARE ALL WRONG AND ITS NOT A GENERAL PURPOSE FUNCTION
-	public <V> Object find(String columnName, V value) throws Exception {
-		Statement statement = connection.createStatement();
-		String queryTemplate = "SELECT id FROM `users.accounts` WHERE email=\"%s\" LIMIT 1;";
-		String query = String.format(queryTemplate, value);
-		ResultSet results = statement.executeQuery(query);
-		while(results.next()) {
-			return results.getObject(columnName);
+
+	@Override
+	public <V> List<User> findWhereEqual(String searchColumn, V value) {
+		return findWhereEqual(searchColumn, value, null, 0);
+	}
+
+	@Override
+	public <V> List<User> findWhereEqual(String searchColumn, V value, int limit) {
+		return findWhereEqual(searchColumn, value, null, limit);
+	}
+
+	@Override
+	public <V> List<User> findWhereEqual(String searchColumn, V value, String resultColumn) {
+		return findWhereEqual(searchColumn, value, resultColumn, 0);
+	}
+
+	@Override
+	public <V> List<User> findWhereEqual(String searchColumn, V value, String resultColumn, int limit) {
+		try {
+			ResultSet results = super.findWhereEquals(searchColumn, value, resultColumn, limit);
+			ArrayList<User> users = new ArrayList<User>();
+			while(results.next()) {
+				users.add(new User(results.getString("email"), results.getLong("id")));
+			}
+			if(users.size() == 0) {
+				throw new Error();
+			}
+			return users;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		return -1;
 	}
 	
 }

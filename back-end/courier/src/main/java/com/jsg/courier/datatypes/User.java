@@ -14,6 +14,11 @@ public class User {
 		this.email = email;
 	}
 	
+	public User(String email, long id) {
+		this.email = email;
+		this.id = id;
+	}
+	
 	public String getEmail() {
 		return this.email;
 	}
@@ -22,8 +27,8 @@ public class User {
 		return this.id;
 	}
 	
-	public void setId(long id) {
-		this.id = id;
-	}
+//	public void setId(long id) {
+//		this.id = id;
+//	}
 	
 }
