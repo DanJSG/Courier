@@ -10,8 +10,11 @@ public class User {
 	@JsonProperty
 	private String email;
 	
+	public User() {}
+	
 	public User(String email) {
 		this.email = email;
+		this.id = -1;
 	}
 	
 	public User(String email, long id) {
