@@ -5,16 +5,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class User {
 	
 	@JsonProperty
-	private int sessionId;
+	private long id;
 	
 	@JsonProperty
-	private String username;
+	private String email;
 	
-	public User() {}
+	public User(String email) {
+		this.email = email;
+	}
 	
-	public User(int sessionId, String username) {
-		this.sessionId = sessionId;
-		this.username = username;
+	public String getEmail() {
+		return this.email;
+	}
+	
+	public long getId() {
+		return this.id;
+	}
+	
+	public void setId(long id) {
+		this.id = id;
 	}
 	
 }
