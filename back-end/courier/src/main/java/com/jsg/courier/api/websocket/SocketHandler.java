@@ -11,7 +11,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Message;
-import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.repositories.MessageRepository;
 
@@ -77,7 +76,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		int i = 0;
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
-			json += (new TextMessage(objectMapper.writeValueAsString(new User(headers.getUsername())))).getPayload();
+//			json += (new TextMessage(objectMapper.writeValueAsString(new User(headers.getUsername())))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
 			}

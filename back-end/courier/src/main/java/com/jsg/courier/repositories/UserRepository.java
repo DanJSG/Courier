@@ -2,7 +2,9 @@ package com.jsg.courier.repositories;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jsg.courier.datatypes.User;
 
@@ -15,8 +17,12 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 	
 	@Override
 	public Boolean save(User item) {
+		Map<String, Object> valueMap = new HashMap<>();
+		valueMap.put("email", item.getEmail());
+		valueMap.put("password", item.getPassword());
+		valueMap.put("salt", item.getSalt());
 		try {
-			super.save("email", "\"" + item.getEmail() + "\"");
+			super.save(valueMap);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -36,7 +42,8 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 			ResultSet results = super.findWhereEquals(searchColumn, value, "*", limit);
 			ArrayList<User> users = new ArrayList<User>();
 			while(results.next()) {
-				users.add(new User(results.getString("email"), results.getLong("id")));
+				users.add(new User(results.getString("email"), results.getString("password"),
+						results.getString("salt"), results.getLong("id")));
 			}
 			if(users.size() == 0) {
 				throw new Error();

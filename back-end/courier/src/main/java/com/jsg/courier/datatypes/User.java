@@ -10,15 +10,24 @@ public class User {
 	@JsonProperty
 	private String email;
 	
+	@JsonProperty
+	private String password;
+	
+	@JsonProperty
+	private String salt;
+	
 	public User() {}
 	
-	public User(String email) {
+	public User(String email, String password, String salt) {
 		this.email = email;
-		this.id = -1;
+		this.password = password;
+		this.salt = salt;
 	}
 	
-	public User(String email, long id) {
+	public User(String email, String password, String salt, long id) {
 		this.email = email;
+		this.password = password;
+		this.salt = salt;
 		this.id = id;
 	}
 	
@@ -30,8 +39,12 @@ public class User {
 		return this.id;
 	}
 	
-//	public void setId(long id) {
-//		this.id = id;
-//	}
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public String getSalt() {
+		return this.salt;
+	}
 	
 }
