@@ -26,6 +26,9 @@ CREATE TABLE `users.accounts` (
   `id` bigint(12) unsigned zerofill NOT NULL AUTO_INCREMENT,
   `email` varchar(254) NOT NULL,
   `datecreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `password` binary(60) NOT NULL,
+  `salt` binary(29) NOT NULL,
+  `datechanged` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idusers.account_UNIQUE` (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)
@@ -62,22 +65,6 @@ CREATE TABLE `users.links` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `users.passwords`
---
-
-DROP TABLE IF EXISTS `users.passwords`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users.passwords` (
-  `id` bigint(12) unsigned zerofill NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `salt` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -88,4 +75,4 @@ CREATE TABLE `users.passwords` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-13 22:13:01
+-- Dump completed on 2020-03-15  2:30:58
