@@ -44,7 +44,6 @@ class App extends React.Component {
   handleConnect(e) {
     e.preventDefault();
     const username = e.target.elements.username.value.trim();
-    console.log(username);
     if(!username) {
       // TODO pass error back to ChatInfo component
       console.log("No username provided.");
@@ -84,7 +83,6 @@ class App extends React.Component {
         return;
       }
       const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
-      console.log(chatMembers);
       this.setState((prevState) => {
         return {
           currentChat: {
