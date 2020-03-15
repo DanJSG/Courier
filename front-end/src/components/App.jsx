@@ -1,129 +1,37 @@
 import React from 'react';
-import MessageList from './MessageList';
-import ChatList from './ChatList';
-import ChatInfo from './ChatInfo';
-import './utilities';
-import '../css/App.css';
+import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom'
+import MainPage from './MainPage';
+import SignUpPage from './SignUpPage';
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this.handleSendMessage = this.handleSendMessage.bind(this);
-    this.handleConnect = this.handleConnect.bind(this);
-    this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
+    this.updateAuthorization = this.updateAuthorization.bind(this);
     this.state = {
-      messages: [],
-      wsConnection: null,
-      username: null,
-      sessionId: null,
-      loadTime: null,
-      seed: null,
-      currentChat: {
-        name: "Chat Room",
-        members: []
-      },
-      chats: [],
+      authorized: this.checkAuthorization()
     }
   }
 
-  componentDidMount() {
-    console.log("Component mounted.");
-    this.setState({
-      loadTime: new Date().toTimeString(),
-      seed: Math.random() * 100
-    });
+  checkAuthorization() {
+    if(localStorage.getItem("loggedIn") === "true") {
+      return true;
+    }
+    return false;
   }
 
-  componentWillUnmount() {
-    if(this.state.wsConnection) {
-      this.state.wsConnection.close();
-    }
-  }
-
-  handleConnect(e) {
-    e.preventDefault();
-    const username = e.target.elements.username.value.trim();
-    if(!username) {
-      // TODO pass error back to ChatInfo component
-      console.log("No username provided.");
-      return "No username provided.";
-    }
-    if(username.containsDisallowedChars("[,\t\r\n ]")) {
-      console.log("Cannpt contain whitespace or commas.");
-      return "Cannot contain commas.";
-    }
-    const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode();
-    if(this.state.wsConnection && this.state.username !== username) {
-      this.state.wsConnection.close();
-    }
-    this.setState((prevState) => {return {
-      wsConnection: new WebSocket("ws://localhost:8080/api/ws", [sessionId, username]),
-      username: username,
-      sessionId: sessionId
-    }},
-      () => this.addWebSocketEventListeners()
-    );
-  }
-
-  addWebSocketEventListeners() {
-    this.state.wsConnection.addEventListener("open", () => {
-      console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
-    });
-    this.state.wsConnection.addEventListener("error", () => {
-      alert("Failed to connect to chat room server.")
-    })
-    this.state.wsConnection.addEventListener("message", (e) => {
-      if(e.data.charAt(0) !== "`") {
-        const receivedMessage = JSON.parse(e.data);
-        console.log("Received message over websocket:")
-        console.log(receivedMessage);
-        receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
-        this.setState((prevState) => prevState.messages.push(receivedMessage));
-        return;
-      }
-      const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
-      this.setState((prevState) => {
-        return {
-          currentChat: {
-            name: prevState.currentChat.name,
-            members: chatMembers
-          }
-        }
-      }) 
-    });
-  }
-
-  handleSendMessage(messageText) {
-    if(!messageText) {
-      return "You must enter a message to send.";
-    }
-    if(!this.state.username || !this.state.sessionId) {
-      return "You must enter a username to start sending messages.";
-    }
-    if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
-      return "You are not connected to the chat room server.";
-    }
-    const message = {
-      messageText: messageText,
-      timestamp: new Date().toUTCString(),
-      sessionId: this.state.sessionId,
-      sender: this.state.username,
-      receiver: "ALL"
-    }
-    this.setState((prevState) => prevState.messages.push(message));
-    if(this.state.wsConnection) {
-      this.state.wsConnection.send(JSON.stringify(message));
-    }
+  updateAuthorization(bool) {
+    localStorage.setItem("loggedIn", `${bool}`);
+    this.setState({authorized: bool});
   }
 
   render() {
-    return (
-      <div className="container">
-        <ChatList chats={this.state.chats}></ChatList>
-        <MessageList handleSendMessage={this.handleSendMessage} messages={this.state.messages}></MessageList>
-        <ChatInfo handleConnect={this.handleConnect} currentChat={this.state.currentChat} chat={this.state.chats[0]} handleUsernameChange={this.handleUsernameChange}></ChatInfo>
-      </div>
+
+    console.log("Authorization: " + this.checkAuthorization());
+    console.log("In App: " + localStorage.getItem("loggedIn"));
+
+    return(
+      this.state.authorized ? <MainPage updateAuthorization={this.updateAuthorization}/> : <SignUpPage updateAuthorization={this.updateAuthorization}/>
     );
   }
 

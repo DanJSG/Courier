@@ -3,7 +3,9 @@ package com.jsg.courier.api.rest;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,24 +20,27 @@ import com.jsg.courier.datatypes.UserInfo;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.repositories.UserRepository;
+import com.mongodb.util.JSON;
 
 import org.mindrot.jbcrypt.BCrypt;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/account")
 public class UserController {
 	
-	@CrossOrigin(origins = "*")
+	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody String createAccount(@RequestBody Map<String, String> userDetails) throws Exception {
+	public @ResponseBody ResponseEntity createAccount(@RequestBody Map<String, String> userDetails) throws Exception {
 		User user = createUser(userDetails);
 		if(user == null) {
-			return new JSONResponse(500, "Failed to create user. An account with this email address already exists.").toString();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create new user.");
+//			return new JSONResponse(500, "Failed to create user. An account with this email address already exists.").toString();
 		}
 		UserInfo userInfo = createUserInfo(user);
 		if(userInfo == null) {
-			return new JSONResponse(500, "Failed to create user. Duplicate user ID in user information table.")
-			.toString();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user info.");
+//			return new JSONResponse(500, "Failed to create user. Duplicate user ID in user information table.").toString();
 		}
 		System.out.println(user.getEmail());
 		System.out.println(user.getId());
@@ -45,12 +50,13 @@ public class UserController {
 		System.out.println(userInfo.getBio());
 		System.out.println(userInfo.getId());
 		user.clearPassword();
-		return new JSONResponse(200, 
-				"Successfully created new user with email address: " + user.getEmail() + " and User ID: " + user.getId() + ".")
-				.toString();
+		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
+//		return new JSONResponse(200, 
+//				"Successfully created new user with email address: " + user.getEmail() + " and User ID: " + user.getId() + ".")
+//				.toString();
 	}
 	
-	@CrossOrigin(origins = "*")
+	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String login(@RequestBody Map<String, String> userLogin) throws Exception {
 		UserRepository userRepo = new UserRepository();
