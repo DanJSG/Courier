@@ -47,4 +47,9 @@ public class User {
 		return this.salt;
 	}
 	
+	public void clearPassword() {
+		this.password = null;
+		this.salt = null;
+	}
+	
 }

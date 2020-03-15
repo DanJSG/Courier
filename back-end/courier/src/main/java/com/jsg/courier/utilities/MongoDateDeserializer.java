@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class MongoDateDeserializer extends JsonDeserializer<Date> {
+public final class MongoDateDeserializer extends JsonDeserializer<Date> {
 	
     private static final SimpleDateFormat jsDateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
 	
