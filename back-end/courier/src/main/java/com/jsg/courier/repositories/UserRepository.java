@@ -46,7 +46,7 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 						results.getString("salt"), results.getLong("id")));
 			}
 			if(users.size() == 0) {
-				throw new Error();
+				return null;
 			}
 			return users;
 		} catch (Exception e) {

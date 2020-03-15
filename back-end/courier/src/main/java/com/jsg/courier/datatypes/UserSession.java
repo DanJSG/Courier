@@ -1,5 +1,7 @@
 package com.jsg.courier.datatypes;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserSession {
@@ -8,16 +10,18 @@ public class UserSession {
 	private long id;
 	
 	@JsonProperty
-	private int sessionId;
+	private UUID sessionId;
 	
 	@JsonProperty
 	private String token;
 	
 	public UserSession() {}
 	
-	public UserSession(int sessionId, String token) {
-		this.sessionId = sessionId;
-		this.token = token;
+	public UserSession(long id, String token) {
+		this.id = id;
+		this.sessionId = UUID.randomUUID();
+		System.out.println(this.sessionId);
+		this.token = "TOKEN GOES HERE";
 	}
 	
 }

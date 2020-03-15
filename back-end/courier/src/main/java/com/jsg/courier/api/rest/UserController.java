@@ -1,5 +1,6 @@
 package com.jsg.courier.api.rest;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.JSONResponse;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserInfo;
+import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.repositories.UserRepository;
 
@@ -41,9 +44,29 @@ public class UserController {
 		System.out.println(userInfo.getDisplayName());
 		System.out.println(userInfo.getBio());
 		System.out.println(userInfo.getId());
+		user.clearPassword();
 		return new JSONResponse(200, 
 				"Successfully created new user with email address: " + user.getEmail() + " and User ID: " + user.getId() + ".")
 				.toString();
+	}
+	
+	@CrossOrigin(origins = "*")
+	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody String login(@RequestBody Map<String, String> userLogin) throws Exception {
+		UserRepository userRepo = new UserRepository();
+		List<User> results = userRepo.findWhereEqual("email", userLogin.get("email"), 1);
+		if(results == null) {
+			return "User not found";
+		}
+		User user = results.get(0);
+		if(!BCrypt.checkpw(userLogin.get("password"), user.getPassword())) {
+			return "Login failed.";
+		}
+		user.clearPassword();
+		UserSession session = new UserSession(user.getId(), user.getEmail());
+		ObjectMapper objectMapper = new ObjectMapper();
+		String jsonOutput = objectMapper.writeValueAsString(session);
+		return jsonOutput;
 	}
 	
 	private User createUser(Map<String, String> userDetails) throws Exception {
