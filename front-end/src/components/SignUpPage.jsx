@@ -48,7 +48,9 @@ class SignUpPage extends React.Component {
                 this.setState({error: xhr.responseText});
                 return;
             }
-            console.log(JSON.parse(xhr.responseText));
+            const userSession = JSON.parse(xhr.responseText);
+            console.log(userSession);
+            this.props.updateUser(userSession.token, userSession.sessionId);
             this.props.updateAuthorization(true);
         });
         xhr.open("POST", "http://localhost:8080/api/account/login");

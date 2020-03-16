@@ -1,5 +1,7 @@
 package com.jsg.courier.datatypes;
 
+import java.util.UUID;
+
 import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,17 +12,17 @@ public class WebSocketHeaders {
 	private String username;
 	
 	@JsonProperty
-	private int sessionId;
+	private UUID sessionId;
 
 	public WebSocketHeaders() {}
 	
 	public WebSocketHeaders(WebSocketSession session) {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
-		this.sessionId = Integer.parseInt(headers[0]);
+		this.sessionId = UUID.fromString(headers[0]);
 		this.username = headers[1];
 	}
 	
-	public int getSessionId() {
+	public UUID getSessionId() {
 		return this.sessionId;
 	}
 

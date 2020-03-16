@@ -8,8 +8,11 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.updateAuthorization = this.updateAuthorization.bind(this);
+    this.updateUser = this.updateUser.bind(this);
     this.state = {
-      authorized: this.checkAuthorization()
+      authorized: this.checkAuthorization(),
+      email: null,
+      sessionId: null
     }
   }
 
@@ -21,8 +24,21 @@ class App extends React.Component {
   }
 
   updateAuthorization(bool) {
-    localStorage.setItem("loggedIn", `${bool}`);
     this.setState({authorized: bool});
+    localStorage.setItem("loggedIn", `${bool}`);
+  }
+
+  updateUser(email, sessionId) {
+    this.setState({
+      email: email,
+      sessionId: sessionId
+    });
+    localStorage.setItem("email", `${email}`);
+    localStorage.setItem("sessionId", `${sessionId}`);
+  }
+
+  componentWillUnmount() {
+    localStorage.clear();
   }
 
   render() {
@@ -31,7 +47,16 @@ class App extends React.Component {
     console.log("In App: " + localStorage.getItem("loggedIn"));
 
     return(
-      this.state.authorized ? <MainPage updateAuthorization={this.updateAuthorization}/> : <SignUpPage updateAuthorization={this.updateAuthorization}/>
+      this.state.authorized ? 
+      <MainPage updateAuthorization={this.updateAuthorization}
+                updateUser={this.updateUser}
+                email={this.state.email}
+                sessionId={this.state.sessionId}/>
+      :
+      <SignUpPage updateAuthorization={this.updateAuthorization}
+                  updateUser={this.updateUser}
+                  email={this.state.email}
+                  sessionId={this.state.sessionId}/>
     );
   }
 

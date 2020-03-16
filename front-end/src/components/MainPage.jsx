@@ -16,10 +16,6 @@ class MainPage extends React.Component {
     this.state = {
       messages: [],
       wsConnection: null,
-      username: null,
-      sessionId: null,
-      loadTime: null,
-      seed: null,
       currentChat: {
         name: "Chat Room",
         members: []
@@ -29,11 +25,8 @@ class MainPage extends React.Component {
   }
 
   componentDidMount() {
+    this.handleConnect();
     console.log("Component mounted.");
-    this.setState({
-      loadTime: new Date().toTimeString(),
-      seed: Math.random() * 100
-    });
   }
 
   componentWillUnmount() {
@@ -42,34 +35,16 @@ class MainPage extends React.Component {
     }
   }
 
-  handleConnect(e) {
-    e.preventDefault();
-    const username = e.target.elements.username.value.trim();
-    if(!username) {
-      // TODO pass error back to ChatInfo component
-      console.log("No username provided.");
-      return "No username provided.";
-    }
-    if(username.containsDisallowedChars("[,\t\r\n ]")) {
-      console.log("Cannpt contain whitespace or commas.");
-      return "Cannot contain commas.";
-    }
-    const sessionId = (username + this.state.loadTime + this.state.seed + navigator.userAgent).hashCode();
-    if(this.state.wsConnection && this.state.username !== username) {
-      this.state.wsConnection.close();
-    }
-    this.setState((prevState) => {return {
-      wsConnection: new WebSocket("ws://localhost:8080/api/ws", [sessionId, username]),
-      username: username,
-      sessionId: sessionId
-    }},
-      () => this.addWebSocketEventListeners()
-    );
+  handleConnect() {
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.sessionId, this.props.email])}, () => {
+      this.addWebSocketEventListeners();
+    });
   }
 
   addWebSocketEventListeners() {
+    console.log(this.state.wsConnection);
     this.state.wsConnection.addEventListener("open", () => {
-      console.log(`Connection opened with protocol identifier ${this.state.sessionId}`);
+      console.log(`Connection opened with protocol identifier ${this.props.sessionId}`);
     });
     this.state.wsConnection.addEventListener("error", () => {
       alert("Failed to connect to chat room server.")
@@ -84,6 +59,7 @@ class MainPage extends React.Component {
         return;
       }
       const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
+      console.log(chatMembers);
       this.setState((prevState) => {
         return {
           currentChat: {
@@ -99,8 +75,8 @@ class MainPage extends React.Component {
     if(!messageText) {
       return "You must enter a message to send.";
     }
-    if(!this.state.username || !this.state.sessionId) {
-      return "You must enter a username to start sending messages.";
+    if(!this.props.email || !this.props.sessionId) {
+      return "You must enter a email to start sending messages.";
     }
     if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
       return "You are not connected to the chat room server.";
@@ -108,8 +84,8 @@ class MainPage extends React.Component {
     const message = {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
-      sessionId: this.state.sessionId,
-      sender: this.state.username,
+      sessionId: this.props.sessionId,
+      sender: this.props.email,
       receiver: "ALL"
     }
     this.setState((prevState) => prevState.messages.push(message));
@@ -129,7 +105,7 @@ class MainPage extends React.Component {
         <div className="container">
           <ChatList chats={this.state.chats}></ChatList>
           <MessageList handleSendMessage={this.handleSendMessage} messages={this.state.messages}></MessageList>
-          <ChatInfo handleConnect={this.handleConnect} currentChat={this.state.currentChat} chat={this.state.chats[0]} handleUsernameChange={this.handleUsernameChange}></ChatInfo>
+          <ChatInfo currentChat={this.state.currentChat}></ChatInfo>
         </div>
         <footer className="footer">
           <button onClick={this.logOut} style={{width: "20%", justifyContent: "middle"}}>Log Out</button>
@@ -137,7 +113,6 @@ class MainPage extends React.Component {
       </React.Fragment>
     );
   }
-
 }
 
 export default MainPage;

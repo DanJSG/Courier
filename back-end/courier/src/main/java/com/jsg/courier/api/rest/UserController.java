@@ -3,6 +3,7 @@ package com.jsg.courier.api.rest;
 import java.util.List;
 import java.util.Map;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.datatypes.JSONResponse;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserInfo;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.repositories.UserRepository;
-import com.mongodb.util.JSON;
-
-import org.mindrot.jbcrypt.BCrypt;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
