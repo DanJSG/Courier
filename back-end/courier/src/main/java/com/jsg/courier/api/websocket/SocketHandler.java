@@ -1,6 +1,7 @@
 package com.jsg.courier.api.websocket;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import com.jsg.courier.repositories.MessageRepository;
 @Service
 public class SocketHandler extends TextWebSocketHandler {
 		
-	private static ConcurrentHashMap<Integer, WebSocketSession> sessions = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 		
 	@Override
@@ -58,7 +59,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	private void broadcastMessage(Message message) throws Exception {
 		System.out.println("(broadcast)Session size is: " + sessions.size());
 		sessions.forEach((sessionId, session) -> {
-			if(sessionId == message.getSessionId()) {
+			if(sessionId.equals(message.getSessionId())) {
 				System.out.println("Not sending to session: " + sessionId);
 				// this works similarly to continue in a foreach lambda function
 				return;

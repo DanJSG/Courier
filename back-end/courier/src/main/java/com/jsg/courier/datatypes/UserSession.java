@@ -21,7 +21,13 @@ public class UserSession {
 		this.id = id;
 		this.sessionId = UUID.randomUUID();
 		System.out.println(this.sessionId);
-		this.token = "TOKEN GOES HERE";
+		this.token = "TOKEN";
+	}
+	
+	public UserSession(UUID sessionId, String token) {
+		this.sessionId = UUID.randomUUID();
+		System.out.println(this.sessionId);
+		this.token = "TOKEN";
 	}
 	
 }

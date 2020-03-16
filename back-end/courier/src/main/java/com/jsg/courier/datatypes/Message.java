@@ -1,6 +1,7 @@
 package com.jsg.courier.datatypes;
 
 import java.util.Date;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -16,7 +17,7 @@ public class Message {
 	private Date timestamp;
 	
 	@JsonProperty
-	private int sessionId;
+	private UUID sessionId;
 	
 	@JsonProperty
 	private String sender;
@@ -36,7 +37,7 @@ public class Message {
 		System.out.println("}");
 	}
 	
-	public int getSessionId() {
+	public UUID getSessionId() {
 		return sessionId;
 	}
 }

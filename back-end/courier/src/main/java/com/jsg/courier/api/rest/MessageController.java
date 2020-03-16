@@ -1,5 +1,8 @@
 package com.jsg.courier.api.rest;
 
+import java.util.Map;
+
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,11 +16,10 @@ import com.jsg.courier.datatypes.Message;
 @RequestMapping("/api")
 public class MessageController {
 	
+	@PostMapping(value = "/send", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@CrossOrigin(origins = "http://localhost:3000")
-	@PostMapping("/send")
-	public void sendMessage(@RequestBody Message message, @RequestHeader String token) {
+	public void sendMessage(@RequestBody Map<String, String> body) {
 		System.out.println("Message received!");
-		System.out.println(token);
-		message.print();
+		System.out.println(body.get("email"));
 	}	
 }
