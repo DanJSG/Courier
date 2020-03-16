@@ -11,8 +11,8 @@ class App extends React.Component {
     this.updateUser = this.updateUser.bind(this);
     this.state = {
       authorized: this.checkAuthorization(),
-      email: null,
-      sessionId: null
+      email: localStorage.getItem("email"),
+      sessionId: localStorage.getItem("sessionId")
     }
   }
 
@@ -35,10 +35,6 @@ class App extends React.Component {
     });
     localStorage.setItem("email", `${email}`);
     localStorage.setItem("sessionId", `${sessionId}`);
-  }
-
-  componentWillUnmount() {
-    localStorage.clear();
   }
 
   render() {

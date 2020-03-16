@@ -96,6 +96,7 @@ class MainPage extends React.Component {
 
   logOut() {
     this.props.updateAuthorization(false);
+    localStorage.clear();
   }
 
   render() {
