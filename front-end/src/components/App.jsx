@@ -8,9 +8,11 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+    this.initLoginXhr = this.initLoginXhr.bind(this);
     this.updateAuthorization = this.updateAuthorization.bind(this);
     this.updateUser = this.updateUser.bind(this);
     this.sendLoginRequest = this.sendLoginRequest.bind(this);
+    this.clearErrors = this.clearErrors.bind(this);
     this.state = {
       authorized: this.checkAuthorization(),
       email: localStorage.getItem("email"),
@@ -41,11 +43,23 @@ class App extends React.Component {
   }
 
   sendLoginRequest(email, password) {
+    const xhr = this.initLoginXhr();
+    xhr.open("POST", "http://localhost:8080/api/account/login");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({
+        "email": email,
+        "password": password
+    }));    
+  }
+
+  initLoginXhr() {
     const xhr = new XMLHttpRequest();
     xhr.addEventListener("error", (ev) => {
-        this.setState({loginError: xhr.responseText})
-        alert(xhr.responseText);
-        console.log(ev);
+      this.setState({loginError: xhr.responseText})
+      alert(xhr.responseText);
+      console.log(ev);
+      xhr.removeEventListener("loadend");
+      xhr.removeEventListener("error");
     });
     xhr.addEventListener("loadend", () => {
         if(xhr.status !== 200) {
@@ -57,13 +71,14 @@ class App extends React.Component {
         console.log(userSession);
         this.updateUser(userSession.token, userSession.sessionId);
         this.updateAuthorization(true);
+        xhr.removeEventListener("loadend");
+        xhr.removeEventListener("error");
     });
-    xhr.open("POST", "http://localhost:8080/api/account/login");
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify({
-        "email": email,
-        "password": password
-    }));    
+    return xhr;
+  }
+
+  clearErrors() {
+    this.setState({loginError: null});
   }
 
   render() {
@@ -74,28 +89,35 @@ class App extends React.Component {
             {
               this.state.authorized ? 
               <MainPage updateAuthorization={this.updateAuthorization}
-                        updateUser={this.updateUser}
                         email={this.state.email}
                         sessionId={this.state.sessionId}/>
               :
-              <Redirect to="/sign-up"/>
+              <Redirect to="/sign-up"/>              
             }
           </Route>
           <Route exact path="/sign-up">
-            <SignUpPage updateAuthorization={this.updateAuthorization}
-                        updateUser={this.updateUser}
-                        email={this.state.email}
-                        sessionId={this.state.sessionId}
-                        loginError={this.state.loginError}
-                        sendLoginRequest={this.sendLoginRequest}/>
+            {
+              this.state.authorized ? 
+              <Redirect to="/"/>
+              :
+              <SignUpPage email={this.state.email}
+                          sessionId={this.state.sessionId}
+                          loginError={this.state.loginError}
+                          sendLoginRequest={this.sendLoginRequest}
+                          clearErrors={this.clearErrors}/>
+            }
           </Route>
           <Route exact path='/sign-in'>
-            <LoginPage  updateAuthorization={this.updateAuthorization} 
-                        updateUser={this.updateUser} 
-                        email={this.state.email} 
-                        sessionId={this.state.sessionId}
-                        loginError={this.state.loginError}
-                        sendLoginRequest={this.sendLoginRequest}/>
+            {
+              this.state.authorized ?
+              <Redirect to="/"/>
+              :
+              <LoginPage  email={this.state.email} 
+                          sessionId={this.state.sessionId}
+                          loginError={this.state.loginError}
+                          sendLoginRequest={this.sendLoginRequest}
+                          clearErrors={this.clearErrors}/>
+            }
           </Route>
         </Switch>
       </Router>

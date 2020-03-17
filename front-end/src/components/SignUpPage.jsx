@@ -1,16 +1,18 @@
 import React from 'react';
-import '../css/index.css'
-import '../css/SignUpPage.css'
+import {Link} from 'react-router-dom';
+import '../css/index.css';
+import '../css/SignUpPage.css';
 
 class SignUpPage extends React.Component {
 
     constructor(props) {
         super(props);
+        props.clearErrors();
         this.handleSignUp = this.handleSignUp.bind(this);
         this.sendSignUpRequest = this.sendSignUpRequest.bind(this);
         this.checkForm = this.checkForm.bind(this);
         this.state = {
-            signUpError: null
+            signUpError: null,
         }
     }
 
@@ -19,6 +21,8 @@ class SignUpPage extends React.Component {
         xhr.addEventListener("error", (ev) => {
             alert("Sign up request failed.");
             console.log(ev);
+            xhr.removeEventListener("loadend");
+            xhr.removeEventListener("error");
         });
         xhr.addEventListener("loadend", () => {
             if(xhr.status !== 200) {
@@ -27,6 +31,8 @@ class SignUpPage extends React.Component {
             }
             console.log(JSON.parse(xhr.responseText));
             this.props.sendLoginRequest(email, password);
+            xhr.removeEventListener("loadend");
+            xhr.removeEventListener("error");
         });
         xhr.open("POST", "http://localhost:8080/api/account/create");
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -82,6 +88,8 @@ class SignUpPage extends React.Component {
                     <button>Sign Up</button>
                     <br/>
                     {this.state.signUpError ? this.state.signUpError : this.props.loginError}
+                    <br/>
+                    Already signed up? <Link to="/sign-in">Login here.</Link>
                 </form>
             </div>
         );

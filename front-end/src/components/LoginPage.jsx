@@ -1,11 +1,13 @@
 import React from 'react';
-import '../css/index.css'
-import '../css/SignUpPage.css'
+import {Link} from 'react-router-dom';
+import '../css/index.css';
+import '../css/SignUpPage.css';
 
 class LoginPage extends React.Component {
 
     constructor(props) {
         super(props);
+        props.clearErrors();
         this.checkForm = this.checkForm.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
         this.state = {
@@ -49,6 +51,8 @@ class LoginPage extends React.Component {
                     <button>Sign In</button>
                     <br/>
                     {this.state.formError ? this.state.formError : this.props.loginError}
+                    <br/>
+                    Not got an account yet? <Link to="/sign-up">Sign up here.</Link>
                 </form>
             </div>
         );
