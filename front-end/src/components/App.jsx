@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom'
+import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom'
 import MainPage from './MainPage';
 import SignUpPage from './SignUpPage';
 
@@ -41,19 +41,36 @@ class App extends React.Component {
 
     console.log("Authorization: " + this.checkAuthorization());
     console.log("In App: " + localStorage.getItem("loggedIn"));
-
+   
     return(
-      this.state.authorized ? 
-      <MainPage updateAuthorization={this.updateAuthorization}
-                updateUser={this.updateUser}
-                email={this.state.email}
-                sessionId={this.state.sessionId}/>
-      :
-      <SignUpPage updateAuthorization={this.updateAuthorization}
-                  updateUser={this.updateUser}
-                  email={this.state.email}
-                  sessionId={this.state.sessionId}/>
+      <Router>
+        <Switch>
+          <Route exact path="/">
+            {
+              this.state.authorized ? 
+              <MainPage updateAuthorization={this.updateAuthorization}
+                        updateUser={this.updateUser}
+                        email={this.state.email}
+                        sessionId={this.state.sessionId}/>
+              :
+              <SignUpPage updateAuthorization={this.updateAuthorization}
+                          updateUser={this.updateUser}
+                          email={this.state.email}
+                          sessionId={this.state.sessionId}/>
+            }
+          </Route>
+          <Route exact path="/sign-up">
+            <SignUpPage updateAuthorization={this.updateAuthorization}
+            updateUser={this.updateUser}
+            email={this.state.email}
+            sessionId={this.state.sessionId}/>
+          </Route>
+        </Switch>
+      </Router>
     );
+
+    
+
   }
 
 }
