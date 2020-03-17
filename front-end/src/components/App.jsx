@@ -2,6 +2,7 @@ import React from 'react';
 import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom'
 import MainPage from './MainPage';
 import SignUpPage from './SignUpPage';
+import LoginPage from './LoginPage';
 
 class App extends React.Component {
 
@@ -9,10 +10,12 @@ class App extends React.Component {
     super(props);
     this.updateAuthorization = this.updateAuthorization.bind(this);
     this.updateUser = this.updateUser.bind(this);
+    this.sendLoginRequest = this.sendLoginRequest.bind(this);
     this.state = {
       authorized: this.checkAuthorization(),
       email: localStorage.getItem("email"),
-      sessionId: localStorage.getItem("sessionId")
+      sessionId: localStorage.getItem("sessionId"),
+      loginError: null
     }
   }
 
@@ -37,11 +40,33 @@ class App extends React.Component {
     localStorage.setItem("sessionId", `${sessionId}`);
   }
 
-  render() {
+  sendLoginRequest(email, password) {
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("error", (ev) => {
+        this.setState({loginError: xhr.responseText})
+        alert(xhr.responseText);
+        console.log(ev);
+    });
+    xhr.addEventListener("loadend", () => {
+        if(xhr.status !== 200) {
+          this.setState({loginError: xhr.responseText});
+          console.log(xhr.status);
+          return xhr.responseText;
+        }
+        const userSession = JSON.parse(xhr.responseText);
+        console.log(userSession);
+        this.updateUser(userSession.token, userSession.sessionId);
+        this.updateAuthorization(true);
+    });
+    xhr.open("POST", "http://localhost:8080/api/account/login");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({
+        "email": email,
+        "password": password
+    }));    
+  }
 
-    console.log("Authorization: " + this.checkAuthorization());
-    console.log("In App: " + localStorage.getItem("loggedIn"));
-   
+  render() {
     return(
       <Router>
         <Switch>
@@ -58,18 +83,24 @@ class App extends React.Component {
           </Route>
           <Route exact path="/sign-up">
             <SignUpPage updateAuthorization={this.updateAuthorization}
-            updateUser={this.updateUser}
-            email={this.state.email}
-            sessionId={this.state.sessionId}/>
+                        updateUser={this.updateUser}
+                        email={this.state.email}
+                        sessionId={this.state.sessionId}
+                        loginError={this.state.loginError}
+                        sendLoginRequest={this.sendLoginRequest}/>
+          </Route>
+          <Route exact path='/sign-in'>
+            <LoginPage  updateAuthorization={this.updateAuthorization} 
+                        updateUser={this.updateUser} 
+                        email={this.state.email} 
+                        sessionId={this.state.sessionId}
+                        loginError={this.state.loginError}
+                        sendLoginRequest={this.sendLoginRequest}/>
           </Route>
         </Switch>
       </Router>
     );
-
-    
-
   }
-
 }
 
 export default App;

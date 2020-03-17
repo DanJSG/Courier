@@ -26,18 +26,16 @@ import com.jsg.courier.repositories.UserRepository;
 @RequestMapping("/api/account")
 public class UserController {
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = "http://localhost:3000/*")
 	@PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity createAccount(@RequestBody Map<String, String> userDetails) throws Exception {
+	public @ResponseBody ResponseEntity<String> createAccount(@RequestBody Map<String, String> userDetails) throws Exception {
 		User user = createUser(userDetails);
 		if(user == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create new user.");
-//			return new JSONResponse(500, "Failed to create user. An account with this email address already exists.").toString();
 		}
 		UserInfo userInfo = createUserInfo(user);
 		if(userInfo == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user info.");
-//			return new JSONResponse(500, "Failed to create user. Duplicate user ID in user information table.").toString();
 		}
 		System.out.println(user.getEmail());
 		System.out.println(user.getId());
@@ -48,28 +46,23 @@ public class UserController {
 		System.out.println(userInfo.getId());
 		user.clearPassword();
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
-//		return new JSONResponse(200, 
-//				"Successfully created new user with email address: " + user.getEmail() + " and User ID: " + user.getId() + ".")
-//				.toString();
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = "http://localhost:3000/*")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody String login(@RequestBody Map<String, String> userLogin) throws Exception {
+	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin) throws Exception {
 		UserRepository userRepo = new UserRepository();
 		List<User> results = userRepo.findWhereEqual("email", userLogin.get("email"), 1);
 		if(results == null) {
-			return "User not found";
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		User user = results.get(0);
 		if(!BCrypt.checkpw(userLogin.get("password"), user.getPassword())) {
-			return "Login failed.";
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		user.clearPassword();
 		UserSession session = new UserSession(user.getId(), user.getEmail());
-		ObjectMapper objectMapper = new ObjectMapper();
-		String jsonOutput = objectMapper.writeValueAsString(session);
-		return jsonOutput;
+		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
 	}
 	
 	private User createUser(Map<String, String> userDetails) throws Exception {
