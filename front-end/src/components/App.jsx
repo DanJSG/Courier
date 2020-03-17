@@ -53,10 +53,7 @@ class App extends React.Component {
                         email={this.state.email}
                         sessionId={this.state.sessionId}/>
               :
-              <SignUpPage updateAuthorization={this.updateAuthorization}
-                          updateUser={this.updateUser}
-                          email={this.state.email}
-                          sessionId={this.state.sessionId}/>
+              <Redirect to="/sign-up"/>
             }
           </Route>
           <Route exact path="/sign-up">
