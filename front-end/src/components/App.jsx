@@ -13,7 +13,6 @@ class App extends React.Component {
     this.updateUser = this.updateUser.bind(this);
     this.sendLoginRequest = this.sendLoginRequest.bind(this);
     this.clearErrors = this.clearErrors.bind(this);
-    window.addEventListener("popstate", () => console.log("Path changed!"))
     this.state = {
       authorized: this.checkAuthorization(),
       email: localStorage.getItem("email"),
