@@ -21,8 +21,6 @@ class SignUpPage extends React.Component {
         xhr.addEventListener("error", (ev) => {
             alert("Sign up request failed.");
             console.log(ev);
-            xhr.removeEventListener("loadend");
-            xhr.removeEventListener("error");
         });
         xhr.addEventListener("loadend", () => {
             if(xhr.status !== 200) {
@@ -31,8 +29,6 @@ class SignUpPage extends React.Component {
             }
             console.log(JSON.parse(xhr.responseText));
             this.props.sendLoginRequest(email, password);
-            xhr.removeEventListener("loadend");
-            xhr.removeEventListener("error");
         });
         xhr.open("POST", "http://localhost:8080/api/account/create");
         xhr.setRequestHeader("Content-Type", "application/json");
