@@ -26,7 +26,7 @@ public class WebSocketHeaders {
 		return this.sessionId;
 	}
 
-	public long getUsername() {
+	public long getId() {
 		return this.id;
 	}
 	

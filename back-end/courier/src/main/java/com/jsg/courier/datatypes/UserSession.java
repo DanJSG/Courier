@@ -30,10 +30,4 @@ public class UserSession {
 		this.token = token;
 	}
 	
-//	public UserSession(UUID sessionId, String token) {
-//		this.sessionId = UUID.randomUUID();
-//		System.out.println(this.sessionId);
-//		this.token = "TOKEN";
-//	}
-	
 }
