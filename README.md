@@ -5,7 +5,7 @@ This is a full stack web development project where I plan to create a messaging 
 ## Technologies
 
 Front-end: ReactJS with CSS (eventually SCSS) \
-Back-end: Java (probably with Spring framework) \
+Back-end: Java (with Spring framework) \
 Database: MongoDB for messages/chats, MySQL for user accounts, authentication etc. 
 
 ## Things to explore
