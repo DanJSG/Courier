@@ -36,7 +36,7 @@ class MainPage extends React.Component {
   }
 
   handleConnect() {
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.sessionId, this.props.email])}, () => {
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.sessionId, this.props.id])}, () => {
       this.addWebSocketEventListeners();
     });
   }
@@ -44,7 +44,7 @@ class MainPage extends React.Component {
   addWebSocketEventListeners() {
     console.log(this.state.wsConnection);
     this.state.wsConnection.addEventListener("open", () => {
-      console.log(`Connection opened with protocol identifier ${this.props.sessionId}`);
+      console.log(`Connection opened with protocol identifier ${this.props.sessionId} and user ID ${this.props.id}`);
     });
     this.state.wsConnection.addEventListener("error", () => {
       alert("Failed to connect to chat room server.")
@@ -52,8 +52,8 @@ class MainPage extends React.Component {
     this.state.wsConnection.addEventListener("message", (e) => {
       if(e.data.charAt(0) !== "`") {
         const receivedMessage = JSON.parse(e.data);
-        console.log("Received message over websocket:")
-        console.log(receivedMessage);
+        // console.log("Received message over websocket:")
+        // console.log(receivedMessage);
         receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
         this.setState((prevState) => prevState.messages.push(receivedMessage));
         return;
@@ -75,7 +75,7 @@ class MainPage extends React.Component {
     if(!messageText) {
       return "You must enter a message to send.";
     }
-    if(!this.props.email || !this.props.sessionId) {
+    if(!this.props.id || !this.props.sessionId) {
       return "You must enter a email to start sending messages.";
     }
     if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
@@ -85,7 +85,7 @@ class MainPage extends React.Component {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
       sessionId: this.props.sessionId,
-      sender: this.props.email,
+      sender: this.props.id,
       receiver: "ALL"
     }
     this.setState((prevState) => prevState.messages.push(message));

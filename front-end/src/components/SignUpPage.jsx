@@ -44,8 +44,6 @@ class SignUpPage extends React.Component {
             return false;
         }
         if(password !== passwordRepeat) {
-            console.log(password);
-            console.log(passwordRepeat);
             this.setState({signUpError: "Passwords do not match."})
             return false;
         }

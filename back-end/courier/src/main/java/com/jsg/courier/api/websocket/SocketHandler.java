@@ -41,7 +41,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		}
 		sessions.put(headers.getSessionId(), session);
 		getChatHistory(session);
-		System.out.println("WebSocket connection established between server and session with details: " + headers.getSessionId() + ", " + headers.getUsername());
+		System.out.println("WebSocket connection established between server and session with details: " + headers.getSessionId() + ", " + headers.getId());
 		broadcastSessions();
 	}
 	
@@ -78,7 +78,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		int i = 0;
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getSessionId(), headers.getUsername())))).getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), headers.getSessionId(), "token-goes-here")))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
 			}

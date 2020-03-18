@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class WebSocketHeaders {
 	
 	@JsonProperty
-	private String username;
+	private long id;
 	
 	@JsonProperty
 	private UUID sessionId;
@@ -19,15 +19,15 @@ public class WebSocketHeaders {
 	public WebSocketHeaders(WebSocketSession session) {
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
 		this.sessionId = UUID.fromString(headers[0]);
-		this.username = headers[1];
+		this.id = Long.parseLong(headers[1].trim());
 	}
 	
 	public UUID getSessionId() {
 		return this.sessionId;
 	}
 
-	public String getUsername() {
-		return this.username;
+	public long getId() {
+		return this.id;
 	}
 	
 }
