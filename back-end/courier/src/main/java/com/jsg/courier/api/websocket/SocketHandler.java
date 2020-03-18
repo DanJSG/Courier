@@ -78,7 +78,9 @@ public class SocketHandler extends TextWebSocketHandler {
 		int i = 0;
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getSessionId(), headers.getUsername())))).getPayload();
+			System.out.println(headers.getSessionId());
+			System.out.println(headers.getUsername());
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getUsername(), headers.getSessionId(), "token-goes-here")))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
 			}

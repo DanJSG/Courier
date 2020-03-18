@@ -15,6 +15,7 @@ class App extends React.Component {
     this.clearErrors = this.clearErrors.bind(this);
     this.state = {
       authorized: this.checkAuthorization(),
+      id: localStorage.getItem('id'),
       email: localStorage.getItem("email"),
       sessionId: localStorage.getItem("sessionId"),
       loginError: null
@@ -33,12 +34,12 @@ class App extends React.Component {
     localStorage.setItem("loggedIn", `${bool}`);
   }
 
-  updateUser(email, sessionId) {
+  updateUser(id, sessionId) {
     this.setState({
-      email: email,
+      id: id,
       sessionId: sessionId
     });
-    localStorage.setItem("email", `${email}`);
+    localStorage.setItem("id", `${id}`);
     localStorage.setItem("sessionId", `${sessionId}`);
   }
 
@@ -67,7 +68,7 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.updateUser(userSession.token, userSession.sessionId);
+        this.updateUser(userSession.id, userSession.sessionId);
         this.updateAuthorization(true);
     });
     return xhr;
@@ -86,6 +87,7 @@ class App extends React.Component {
               this.state.authorized ? 
               <MainPage updateAuthorization={this.updateAuthorization}
                         email={this.state.email}
+                        id={this.state.id}
                         sessionId={this.state.sessionId}/>
               :
               <Redirect to="/sign-up"/>              
@@ -97,6 +99,7 @@ class App extends React.Component {
               <Redirect to="/"/>
               :
               <SignUpPage email={this.state.email}
+                          id={this.state.id}
                           sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
@@ -109,6 +112,7 @@ class App extends React.Component {
               <Redirect to="/"/>
               :
               <LoginPage  email={this.state.email} 
+                          id={this.state.id}
                           sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}

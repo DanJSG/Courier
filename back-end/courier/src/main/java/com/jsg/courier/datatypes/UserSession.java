@@ -24,10 +24,16 @@ public class UserSession {
 		this.token = "TOKEN";
 	}
 	
-	public UserSession(UUID sessionId, String token) {
-		this.sessionId = UUID.randomUUID();
-		System.out.println(this.sessionId);
-		this.token = "TOKEN";
+	public UserSession(long id, UUID sessionId, String token) {
+		this.id = id;
+		this.sessionId = sessionId;
+		this.token = token;
 	}
+	
+//	public UserSession(UUID sessionId, String token) {
+//		this.sessionId = UUID.randomUUID();
+//		System.out.println(this.sessionId);
+//		this.token = "TOKEN";
+//	}
 	
 }
