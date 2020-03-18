@@ -58,8 +58,6 @@ class App extends React.Component {
       this.setState({loginError: xhr.responseText})
       alert(xhr.responseText);
       console.log(ev);
-      xhr.removeEventListener("loadend");
-      xhr.removeEventListener("error");
     });
     xhr.addEventListener("loadend", () => {
         if(xhr.status !== 200) {
@@ -71,8 +69,6 @@ class App extends React.Component {
         console.log(userSession);
         this.updateUser(userSession.token, userSession.sessionId);
         this.updateAuthorization(true);
-        xhr.removeEventListener("loadend");
-        xhr.removeEventListener("error");
     });
     return xhr;
   }
