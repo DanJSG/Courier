@@ -18,16 +18,14 @@ public class User {
 	
 	public User() {}
 	
-	public User(String email, String password, String salt) {
+	public User(String email, String password) {
 		this.email = email;
 		this.password = password;
-		this.salt = salt;
 	}
 	
-	public User(String email, String password, String salt, long id) {
+	public User(String email, String password, long id) {
 		this.email = email;
 		this.password = password;
-		this.salt = salt;
 		this.id = id;
 	}
 	
@@ -41,10 +39,6 @@ public class User {
 	
 	public String getPassword() {
 		return this.password;
-	}
-	
-	public String getSalt() {
-		return this.salt;
 	}
 	
 	public void clearPassword() {
