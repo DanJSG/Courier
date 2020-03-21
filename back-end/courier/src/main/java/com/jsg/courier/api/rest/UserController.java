@@ -33,14 +33,13 @@ public class UserController {
 		if(user == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create new user.");
 		}
-		UserInfo userInfo = createUserInfo(user);
+		UserInfo userInfo = createUserInfo(user.getId(), userDetails.get("name"));
 		if(userInfo == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user info.");
 		}
 		System.out.println(user.getEmail());
 		System.out.println(user.getId());
 		System.out.println(user.getPassword());
-		System.out.println(user.getSalt());
 		System.out.println(userInfo.getDisplayName());
 		System.out.println(userInfo.getBio());
 		System.out.println(userInfo.getId());
@@ -66,9 +65,8 @@ public class UserController {
 	}
 	
 	private User createUser(Map<String, String> userDetails) throws Exception {
-		String salt = BCrypt.gensalt();
-		String hashedPassword = BCrypt.hashpw(userDetails.get("password"), salt);
-		User user = new User(userDetails.get("email"), hashedPassword, salt);
+		String hashedPassword = BCrypt.hashpw(userDetails.get("password"), BCrypt.gensalt());
+		User user = new User(userDetails.get("email"), hashedPassword);
 		UserRepository userRepo = new UserRepository();
 		if(!userRepo.save(user)) {
 			userRepo.closeConnection();
@@ -79,9 +77,9 @@ public class UserController {
 		return user;
 	}
 	
-	private UserInfo createUserInfo(User user) throws Exception {
+	private UserInfo createUserInfo(long id, String name) throws Exception {
 		UserInfoRepository userInfoRepo = new UserInfoRepository();
-		UserInfo userInfo = new UserInfo(user.getId());
+		UserInfo userInfo = new UserInfo(id, name);
 		if(!userInfoRepo.save(userInfo)) {
 			userInfoRepo.closeConnection();
 			return null;

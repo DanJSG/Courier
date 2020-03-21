@@ -15,9 +15,9 @@ public class UserInfo {
 	
 	public UserInfo() {}
 	
-	public UserInfo(long id) {
+	public UserInfo(long id, String name) {
 		this.id = id;
-		this.displayName = "";
+		this.displayName = name;
 		this.bio = "";
 	}
 	

@@ -20,7 +20,6 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 		Map<String, Object> valueMap = new HashMap<>();
 		valueMap.put("email", item.getEmail());
 		valueMap.put("password", item.getPassword());
-		valueMap.put("salt", item.getSalt());
 		try {
 			super.save(valueMap);
 			return true;
@@ -42,8 +41,7 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 			ResultSet results = super.findWhereEquals(searchColumn, value, "*", limit);
 			ArrayList<User> users = new ArrayList<User>();
 			while(results.next()) {
-				users.add(new User(results.getString("email"), results.getString("password"),
-						results.getString("salt"), results.getLong("id")));
+				users.add(new User(results.getString("email"), results.getString("password"), results.getLong("id")));
 			}
 			if(users.size() == 0) {
 				return null;
