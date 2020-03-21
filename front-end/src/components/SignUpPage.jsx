@@ -16,7 +16,7 @@ class SignUpPage extends React.Component {
         }
     }
 
-    sendSignUpRequest(email, password, name) {
+    sendSignUpRequest(email, password, displayName) {
         const xhr = new XMLHttpRequest();
         xhr.addEventListener("error", (ev) => {
             alert("Sign up request failed.");
@@ -35,11 +35,11 @@ class SignUpPage extends React.Component {
         xhr.send(JSON.stringify({
             "email": email,
             "password": password,
-            "name": name
+            "displayName": displayName
         }));
     }
 
-    checkForm(email, password, passwordRepeat, name) {
+    checkForm(email, password, passwordRepeat, displayName) {
         if(email === undefined || email === null || email === "") {
             this.setState({signUpError: "Please enter an email address."})
             return false;
@@ -52,12 +52,12 @@ class SignUpPage extends React.Component {
             this.setState({signUpError: "Password not long enough."})
             return false;
         }
-        if(name === undefined || name === null || name === "") {
+        if(displayName === undefined || displayName === null || displayName === "") {
             this.setState({signUpError: "Please enter a display name."})
             return false;
         }
         const symbols = /^[ a-z0-9A-Z]*$/;
-        if(!symbols.test(name)) {
+        if(!symbols.test(displayName)) {
             console.log("STOP! YOU HAVE VIOLATED THE LAW! PAY THE COURT A FINE OR SERVE YOUR SENTENCE!")
             return false;
         }
@@ -70,9 +70,9 @@ class SignUpPage extends React.Component {
         const email = e.target.elements.email.value.trim();
         const password = e.target.elements.password.value;
         const passwordRepeat = e.target.elements.passwordRepeat.value;
-        const name = e.target.elements.name.value.trim();
-        if(this.checkForm(email, password, passwordRepeat, name)) {
-            this.sendSignUpRequest(email, password, name);
+        const displayName = e.target.elements.displayName.value.trim();
+        if(this.checkForm(email, password, passwordRepeat, displayName)) {
+            this.sendSignUpRequest(email, password, displayName);
         }
     }
 
@@ -85,7 +85,7 @@ class SignUpPage extends React.Component {
                     <input type="email" name="email"></input>
                     <br/>
                     Display name: &nbsp;
-                    <input type="text" name="name"></input>
+                    <input type="text" name="displayName"></input>
                     <br/>
                     Password: &nbsp;
                     <input type="password" name="password"></input>
@@ -97,7 +97,7 @@ class SignUpPage extends React.Component {
                     <br/>
                     {this.state.signUpError ? this.state.signUpError : this.props.loginError}
                     <br/>
-                    Already signed up? <Link to="/sign-in">Login here.</Link>
+                    Already signed up? <Link to="/sign-in">Sign in here.</Link>
                 </form>
             </div>
         );

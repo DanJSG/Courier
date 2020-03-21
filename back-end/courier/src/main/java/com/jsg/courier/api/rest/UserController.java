@@ -33,7 +33,7 @@ public class UserController {
 		if(user == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create new user.");
 		}
-		UserInfo userInfo = createUserInfo(user.getId(), userDetails.get("name"));
+		UserInfo userInfo = createUserInfo(user.getId(), userDetails.get("displayName"));
 		if(userInfo == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user info.");
 		}
@@ -60,7 +60,7 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		user.clearPassword();
-		UserSession session = new UserSession(user.getId(), user.getEmail());
+		UserSession session = new UserSession(user.getId(), "");
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
 	}
 	

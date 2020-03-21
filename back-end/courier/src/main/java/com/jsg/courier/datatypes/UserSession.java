@@ -1,10 +1,15 @@
 package com.jsg.courier.datatypes;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jsg.courier.repositories.UserInfoRepository;
 
 public class UserSession {
+	
+	@JsonProperty
+	private String displayName;
 	
 	@JsonProperty
 	private long id;
@@ -20,14 +25,33 @@ public class UserSession {
 	public UserSession(long id, String token) {
 		this.id = id;
 		this.sessionId = UUID.randomUUID();
-		System.out.println(this.sessionId);
 		this.token = "TOKEN";
+		try {
+			getDisplayName();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public UserSession(long id, UUID sessionId, String token) {
 		this.id = id;
 		this.sessionId = sessionId;
 		this.token = token;
+		try {
+			getDisplayName();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void getDisplayName() throws Exception {
+		UserInfoRepository repo = new UserInfoRepository();
+		List<UserInfo> infoList = repo.findWhereEqual("id", this.id, 1);
+		if(infoList == null || infoList.size() < 1) {
+			this.displayName = "Anonymous";
+			return;
+		}
+		this.displayName = infoList.get(0).getDisplayName();
 	}
 	
 }
