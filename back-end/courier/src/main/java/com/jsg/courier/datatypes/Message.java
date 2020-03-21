@@ -32,13 +32,7 @@ public class Message {
 	@JsonProperty
 	private String receiver;
 	
-	public Message() {
-//		try {
-//			findSenderName();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} 
-	}
+	public Message() {}
 	
 	public void print() {
 		System.out.println("{");
@@ -54,13 +48,4 @@ public class Message {
 		return sessionId;
 	}
 	
-	private void findSenderName() throws Exception {
-		UserInfoRepository repo = new UserInfoRepository();
-		List<UserInfo> infoList = repo.findWhereEqual("id", this.senderId, 1);
-		if(infoList == null || infoList.size() < 1) {
-			this.sender = "Anonymous";
-			return;
-		}
-		this.sender = infoList.get(0).getDisplayName();
-	}
 }
