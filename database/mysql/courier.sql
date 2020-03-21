@@ -27,12 +27,11 @@ CREATE TABLE `users.accounts` (
   `email` varchar(254) NOT NULL,
   `datecreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `password` binary(60) NOT NULL,
-  `salt` binary(29) NOT NULL,
   `datechanged` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idusers.account_UNIQUE` (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,4 +74,4 @@ CREATE TABLE `users.links` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-15  2:30:58
+-- Dump completed on 2020-03-21 22:34:51
