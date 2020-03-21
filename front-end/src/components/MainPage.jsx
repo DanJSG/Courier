@@ -85,7 +85,8 @@ class MainPage extends React.Component {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
       sessionId: this.props.sessionId,
-      sender: this.props.id,
+      senderId: this.props.id,
+      sender: this.props.displayName,
       receiver: "ALL"
     }
     this.setState((prevState) => prevState.messages.push(message));

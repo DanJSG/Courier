@@ -18,6 +18,7 @@ class App extends React.Component {
       id: localStorage.getItem('id'),
       email: localStorage.getItem("email"),
       sessionId: localStorage.getItem("sessionId"),
+      displayName: null,
       loginError: null
     }
   }
@@ -34,10 +35,11 @@ class App extends React.Component {
     localStorage.setItem("loggedIn", `${bool}`);
   }
 
-  updateUser(id, sessionId) {
+  updateUser(id, sessionId, displayName) {
     this.setState({
       id: id,
-      sessionId: sessionId
+      sessionId: sessionId,
+      displayName: displayName
     });
     localStorage.setItem("id", `${id}`);
     localStorage.setItem("sessionId", `${sessionId}`);
@@ -68,7 +70,7 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.updateUser(userSession.id, userSession.sessionId);
+        this.updateUser(userSession.id, userSession.sessionId, userSession.displayName);
         this.updateAuthorization(true);
     });
     return xhr;
@@ -88,7 +90,8 @@ class App extends React.Component {
               <MainPage updateAuthorization={this.updateAuthorization}
                         email={this.state.email}
                         id={this.state.id}
-                        sessionId={this.state.sessionId}/>
+                        sessionId={this.state.sessionId}
+                        displayName={this.state.displayName}/>
               :
               <Redirect to="/sign-up"/>              
             }

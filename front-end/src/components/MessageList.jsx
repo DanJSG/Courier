@@ -11,7 +11,7 @@ function MessageList(props){
                     <Message message={message} key={message.timestamp + message.sender}></Message>
                 ))}
             </ul>
-            <MessageBuilder handleSendMessage={props.handleSendMessage}></MessageBuilder>
+            <MessageBuilder displayName={props.displayName} handleSendMessage={props.handleSendMessage}></MessageBuilder>
         </div>
     );  
 }
