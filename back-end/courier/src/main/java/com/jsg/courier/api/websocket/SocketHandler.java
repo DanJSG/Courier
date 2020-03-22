@@ -1,6 +1,8 @@
 package com.jsg.courier.api.websocket;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,12 +80,17 @@ public class SocketHandler extends TextWebSocketHandler {
 	private void broadcastSessions() throws Exception {
 		String json = "`[";
 		int i = 0;
+		Set<Long> idSet = new HashSet<Long>();
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), "token-goes-here")))).getPayload();
-			if(i != sessions.size() - 1) {
+			if(idSet.contains(headers.getId())) {
+				continue;
+			}
+			idSet.add(headers.getId());
+			if(i != 0) {
 				json += ",";
 			}
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), "token-goes-here")))).getPayload();
 			i++;
 		}
 		json += "]";
