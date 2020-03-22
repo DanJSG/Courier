@@ -16,8 +16,6 @@ class App extends React.Component {
     this.state = {
       authorized: this.checkAuthorization(),
       id: localStorage.getItem('id'),
-      email: localStorage.getItem("email"),
-      sessionId: localStorage.getItem("sessionId"),
       displayName: null,
       loginError: null
     }
@@ -35,14 +33,12 @@ class App extends React.Component {
     localStorage.setItem("loggedIn", `${bool}`);
   }
 
-  updateUser(id, sessionId, displayName) {
+  updateUser(id, displayName) {
     this.setState({
       id: id,
-      sessionId: sessionId,
       displayName: displayName
     });
     localStorage.setItem("id", `${id}`);
-    localStorage.setItem("sessionId", `${sessionId}`);
   }
 
   sendLoginRequest(email, password) {
@@ -70,7 +66,7 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.updateUser(userSession.id, userSession.sessionId, userSession.displayName);
+        this.updateUser(userSession.id, userSession.displayName);
         this.updateAuthorization(true);
     });
     return xhr;
@@ -90,7 +86,6 @@ class App extends React.Component {
               <MainPage updateAuthorization={this.updateAuthorization}
                         email={this.state.email}
                         id={this.state.id}
-                        sessionId={this.state.sessionId}
                         displayName={this.state.displayName}/>
               :
               <Redirect to="/sign-up"/>              
@@ -103,7 +98,6 @@ class App extends React.Component {
               :
               <SignUpPage email={this.state.email}
                           id={this.state.id}
-                          sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>
@@ -116,7 +110,6 @@ class App extends React.Component {
               :
               <LoginPage  email={this.state.email} 
                           id={this.state.id}
-                          sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>

@@ -12,6 +12,7 @@ class MainPage extends React.Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
     this.handleConnect = this.handleConnect.bind(this);
     this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
+    this.closeConnection = this.closeConnection.bind(this);
     this.logOut = this.logOut.bind(this);
     this.state = {
       messages: [],
@@ -25,26 +26,33 @@ class MainPage extends React.Component {
   }
 
   componentDidMount() {
+    // window.addEventListener("beforeunload", this.closeConnection);
     this.handleConnect();
     console.log("Component mounted.");
   }
 
   componentWillUnmount() {
+    this.closeConnection();
+  }
+
+  closeConnection() {
+    this.handleSendMessage("Closing the connection...")
     if(this.state.wsConnection) {
       this.state.wsConnection.close();
     }
+    return null;
   }
 
   handleConnect() {
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.sessionId, this.props.id])}, () => {
-      this.addWebSocketEventListeners();
-    });
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.id])}, () => {
+        this.addWebSocketEventListeners();
+      });
   }
 
   addWebSocketEventListeners() {
     console.log(this.state.wsConnection);
     this.state.wsConnection.addEventListener("open", () => {
-      console.log(`Connection opened with protocol identifier ${this.props.sessionId} and user ID ${this.props.id}`);
+      console.log(`Connection opened with user ID ${this.props.id}`);
     });
     this.state.wsConnection.addEventListener("error", () => {
       alert("Failed to connect to chat room server.")
@@ -59,6 +67,7 @@ class MainPage extends React.Component {
         return;
       }
       const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
+      // if session ID is currently null, find entry with 
       console.log(chatMembers);
       this.setState((prevState) => {
         return {
@@ -75,7 +84,7 @@ class MainPage extends React.Component {
     if(!messageText) {
       return "You must enter a message to send.";
     }
-    if(!this.props.id || !this.props.sessionId) {
+    if(!this.props.id) {
       return "You must enter a email to start sending messages.";
     }
     if(this.state.wsConnection.readyState !== this.state.wsConnection.OPEN) {
@@ -84,7 +93,6 @@ class MainPage extends React.Component {
     const message = {
       messageText: messageText,
       timestamp: new Date().toUTCString(),
-      sessionId: this.props.sessionId,
       senderId: this.props.id,
       sender: this.props.displayName,
       receiver: "ALL"

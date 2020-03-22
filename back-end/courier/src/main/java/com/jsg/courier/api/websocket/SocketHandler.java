@@ -29,43 +29,45 @@ public class SocketHandler extends TextWebSocketHandler {
 		MessageRepository repo = new MessageRepository();
 		repo.save(message, "messages");
 		repo.closeConnection();
-		broadcastMessage(message);
+		broadcastMessage(message, UUID.fromString(session.getId()));
 	}
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		WebSocketHeaders headers = new WebSocketHeaders(session);	
-		if(sessions.containsKey(headers.getSessionId())) {
-			System.out.println("WebSocket connection already exists between server and session: " + headers.getSessionId());
+		if(sessions.containsKey(UUID.fromString(session.getId()))) {
+			System.out.println("WebSocket connection already exists between server and session: " + session.getId());
 			return;
 		}
-		sessions.put(headers.getSessionId(), session);
+		sessions.put(UUID.fromString(session.getId()), session);
 		getChatHistory(session);
-		System.out.println("WebSocket connection established between server and session with details: " + headers.getSessionId() + ", " + headers.getId());
+		System.out.println("WebSocket connection established between server and session with details: " + session.getId() + ", " + headers.getId());
 		broadcastSessions();
 	}
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		WebSocketHeaders headers = new WebSocketHeaders(session);
-		if(sessions.remove(headers.getSessionId()) == null) {
-			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + headers.getSessionId());
+		for(UUID sessionId : sessions.keySet()) {
+			System.out.println(sessionId);
+		}
+		if(sessions.remove(UUID.fromString(session.getId())) == null) {
+			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + session.getId());
 			return;
 		};
 		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
 	
-	private void broadcastMessage(Message message) throws Exception {
+	private void broadcastMessage(Message message, UUID sessionId) throws Exception {
 		System.out.println("(broadcast)Session size is: " + sessions.size());
-		sessions.forEach((sessionId, session) -> {
-			if(sessionId.equals(message.getSessionId())) {
-				System.out.println("Not sending to session: " + sessionId);
+		sessions.forEach((currentSessionId, currentSession) -> {
+			if(currentSessionId.equals(sessionId)) {
+				System.out.println("Not sending to session: " + currentSessionId);
 				// this works similarly to continue in a foreach lambda function
 				return;
 			}
 			try {
-				session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+				currentSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
 			} catch (Exception e) {
 				e.printStackTrace();
 				return;
@@ -78,7 +80,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		int i = 0;
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), headers.getSessionId(), "token-goes-here")))).getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), "token-goes-here")))).getPayload();
 			if(i != sessions.size() - 1) {
 				json += ",";
 			}
