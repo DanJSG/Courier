@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom'
+import {BrowserRouter as Router, Switch, Route, Redirect, useHistory} from 'react-router-dom'
 import MainPage from './MainPage';
 import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
@@ -10,7 +10,7 @@ class App extends React.Component {
     super(props);
     this.initLoginXhr = this.initLoginXhr.bind(this);
     this.updateAuthorization = this.updateAuthorization.bind(this);
-    this.updateUser = this.updateUser.bind(this);
+    this.updateDisplayName = this.updateDisplayName.bind(this);
     this.sendLoginRequest = this.sendLoginRequest.bind(this);
     this.clearErrors = this.clearErrors.bind(this);
     this.state = {
@@ -33,12 +33,8 @@ class App extends React.Component {
     localStorage.setItem("loggedIn", `${bool}`);
   }
 
-  updateUser(id, displayName) {
-    this.setState({
-      id: id,
-      displayName: displayName
-    });
-    localStorage.setItem("id", `${id}`);
+  updateDisplayName(displayName) {
+    this.setState({displayName: displayName});
   }
 
   sendLoginRequest(email, password) {
@@ -66,7 +62,8 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.updateUser(userSession.id, userSession.displayName);
+        this.setState({id: userSession.id, displayName: userSession.displayName});
+        localStorage.setItem("id", userSession.id);
         this.updateAuthorization(true);
     });
     return xhr;
@@ -84,6 +81,7 @@ class App extends React.Component {
             {
               this.state.authorized ? 
               <MainPage updateAuthorization={this.updateAuthorization}
+                        updateDisplayName={this.updateDisplayName}
                         email={this.state.email}
                         id={this.state.id}
                         displayName={this.state.displayName}/>

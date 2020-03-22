@@ -14,6 +14,11 @@ class MainPage extends React.Component {
     this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
     this.closeConnection = this.closeConnection.bind(this);
     this.logOut = this.logOut.bind(this);
+    this.getDisplayName = this.getDisplayName.bind(this);
+    console.log("Display name props are: " + props.displayName);
+    if(!props.displayName) {
+      this.getDisplayName();
+    }
     this.state = {
       messages: [],
       wsConnection: null,
@@ -33,6 +38,20 @@ class MainPage extends React.Component {
 
   componentWillUnmount() {
     this.closeConnection();
+  }
+
+  getDisplayName() {
+    const xhr = new XMLHttpRequest()
+    xhr.addEventListener("loadend", () => {
+      if(xhr.status !== 200) {
+        console.log("Couldn't get user info from API");
+        return;
+      }
+      const userInfo = JSON.parse(xhr.responseText);
+      this.props.updateDisplayName(userInfo.displayName);
+    })
+    xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}`);
+    xhr.send();
   }
 
   closeConnection() {
