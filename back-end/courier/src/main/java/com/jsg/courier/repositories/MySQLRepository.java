@@ -31,8 +31,6 @@ public abstract class MySQLRepository  {
 		String query = "INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 
 				") VALUES (" + stringifyValues(valueMap) + ");";
 		Statement statement = connection.createStatement();
-		System.out.println("Sending query:");
-		System.out.println(query);
 		statement.execute(query);
 	}
 	
@@ -44,8 +42,6 @@ public abstract class MySQLRepository  {
 		Statement statement = connection.createStatement();
 		statement.setFetchSize(limit);
 		String query = "SELECT " + resultColumn + " FROM courier.`" + tableName + "` WHERE " + column + " = " + value + ";";
-		System.out.println("Sending query:");
-		System.out.println(query);
 		ResultSet results = statement.executeQuery(query);
 		return results;
 	}

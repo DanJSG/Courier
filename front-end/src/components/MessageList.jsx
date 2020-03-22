@@ -5,7 +5,7 @@ import MessageBuilder from './MessageBuilder'
 function MessageList(props){
     return(
         <div className="message-list">
-            <h2>Messages</h2>
+            <h1>Messages</h1>
             <ul>
                 {props.messages.map((message) => (
                     <Message message={message} key={message.timestamp + message.sender}></Message>

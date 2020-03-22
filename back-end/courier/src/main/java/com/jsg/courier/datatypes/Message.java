@@ -1,14 +1,9 @@
 package com.jsg.courier.datatypes;
 
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.utilities.MongoDateDeserializer;
 
 public class Message {
@@ -19,9 +14,6 @@ public class Message {
 	@JsonProperty
 	@JsonDeserialize(using = MongoDateDeserializer.class)
 	private Date timestamp;
-	
-	@JsonProperty
-	private UUID sessionId;
 	
 	@JsonProperty
 	private long senderId;
@@ -38,14 +30,10 @@ public class Message {
 		System.out.println("{");
 		System.out.println("messageText: " + this.messageText);
 		System.out.println("timestamp: " + this.timestamp);
-		System.out.println("sender: " + this.senderId);
+		System.out.println("sender ID: " + this.senderId);
+		System.out.println("sender: " + this.sender);
 		System.out.println("receiver: " + this.receiver);
-		System.out.println("sessionId: " + this.sessionId);
 		System.out.println("}");
-	}
-	
-	public UUID getSessionId() {
-		return sessionId;
 	}
 	
 }

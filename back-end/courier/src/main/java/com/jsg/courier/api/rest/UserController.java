@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -62,6 +63,17 @@ public class UserController {
 		user.clearPassword();
 		UserSession session = new UserSession(user.getId(), "");
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
+	}
+	
+	@CrossOrigin(origins = "http://localhost:3000/*")
+	@PostMapping(value = "/findUserInfoById")
+	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id) throws Exception {
+		UserInfoRepository repo = new UserInfoRepository();
+		List<UserInfo> userInfoList = repo.findWhereEqual("id", id, 1);
+		if(userInfoList == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to find user with requested ID");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(userInfoList.get(0)));
 	}
 	
 	private User createUser(Map<String, String> userDetails) throws Exception {

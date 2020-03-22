@@ -10,14 +10,12 @@ class App extends React.Component {
     super(props);
     this.initLoginXhr = this.initLoginXhr.bind(this);
     this.updateAuthorization = this.updateAuthorization.bind(this);
-    this.updateUser = this.updateUser.bind(this);
+    this.updateDisplayName = this.updateDisplayName.bind(this);
     this.sendLoginRequest = this.sendLoginRequest.bind(this);
     this.clearErrors = this.clearErrors.bind(this);
     this.state = {
       authorized: this.checkAuthorization(),
       id: localStorage.getItem('id'),
-      email: localStorage.getItem("email"),
-      sessionId: localStorage.getItem("sessionId"),
       displayName: null,
       loginError: null
     }
@@ -35,14 +33,8 @@ class App extends React.Component {
     localStorage.setItem("loggedIn", `${bool}`);
   }
 
-  updateUser(id, sessionId, displayName) {
-    this.setState({
-      id: id,
-      sessionId: sessionId,
-      displayName: displayName
-    });
-    localStorage.setItem("id", `${id}`);
-    localStorage.setItem("sessionId", `${sessionId}`);
+  updateDisplayName(displayName) {
+    this.setState({displayName: displayName});
   }
 
   sendLoginRequest(email, password) {
@@ -70,7 +62,8 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.updateUser(userSession.id, userSession.sessionId, userSession.displayName);
+        this.setState({id: userSession.id, displayName: userSession.displayName});
+        localStorage.setItem("id", userSession.id);
         this.updateAuthorization(true);
     });
     return xhr;
@@ -88,9 +81,9 @@ class App extends React.Component {
             {
               this.state.authorized ? 
               <MainPage updateAuthorization={this.updateAuthorization}
+                        updateDisplayName={this.updateDisplayName}
                         email={this.state.email}
                         id={this.state.id}
-                        sessionId={this.state.sessionId}
                         displayName={this.state.displayName}/>
               :
               <Redirect to="/sign-up"/>              
@@ -103,7 +96,6 @@ class App extends React.Component {
               :
               <SignUpPage email={this.state.email}
                           id={this.state.id}
-                          sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>
@@ -116,7 +108,6 @@ class App extends React.Component {
               :
               <LoginPage  email={this.state.email} 
                           id={this.state.id}
-                          sessionId={this.state.sessionId}
                           loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>
