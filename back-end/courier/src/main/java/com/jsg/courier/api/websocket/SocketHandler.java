@@ -49,9 +49,6 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		for(UUID sessionId : sessions.keySet()) {
-			System.out.println(sessionId);
-		}
 		if(sessions.remove(UUID.fromString(session.getId())) == null) {
 			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + session.getId());
 			return;

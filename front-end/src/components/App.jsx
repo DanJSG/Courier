@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Switch, Route, Redirect, useHistory} from 'react-router-dom'
+import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom'
 import MainPage from './MainPage';
 import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
