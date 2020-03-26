@@ -3,10 +3,14 @@ package com.jsg.courier.api.rest;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +25,7 @@ import com.jsg.courier.datatypes.UserInfo;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.repositories.UserRepository;
+import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -50,7 +55,7 @@ public class UserController {
 	
 	@CrossOrigin(origins = "http://localhost:3000/*")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin) throws Exception {
+	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin, HttpServletResponse response) throws Exception {
 		UserRepository userRepo = new UserRepository();
 		List<User> results = userRepo.findWhereEqual("email", userLogin.get("email"), 1);
 		if(results == null) {
@@ -61,13 +66,19 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		user.clearPassword();
-		UserSession session = new UserSession(user.getId(), "");
+		Cookie jwtCookie = new Cookie("jwt", JWTHandler.createToken(user.getId()));
+		jwtCookie.setHttpOnly(true);
+		response.addCookie(jwtCookie);
+		UserSession session = new UserSession(user.getId(), JWTHandler.createToken(user.getId()));
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
 	}
 	
 	@CrossOrigin(origins = "http://localhost:3000/*")
 	@PostMapping(value = "/findUserInfoById")
-	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id) throws Exception {
+	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id, @CookieValue String jwt) throws Exception {
+		if(!JWTHandler.verifyToken(jwt)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
+		}
 		UserInfoRepository repo = new UserInfoRepository();
 		List<UserInfo> userInfoList = repo.findWhereEqual("id", id, 1);
 		if(userInfoList == null) {

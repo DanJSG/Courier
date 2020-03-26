@@ -17,7 +17,8 @@ class App extends React.Component {
       authorized: this.checkAuthorization(),
       id: localStorage.getItem('id'),
       displayName: null,
-      loginError: null
+      loginError: null,
+      token: null
     }
   }
 
@@ -31,6 +32,9 @@ class App extends React.Component {
   updateAuthorization(bool) {
     this.setState({authorized: bool});
     localStorage.setItem("loggedIn", `${bool}`);
+    if(!bool) {
+      this.setState({token: null});
+    }
   }
 
   updateDisplayName(displayName) {
@@ -62,7 +66,7 @@ class App extends React.Component {
         }
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.setState({id: userSession.id, displayName: userSession.displayName});
+        this.setState({id: userSession.id, displayName: userSession.displayName, token: userSession.token});
         localStorage.setItem("id", userSession.id);
         this.updateAuthorization(true);
     });
@@ -84,7 +88,8 @@ class App extends React.Component {
                         updateDisplayName={this.updateDisplayName}
                         email={this.state.email}
                         id={this.state.id}
-                        displayName={this.state.displayName}/>
+                        displayName={this.state.displayName}
+                        token={this.state.token}/>
               :
               <Redirect to="/sign-up"/>              
             }

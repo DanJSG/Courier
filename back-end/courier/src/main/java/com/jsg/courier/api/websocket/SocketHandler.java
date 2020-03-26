@@ -87,7 +87,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), "token-goes-here")))).getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId())))).getPayload();
 			i++;
 		}
 		json += "]";

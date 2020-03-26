@@ -63,7 +63,7 @@ class MainPage extends React.Component {
   }
 
   handleConnect() {
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.id])}, () => {
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", this.props.token)}, () => {
         this.addWebSocketEventListeners();
       });
   }

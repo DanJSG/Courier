@@ -2,6 +2,8 @@ package com.jsg.courier.datatypes;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jsg.courier.repositories.UserInfoRepository;
 
@@ -14,18 +16,23 @@ public class UserSession {
 	private long id;
 	
 	@JsonProperty
+	@JsonInclude(Include.NON_NULL)
 	private String token;
 	
 	public UserSession() {}
 	
 	public UserSession(long id, String token) {
 		this.id = id;
-		this.token = "TOKEN";
+		this.token = token;
 		try {
 			getDisplayName();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public UserSession(long id) {
+		this(id, null);
 	}
 	
 	private void getDisplayName() throws Exception {

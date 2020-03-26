@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +12,13 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jsg.courier.utilities.JWTHandler;
+
+//LEAVING THIS HERE FOR DEMONSTRATIONAL PURPOSES - MAY BE USEFUL TO COME BACK TO
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -32,8 +32,6 @@ public final class JWTController {
 		if(id == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request failed.");
 		}
-//		return ResponseEntity.status(HttpStatus.OK).body(JWTHandler.createToken(id));
-		
 		Cookie jwtCookie = new Cookie("jwt", JWTHandler.createToken(id));
 		jwtCookie.setHttpOnly(true);
 		response.addCookie(jwtCookie);

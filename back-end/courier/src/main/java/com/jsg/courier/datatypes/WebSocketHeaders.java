@@ -2,6 +2,7 @@ package com.jsg.courier.datatypes;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class WebSocketHeaders {
@@ -12,9 +13,8 @@ public class WebSocketHeaders {
 	public WebSocketHeaders() {}
 	
 	public WebSocketHeaders(WebSocketSession session) {
-		this.id = Long.parseLong(session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
-//		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
-//		this.id = Long.parseLong(headers[0].trim());
+		String token = session.getHandshakeHeaders().getFirst("sec-websocket-protocol");
+		this.id = JWT.decode(token).getClaim("id").asLong();
 	}
 
 	public long getId() {
