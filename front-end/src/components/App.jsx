@@ -44,6 +44,7 @@ class App extends React.Component {
   sendLoginRequest(email, password) {
     const xhr = this.initLoginXhr();
     xhr.open("POST", "http://localhost:8080/api/account/login");
+    xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(JSON.stringify({
         "email": email,
@@ -64,6 +65,8 @@ class App extends React.Component {
           console.log(xhr.status);
           return xhr.responseText;
         }
+        console.log("COOKIES ARE:");
+        console.log(document.cookie);
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
         this.setState({id: userSession.id, displayName: userSession.displayName, token: userSession.token});

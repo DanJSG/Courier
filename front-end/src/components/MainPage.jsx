@@ -31,6 +31,7 @@ class MainPage extends React.Component {
   }
 
   componentDidMount() {
+    const xhr = new XMLHttpRequest();
     // window.addEventListener("beforeunload", this.closeConnection);
     this.handleConnect();
     console.log("Component mounted.");
@@ -42,6 +43,7 @@ class MainPage extends React.Component {
 
   getDisplayName() {
     const xhr = new XMLHttpRequest()
+    xhr.withCredentials = true;
     xhr.addEventListener("loadend", () => {
       if(xhr.status !== 200) {
         console.log("Couldn't get user info from API");

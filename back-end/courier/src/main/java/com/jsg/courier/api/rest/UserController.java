@@ -28,11 +28,11 @@ import com.jsg.courier.repositories.UserRepository;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://local.courier.net:3000")
 @RequestMapping("/api/account")
 public class UserController {
 	
-	@CrossOrigin(origins = "http://localhost:3000/*")
+	@CrossOrigin(origins = "http://local.courier.net:3000/*")
 	@PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> createAccount(@RequestBody Map<String, String> userDetails) throws Exception {
 		User user = createUser(userDetails);
@@ -53,7 +53,7 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000/*")
+	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true", exposedHeaders="Set-Cookie")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin, HttpServletResponse response) throws Exception {
 		UserRepository userRepo = new UserRepository();
@@ -66,14 +66,17 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		user.clearPassword();
-		Cookie jwtCookie = new Cookie("jwt", JWTHandler.createToken(user.getId()));
+		String jwt = JWTHandler.createToken(user.getId());
+		Cookie jwtCookie = new Cookie("jwt", jwt);
+		jwtCookie.setMaxAge(60 * 15);
+		jwtCookie.setPath("/");
 		jwtCookie.setHttpOnly(true);
 		response.addCookie(jwtCookie);
-		UserSession session = new UserSession(user.getId(), JWTHandler.createToken(user.getId()));
+		UserSession session = new UserSession(user.getId(), jwt);
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000/*")
+	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/findUserInfoById")
 	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id, @CookieValue String jwt) throws Exception {
 		if(!JWTHandler.verifyToken(jwt)) {
