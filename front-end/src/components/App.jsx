@@ -9,32 +9,45 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.initLoginXhr = this.initLoginXhr.bind(this);
-    this.updateAuthorization = this.updateAuthorization.bind(this);
+    this.logout = this.logout.bind(this);
     this.updateDisplayName = this.updateDisplayName.bind(this);
     this.sendLoginRequest = this.sendLoginRequest.bind(this);
     this.clearErrors = this.clearErrors.bind(this);
     this.state = {
-      authorized: this.checkAuthorization(),
+      authorized: false,
       id: localStorage.getItem('id'),
       displayName: null,
-      loginError: null,
-      token: null
+      loginError: null
     }
+    this.checkAuthorization();
   }
+
+  // componentDidMount() {
+  //   this.checkAuthorization();
+  // }
 
   checkAuthorization() {
-    if(localStorage.getItem("loggedIn") === "true") {
-      return true;
-    }
-    return false;
+    const xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    xhr.open("POST", `http://localhost:8080/api/account/verifyJwt?id=${this.state.id}`);
+    xhr.addEventListener("error", () => {
+      this.setState({authorized: false});
+    })
+    xhr.addEventListener("loadend", () => {
+      console.log("JWT Verification:");
+      console.log(xhr.responseText);
+      if(xhr.responseText !== "true") {
+        this.setState({authorized: false});
+        return;
+      }
+      this.setState({authorized: true});
+    })
+    xhr.send();
   }
 
-  updateAuthorization(bool) {
-    this.setState({authorized: bool});
-    localStorage.setItem("loggedIn", `${bool}`);
-    if(!bool) {
-      this.setState({token: null});
-    }
+  logout() {
+    this.setState({authorized: false});
+    localStorage.clear();
   }
 
   updateDisplayName(displayName) {
@@ -55,23 +68,24 @@ class App extends React.Component {
   initLoginXhr() {
     const xhr = new XMLHttpRequest();
     xhr.addEventListener("error", (ev) => {
-      this.setState({loginError: xhr.responseText})
-      alert(xhr.responseText);
+      this.setState({loginError: "An error occurred whilst contacting the server."});
       console.log(ev);
     });
     xhr.addEventListener("loadend", () => {
-        if(xhr.status !== 200) {
+        if(xhr.status === 0) {
+          this.setState({loginError: "Failed to connect to login server."});
+          return;
+        } else if(xhr.status !== 200) {
           this.setState({loginError: xhr.responseText});
           console.log(xhr.status);
+          this.logout();
           return xhr.responseText;
         }
-        console.log("COOKIES ARE:");
-        console.log(document.cookie);
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.setState({id: userSession.id, displayName: userSession.displayName, token: userSession.token});
+        this.setState({id: userSession.id, displayName: userSession.displayName});
         localStorage.setItem("id", userSession.id);
-        this.updateAuthorization(true);
+        this.checkAuthorization();
     });
     return xhr;
   }
@@ -87,14 +101,13 @@ class App extends React.Component {
           <Route exact path="/">
             {
               this.state.authorized ? 
-              <MainPage updateAuthorization={this.updateAuthorization}
+              <MainPage logout={this.logout}
                         updateDisplayName={this.updateDisplayName}
                         email={this.state.email}
                         id={this.state.id}
-                        displayName={this.state.displayName}
-                        token={this.state.token}/>
+                        displayName={this.state.displayName}/>
               :
-              <Redirect to="/sign-up"/>              
+              <Redirect to="/sign-in"/>              
             }
           </Route>
           <Route exact path="/sign-up">

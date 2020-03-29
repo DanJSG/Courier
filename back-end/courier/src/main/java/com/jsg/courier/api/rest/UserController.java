@@ -68,17 +68,18 @@ public class UserController {
 		user.clearPassword();
 		String jwt = JWTHandler.createToken(user.getId());
 		Cookie jwtCookie = new Cookie("jwt", jwt);
-		jwtCookie.setMaxAge(60 * 15);
+		jwtCookie.setMaxAge(30);
 		jwtCookie.setPath("/");
 		jwtCookie.setHttpOnly(true);
 		response.addCookie(jwtCookie);
-		UserSession session = new UserSession(user.getId(), jwt);
+		UserSession session = new UserSession(user.getId());
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
 	}
 	
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/findUserInfoById")
-	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id, @CookieValue String jwt) throws Exception {
+	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id, 
+			@CookieValue(required = false) String jwt) throws Exception {
 		if(!JWTHandler.verifyToken(jwt)) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
@@ -88,6 +89,21 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to find user with requested ID");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(userInfoList.get(0)));
+	}
+	
+	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
+	@PostMapping(value = "/verifyJwt")
+	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt) {
+		if(jwt == null) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+		}
+		if(!JWTHandler.verifyToken(jwt)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+		}
+		if(JWTHandler.getIdFromToken(jwt) != id) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(true);
 	}
 	
 	private User createUser(Map<String, String> userDetails) throws Exception {

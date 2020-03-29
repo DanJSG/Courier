@@ -47,4 +47,9 @@ public final class JWTHandler {
 		}
 	}
 	
+	public static long getIdFromToken(String token) {
+		DecodedJWT jwt = JWT.decode(token);
+		return jwt.getClaim("id").asLong();
+	}
+	
 }
