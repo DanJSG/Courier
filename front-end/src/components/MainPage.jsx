@@ -51,11 +51,12 @@ class MainPage extends React.Component {
       this.props.updateDisplayName(userInfo.displayName);
     })
     xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}&searchId=${this.props.id}`);
+    xhr.setRequestHeader("Authorization", "Bearer token.goes.here");
     xhr.send();
   }
 
   handleConnect() {
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", this.props.id)}, () => {
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.id, "token.goes.here"])}, () => {
         this.addWebSocketEventListeners();
       });
   }

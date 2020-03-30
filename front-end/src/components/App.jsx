@@ -26,6 +26,7 @@ class App extends React.Component {
     const xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
     xhr.open("POST", `http://localhost:8080/api/account/verifyJwt?id=${this.state.id}`);
+    xhr.setRequestHeader("Authorization", "Bearer token.goes.here");
     xhr.addEventListener("error", () => {
       this.setState({authorized: false});
     })

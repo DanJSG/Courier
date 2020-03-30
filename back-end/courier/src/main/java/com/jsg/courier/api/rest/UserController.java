@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -79,7 +80,8 @@ public class UserController {
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/findUserInfoById")
 	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long searchId, @RequestParam long id, 
-			@CookieValue(required = false) String jwt) throws Exception {
+			@CookieValue(required = false) String jwt, @RequestHeader String authorization) throws Exception {
+		System.out.println(authorization);
 		if(jwt == null) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
@@ -99,7 +101,9 @@ public class UserController {
 	
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/verifyJwt")
-	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt) {
+	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt, 
+			@RequestHeader String authorization) {
+		System.out.println(authorization);
 		if(jwt == null) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
 		}

@@ -27,7 +27,17 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
 		}
-		String idString = request.getHeaders().getFirst("sec-websocket-protocol");
+		String protocolHeader = request.getHeaders().getFirst("sec-websocket-protocol");
+		if(protocolHeader == null || protocolHeader.contentEquals("")) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		String[] protocolHeaders = request.getHeaders().getFirst("sec-websocket-protocol").split(",");
+		if(protocolHeaders.length != 2) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		String idString = protocolHeaders[0];
 		if(idString == null || idString.contentEquals("")) {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
@@ -37,6 +47,8 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
 		}
+		String headerToken = protocolHeaders[1];
+		System.out.println(headerToken);
 		long id = Long.parseLong(idString);
 		if(JWTHandler.getIdFromToken(token) != id) {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
