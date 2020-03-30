@@ -16,6 +16,7 @@ class App extends React.Component {
     this.state = {
       authorized: false,
       id: localStorage.getItem('id'),
+      token: localStorage.getItem('token'),
       displayName: null,
       loginError: null
     }
@@ -26,7 +27,7 @@ class App extends React.Component {
     const xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
     xhr.open("POST", `http://localhost:8080/api/account/verifyJwt?id=${this.state.id}`);
-    xhr.setRequestHeader("Authorization", "Bearer token.goes.here");
+    xhr.setRequestHeader("Authorization", `Bearer ${this.state.token}`);
     xhr.addEventListener("error", () => {
       this.setState({authorized: false});
     })
@@ -78,10 +79,14 @@ class App extends React.Component {
           this.logout();
           return xhr.responseText;
         }
+        const token = xhr.getResponseHeader("Authorization").split("Bearer").pop().trim();
+        console.log("Token is:");
+        console.log(token);
         const userSession = JSON.parse(xhr.responseText);
         console.log(userSession);
-        this.setState({id: userSession.id, displayName: userSession.displayName});
+        this.setState({id: userSession.id, displayName: userSession.displayName, token: token});
         localStorage.setItem("id", userSession.id);
+        localStorage.setItem("token", token);
         this.checkAuthorization();
     });
     return xhr;
@@ -100,8 +105,8 @@ class App extends React.Component {
               this.state.authorized ? 
               <MainPage logout={this.logout}
                         updateDisplayName={this.updateDisplayName}
-                        email={this.state.email}
                         id={this.state.id}
+                        token={this.state.token}
                         displayName={this.state.displayName}/>
               :
               <Redirect to="/sign-in"/>              
@@ -112,9 +117,7 @@ class App extends React.Component {
               this.state.authorized ? 
               <Redirect to="/"/>
               :
-              <SignUpPage email={this.state.email}
-                          id={this.state.id}
-                          loginError={this.state.loginError}
+              <SignUpPage loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>
             }
@@ -124,9 +127,7 @@ class App extends React.Component {
               this.state.authorized ?
               <Redirect to="/"/>
               :
-              <LoginPage  email={this.state.email} 
-                          id={this.state.id}
-                          loginError={this.state.loginError}
+              <LoginPage  loginError={this.state.loginError}
                           sendLoginRequest={this.sendLoginRequest}
                           clearErrors={this.clearErrors}/>
             }

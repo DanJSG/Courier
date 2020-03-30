@@ -54,7 +54,7 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
 	}
 	
-	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
+	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true", exposedHeaders="Authorization")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin, HttpServletResponse response) throws Exception {
 		UserRepository userRepo = new UserRepository();
@@ -68,13 +68,14 @@ public class UserController {
 		}
 		user.clearPassword();
 		String jwt = JWTHandler.createToken(user.getId());
+		String xsrfJwt = JWTHandler.createToken(user.getId());
 		Cookie jwtCookie = new Cookie("jwt", jwt);
 		jwtCookie.setMaxAge(30);
 		jwtCookie.setPath("/");
 		jwtCookie.setHttpOnly(true);
 		response.addCookie(jwtCookie);
 		UserSession session = new UserSession(user.getId());
-		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(session));
+		return ResponseEntity.status(HttpStatus.OK).header("Authorization", "Bearer " + xsrfJwt).body(new ObjectMapper().writeValueAsString(session));
 	}
 	
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
