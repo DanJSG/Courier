@@ -22,10 +22,6 @@ class App extends React.Component {
     this.checkAuthorization();
   }
 
-  // componentDidMount() {
-  //   this.checkAuthorization();
-  // }
-
   checkAuthorization() {
     const xhr = new XMLHttpRequest();
     xhr.withCredentials = true;

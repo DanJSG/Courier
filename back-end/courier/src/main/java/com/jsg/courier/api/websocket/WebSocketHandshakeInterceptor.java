@@ -27,13 +27,23 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
 		}
-		String token = cookies[0].getValue();
-		if(JWTHandler.verifyToken(token)) {
-			response.setStatusCode(HttpStatus.OK);
-			return true;
+		String idString = request.getHeaders().getFirst("sec-websocket-protocol");
+		if(idString == null || idString.contentEquals("")) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
 		}
-		response.setStatusCode(HttpStatus.FORBIDDEN);
-		return false;
+		String token = cookies[0].getValue();
+		if(!JWTHandler.verifyToken(token)) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		long id = Long.parseLong(idString);
+		if(JWTHandler.getIdFromToken(token) != id) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		response.setStatusCode(HttpStatus.OK);
+		return true;
 	}
 
 	@Override

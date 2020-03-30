@@ -50,7 +50,7 @@ class MainPage extends React.Component {
       const userInfo = JSON.parse(xhr.responseText);
       this.props.updateDisplayName(userInfo.displayName);
     })
-    xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}`);
+    xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}&searchId=${this.props.id}`);
     xhr.send();
   }
 

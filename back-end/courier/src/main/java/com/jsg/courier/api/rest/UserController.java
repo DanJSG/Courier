@@ -53,7 +53,7 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
 	}
 	
-	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true", exposedHeaders="Set-Cookie")
+	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin, HttpServletResponse response) throws Exception {
 		UserRepository userRepo = new UserRepository();
@@ -78,9 +78,15 @@ public class UserController {
 	
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true")
 	@PostMapping(value = "/findUserInfoById")
-	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long id, 
+	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long searchId, @RequestParam long id, 
 			@CookieValue(required = false) String jwt) throws Exception {
+		if(jwt == null) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
+		}
 		if(!JWTHandler.verifyToken(jwt)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
+		}
+		if(JWTHandler.getIdFromToken(jwt) != id) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
 		UserInfoRepository repo = new UserInfoRepository();
