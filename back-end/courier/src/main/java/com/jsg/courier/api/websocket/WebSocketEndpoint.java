@@ -13,8 +13,13 @@ public class WebSocketEndpoint implements WebSocketConfigurer {
 	@Autowired
 	SocketHandler socketHandler;
 	
+	@Autowired
+	WebSocketHandshakeInterceptor handshakeInterceptor;
+	
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(socketHandler, "/api/ws").setAllowedOrigins("http://localhost:3000");	
+		registry.addHandler(socketHandler, "/api/ws")
+		.setAllowedOrigins("http://local.courier.net:3000")
+		.addInterceptors(handshakeInterceptor);	
 	}
 }

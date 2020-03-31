@@ -38,7 +38,6 @@ class LoginPage extends React.Component {
     }
 
     render() {
-        console.log("In LoginPage: " + localStorage.getItem("loggedIn"));
         return(
             <div className="form-container">
                 <form onSubmit={this.handleLogin}>

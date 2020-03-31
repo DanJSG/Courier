@@ -12,10 +12,7 @@ class MainPage extends React.Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
     this.handleConnect = this.handleConnect.bind(this);
     this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
-    this.closeConnection = this.closeConnection.bind(this);
-    this.logOut = this.logOut.bind(this);
     this.getDisplayName = this.getDisplayName.bind(this);
-    console.log("Display name props are: " + props.displayName);
     if(!props.displayName) {
       this.getDisplayName();
     }
@@ -31,17 +28,19 @@ class MainPage extends React.Component {
   }
 
   componentDidMount() {
-    // window.addEventListener("beforeunload", this.closeConnection);
     this.handleConnect();
     console.log("Component mounted.");
   }
 
   componentWillUnmount() {
-    this.closeConnection();
+    if(this.state.wsConnection) {
+      this.state.wsConnection.close();
+    }
   }
 
   getDisplayName() {
     const xhr = new XMLHttpRequest()
+    xhr.withCredentials = true;
     xhr.addEventListener("loadend", () => {
       if(xhr.status !== 200) {
         console.log("Couldn't get user info from API");
@@ -50,30 +49,23 @@ class MainPage extends React.Component {
       const userInfo = JSON.parse(xhr.responseText);
       this.props.updateDisplayName(userInfo.displayName);
     })
-    xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}`);
+    xhr.open("POST", `http://localhost:8080/api/account/findUserInfoById?id=${this.props.id}&searchId=${this.props.id}`);
+    xhr.setRequestHeader("Authorization", `Bearer ${this.props.token}`);
     xhr.send();
   }
 
-  closeConnection() {
-    this.handleSendMessage("Closing the connection...")
-    if(this.state.wsConnection) {
-      this.state.wsConnection.close();
-    }
-    return null;
-  }
-
   handleConnect() {
-    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.id])}, () => {
+    this.setState({wsConnection: new WebSocket("ws://localhost:8080/api/ws", [this.props.id, this.props.token])}, () => {
         this.addWebSocketEventListeners();
       });
   }
 
   addWebSocketEventListeners() {
-    console.log(this.state.wsConnection);
     this.state.wsConnection.addEventListener("open", () => {
       console.log(`Connection opened with user ID ${this.props.id}`);
     });
     this.state.wsConnection.addEventListener("error", () => {
+      console.log(this.state.wsConnection);
       alert("Failed to connect to chat room server.")
     })
     this.state.wsConnection.addEventListener("message", (e) => {
@@ -122,13 +114,7 @@ class MainPage extends React.Component {
     }
   }
 
-  logOut() {
-    this.props.updateAuthorization(false);
-    localStorage.clear();
-  }
-
   render() {
-    console.log("In MainPage: " + localStorage.getItem("loggedIn"));
     return (
       <React.Fragment>
         <div className="container">
@@ -137,7 +123,7 @@ class MainPage extends React.Component {
           <ChatInfo currentChat={this.state.currentChat}></ChatInfo>
         </div>
         <footer className="footer">
-          <button onClick={this.logOut} style={{width: "20%", justifyContent: "middle"}}>Log Out</button>
+          <button onClick={this.props.logout} style={{width: "20%", justifyContent: "middle"}}>Log Out</button>
         </footer>
       </React.Fragment>
     );

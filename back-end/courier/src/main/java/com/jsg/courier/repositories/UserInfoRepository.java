@@ -45,7 +45,7 @@ public class UserInfoRepository extends MySQLRepository implements SQLRepository
 				usersInfo.add(new UserInfo(results.getLong("id"), results.getString("displayname"), results.getString("bio")));
 			}
 			if(usersInfo.size() == 0) {
-				throw new Error();
+				throw new Exception();
 			}
 			return usersInfo;
 		} catch (Exception e) {

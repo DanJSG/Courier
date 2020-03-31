@@ -13,14 +13,10 @@ public class UserSession {
 	@JsonProperty
 	private long id;
 	
-	@JsonProperty
-	private String token;
-	
 	public UserSession() {}
 	
-	public UserSession(long id, String token) {
+	public UserSession(long id) {
 		this.id = id;
-		this.token = "TOKEN";
 		try {
 			getDisplayName();
 		} catch (Exception e) {

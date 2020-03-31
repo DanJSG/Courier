@@ -36,14 +36,13 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		WebSocketHeaders headers = new WebSocketHeaders(session);	
 		if(sessions.containsKey(UUID.fromString(session.getId()))) {
 			System.out.println("WebSocket connection already exists between server and session: " + session.getId());
 			return;
 		}
 		sessions.put(UUID.fromString(session.getId()), session);
 		getChatHistory(session);
-		System.out.println("WebSocket connection established between server and session with details: " + session.getId() + ", " + headers.getId());
+		System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
 		broadcastSessions();
 	}
 	
@@ -77,7 +76,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	private void broadcastSessions() throws Exception {
 		String json = "`[";
 		int i = 0;
-		Set<Long> idSet = new HashSet<Long>();
+		Set<Long> idSet = new HashSet<>();
 		for(WebSocketSession session : sessions.values()) {
 			WebSocketHeaders headers = new WebSocketHeaders(session);
 			if(idSet.contains(headers.getId())) {
@@ -87,7 +86,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), "token-goes-here")))).getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId())))).getPayload();
 			i++;
 		}
 		json += "]";

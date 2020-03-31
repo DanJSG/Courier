@@ -58,7 +58,7 @@ class SignUpPage extends React.Component {
         }
         const symbols = /^[ a-z0-9A-Z]*$/;
         if(!symbols.test(displayName)) {
-            console.log("STOP! YOU HAVE VIOLATED THE LAW! PAY THE COURT A FINE OR SERVE YOUR SENTENCE!")
+            this.setState({signUpError: "Your display name contains illegal characters. "})
             return false;
         }
         return true;
@@ -77,7 +77,6 @@ class SignUpPage extends React.Component {
     }
 
     render() {
-        console.log("In SignUpPage: " + localStorage.getItem("loggedIn"));
         return(
             <div className="form-container">
                 <form onSubmit={this.handleSignUp}>

@@ -11,10 +11,10 @@ public class WebSocketHeaders {
 
 	public WebSocketHeaders() {}
 	
-	public WebSocketHeaders(WebSocketSession session) {
-		this.id = Long.parseLong(session.getHandshakeHeaders().getFirst("sec-websocket-protocol"));
-//		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
-//		this.id = Long.parseLong(headers[0].trim());
+	public WebSocketHeaders(WebSocketSession session) {		
+		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");
+		this.id = Long.parseLong(headers[0]);
+		System.out.println("WebSocket header token is: " + headers[1].trim());
 	}
 
 	public long getId() {
