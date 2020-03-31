@@ -13,7 +13,6 @@ class MainPage extends React.Component {
     this.handleConnect = this.handleConnect.bind(this);
     this.addWebSocketEventListeners = this.addWebSocketEventListeners.bind(this);
     this.getDisplayName = this.getDisplayName.bind(this);
-    console.log("Display name props are: " + props.displayName);
     if(!props.displayName) {
       this.getDisplayName();
     }
@@ -62,7 +61,6 @@ class MainPage extends React.Component {
   }
 
   addWebSocketEventListeners() {
-    console.log(this.state.wsConnection);
     this.state.wsConnection.addEventListener("open", () => {
       console.log(`Connection opened with user ID ${this.props.id}`);
     });

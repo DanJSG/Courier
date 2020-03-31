@@ -23,43 +23,26 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			Map<String, Object> attributes) throws Exception {
 		HttpServletRequest req = ((ServletServerHttpRequest) request).getServletRequest();
 		Cookie[] cookies = req.getCookies();
-		if(cookies == null) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
-			return false;
-		}
 		String protocolHeader = request.getHeaders().getFirst("sec-websocket-protocol");
-		if(protocolHeader == null || protocolHeader.contentEquals("")) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
+		if(cookies == null || protocolHeader == null || protocolHeader.contentEquals("")) {
+			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}
-		String[] protocolHeaders = request.getHeaders().getFirst("sec-websocket-protocol").split(",");
+		String[] protocolHeaders = protocolHeader.split(",");
 		if(protocolHeaders.length != 2) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
+			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}
 		String idString = protocolHeaders[0];
 		if(idString == null || idString.contentEquals("")) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
+			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}
 		String token = cookies[0].getValue();
-		if(!JWTHandler.verifyToken(token)) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
-			return false;
-		}
-		long id = Long.parseLong(idString);
-		if(JWTHandler.getIdFromToken(token) != id) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
-			return false;
-		}
 		String headerToken = protocolHeaders[1].trim();
-		System.out.println(headerToken);
-		if(!JWTHandler.verifyToken(headerToken)) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
-			return false;
-		}
-		if(JWTHandler.getIdFromToken(headerToken) != id) {
-			response.setStatusCode(HttpStatus.FORBIDDEN);
+		long id = Long.parseLong(idString);
+		if(!JWTHandler.tokenIsValid(token, id) || !JWTHandler.tokenIsValid(headerToken, id)) {
+			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}
 		response.setStatusCode(HttpStatus.OK);

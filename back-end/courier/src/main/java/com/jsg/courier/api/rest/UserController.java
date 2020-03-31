@@ -45,12 +45,6 @@ public class UserController {
 		if(userInfo == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create user info.");
 		}
-		System.out.println(user.getEmail());
-		System.out.println(user.getId());
-		System.out.println(user.getPassword());
-		System.out.println(userInfo.getDisplayName());
-		System.out.println(userInfo.getBio());
-		System.out.println(userInfo.getId());
 		user.clearPassword();
 		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(user));
 	}
@@ -70,11 +64,7 @@ public class UserController {
 		user.clearPassword();
 		String jwt = JWTHandler.createToken(user.getId());
 		String xsrfJwt = JWTHandler.createToken(user.getId());
-		Cookie jwtCookie = new Cookie("jwt", jwt);
-		jwtCookie.setMaxAge(900);
-		jwtCookie.setPath("/");
-		jwtCookie.setHttpOnly(true);
-		response.addCookie(jwtCookie);
+		response.addCookie(createAuthCookie("jwt", jwt));
 		UserSession session = new UserSession(user.getId());
 		return ResponseEntity.status(HttpStatus.OK).header("Authorization", "Bearer " + xsrfJwt).body(new ObjectMapper().writeValueAsString(session));
 	}
@@ -83,17 +73,9 @@ public class UserController {
 	@PostMapping(value = "/findUserInfoById")
 	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long searchId, @RequestParam long id, 
 			@CookieValue(required = false) String jwt, @RequestHeader String authorization) throws Exception {
-		System.out.println("In findUserInfoById, auth header is:");
-		System.out.println(authorization);
 		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
-		if(jwt == null || headerJwt == null) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
-		}
-		if(!JWTHandler.verifyToken(jwt) || !JWTHandler.verifyToken(headerJwt)) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
-		}
-		if(JWTHandler.getIdFromToken(jwt) != id || JWTHandler.getIdFromToken(headerJwt) != id) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
+		if(!JWTHandler.tokenIsValid(jwt, id) || !JWTHandler.tokenIsValid(headerJwt, id)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized.");
 		}
 		UserInfoRepository repo = new UserInfoRepository();
 		List<UserInfo> userInfoList = repo.findWhereEqual("id", id, 1);
@@ -107,17 +89,9 @@ public class UserController {
 	@PostMapping(value = "/verifyJwt")
 	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt, 
 			@RequestHeader String authorization) {
-		System.out.println("In verifyJwt, auth header is:");
-		System.out.println(authorization);
 		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
-		if(jwt == null || headerJwt == null) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
-		}
-		if(!JWTHandler.verifyToken(jwt) || !JWTHandler.verifyToken(headerJwt)) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
-		}
-		if(JWTHandler.getIdFromToken(jwt) != id || JWTHandler.getIdFromToken(headerJwt) != id) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+		if(!JWTHandler.tokenIsValid(jwt, id) || !JWTHandler.tokenIsValid(headerJwt, id)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(true);
 	}
@@ -144,6 +118,14 @@ public class UserController {
 		}
 		userInfoRepo.closeConnection();
 		return userInfo;
+	}
+	
+	private Cookie createAuthCookie(String name, String value) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(900);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		return cookie;
 	}
 	
 }

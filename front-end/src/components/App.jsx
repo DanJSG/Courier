@@ -34,8 +34,6 @@ class App extends React.Component {
       this.setState({authorized: false});
     })
     xhr.addEventListener("loadend", () => {
-      console.log("JWT Verification:");
-      console.log(xhr.responseText);
       if(xhr.responseText !== "true") {
         this.setState({authorized: false});
         return;
@@ -82,10 +80,7 @@ class App extends React.Component {
           return xhr.responseText;
         }
         const token = xhr.getResponseHeader("Authorization").split("Bearer").pop().trim();
-        console.log("Token is:");
-        console.log(token);
         const userSession = JSON.parse(xhr.responseText);
-        console.log(userSession);
         this.setState({id: userSession.id, displayName: userSession.displayName, token: token});
         localStorage.setItem("id", userSession.id);
         localStorage.setItem("token", token);

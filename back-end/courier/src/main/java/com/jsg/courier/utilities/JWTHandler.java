@@ -35,11 +35,7 @@ public final class JWTHandler {
 	public static Boolean verifyToken(String token) {
 		JWTVerifier verifier = JWT.require(algorithm).build();
 		try {
-			DecodedJWT jwt = verifier.verify(token);
-			System.out.println("JWT Values: ");
-			System.out.println(jwt.getIssuedAt());
-			System.out.println(jwt.getExpiresAt());
-			System.out.println(jwt.getClaim("id").asLong());
+			verifier.verify(token);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -50,6 +46,13 @@ public final class JWTHandler {
 	public static long getIdFromToken(String token) {
 		DecodedJWT jwt = JWT.decode(token);
 		return jwt.getClaim("id").asLong();
+	}
+	
+	public static Boolean tokenIsValid(String token, long id) {
+		if(token == null || !JWTHandler.verifyToken(token) || JWTHandler.getIdFromToken(token) != id) {
+			return false;
+		}
+		return true;
 	}
 	
 }
