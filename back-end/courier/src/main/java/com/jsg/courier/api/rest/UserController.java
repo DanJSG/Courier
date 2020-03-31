@@ -26,6 +26,7 @@ import com.jsg.courier.datatypes.UserInfo;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.repositories.UserInfoRepository;
 import com.jsg.courier.repositories.UserRepository;
+import com.jsg.courier.utilities.AuthHeaderHandler;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
@@ -70,7 +71,7 @@ public class UserController {
 		String jwt = JWTHandler.createToken(user.getId());
 		String xsrfJwt = JWTHandler.createToken(user.getId());
 		Cookie jwtCookie = new Cookie("jwt", jwt);
-		jwtCookie.setMaxAge(30);
+		jwtCookie.setMaxAge(900);
 		jwtCookie.setPath("/");
 		jwtCookie.setHttpOnly(true);
 		response.addCookie(jwtCookie);
@@ -82,14 +83,16 @@ public class UserController {
 	@PostMapping(value = "/findUserInfoById")
 	public @ResponseBody ResponseEntity<String> findUserInfoById(@RequestParam long searchId, @RequestParam long id, 
 			@CookieValue(required = false) String jwt, @RequestHeader String authorization) throws Exception {
+		System.out.println("In findUserInfoById, auth header is:");
 		System.out.println(authorization);
-		if(jwt == null) {
+		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
+		if(jwt == null || headerJwt == null) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
-		if(!JWTHandler.verifyToken(jwt)) {
+		if(!JWTHandler.verifyToken(jwt) || !JWTHandler.verifyToken(headerJwt)) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
-		if(JWTHandler.getIdFromToken(jwt) != id) {
+		if(JWTHandler.getIdFromToken(jwt) != id || JWTHandler.getIdFromToken(headerJwt) != id) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authenticated to access this endpoint.");
 		}
 		UserInfoRepository repo = new UserInfoRepository();
@@ -104,14 +107,16 @@ public class UserController {
 	@PostMapping(value = "/verifyJwt")
 	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt, 
 			@RequestHeader String authorization) {
+		System.out.println("In verifyJwt, auth header is:");
 		System.out.println(authorization);
-		if(jwt == null) {
+		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
+		if(jwt == null || headerJwt == null) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
 		}
-		if(!JWTHandler.verifyToken(jwt)) {
+		if(!JWTHandler.verifyToken(jwt) || !JWTHandler.verifyToken(headerJwt)) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
 		}
-		if(JWTHandler.getIdFromToken(jwt) != id) {
+		if(JWTHandler.getIdFromToken(jwt) != id || JWTHandler.getIdFromToken(headerJwt) != id) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(true);

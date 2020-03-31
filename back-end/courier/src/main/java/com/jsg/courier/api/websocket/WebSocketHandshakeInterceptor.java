@@ -47,10 +47,18 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
 		}
-		String headerToken = protocolHeaders[1];
-		System.out.println(headerToken);
 		long id = Long.parseLong(idString);
 		if(JWTHandler.getIdFromToken(token) != id) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		String headerToken = protocolHeaders[1].trim();
+		System.out.println(headerToken);
+		if(!JWTHandler.verifyToken(headerToken)) {
+			response.setStatusCode(HttpStatus.FORBIDDEN);
+			return false;
+		}
+		if(JWTHandler.getIdFromToken(headerToken) != id) {
 			response.setStatusCode(HttpStatus.FORBIDDEN);
 			return false;
 		}

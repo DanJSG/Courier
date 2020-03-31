@@ -20,7 +20,9 @@ class App extends React.Component {
       displayName: null,
       loginError: null
     }
-    this.checkAuthorization();
+    if(this.state.token) {
+      this.checkAuthorization();
+    }
   }
 
   checkAuthorization() {
