@@ -28,7 +28,6 @@ public final class JWTHandler {
 				.withExpiresAt(new Date(Calendar.getInstance().getTimeInMillis() + (msMinute * 15)))
 				.withClaim("id", id)
 				.sign(algorithm);
-		System.out.println(jwt);
 		return jwt;
 	}
 	

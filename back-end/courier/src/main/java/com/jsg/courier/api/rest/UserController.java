@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.bson.internal.Base64;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,7 +59,7 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		User user = results.get(0);
-		if(!BCrypt.checkpw(userLogin.get("password"), user.getPassword())) {
+		if(!BCrypt.checkpw(new String(Base64.decode(userLogin.get("password"))), user.getPassword())) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to login. Email address or password incorrect.");
 		}
 		user.clearPassword();

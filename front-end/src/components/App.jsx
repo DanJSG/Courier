@@ -59,7 +59,7 @@ class App extends React.Component {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(JSON.stringify({
         "email": email,
-        "password": password
+        "password": btoa(password)
     }));    
   }
 
