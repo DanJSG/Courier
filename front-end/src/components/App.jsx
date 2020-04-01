@@ -57,8 +57,6 @@ class App extends React.Component {
     xhr.open("POST", "http://localhost:8080/api/account/login");
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json");
-    console.log(password);
-    console.log(btoa(password));
     xhr.send(JSON.stringify({
         "email": email,
         "password": btoa(password)
