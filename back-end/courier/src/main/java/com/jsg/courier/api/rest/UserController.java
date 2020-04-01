@@ -53,8 +53,6 @@ public class UserController {
 	@CrossOrigin(origins = "http://local.courier.net:3000/*", allowCredentials="true", exposedHeaders="Authorization")
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> login(@RequestBody Map<String, String> userLogin, HttpServletResponse response) throws Exception {
-
-		
 		UserRepository userRepo = new UserRepository();
 		List<User> results = userRepo.findWhereEqual("email", userLogin.get("email"), 1);
 		if(results == null) {
