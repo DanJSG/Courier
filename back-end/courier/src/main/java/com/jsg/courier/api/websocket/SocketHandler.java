@@ -27,7 +27,6 @@ public class SocketHandler extends TextWebSocketHandler {
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
-		message.print();
 		MessageRepository repo = new MessageRepository();
 		repo.save(message, "messages");
 		repo.closeConnection();
@@ -60,7 +59,6 @@ public class SocketHandler extends TextWebSocketHandler {
 		System.out.println("(broadcast)Session size is: " + sessions.size());
 		sessions.forEach((currentSessionId, currentSession) -> {
 			if(currentSessionId.equals(sessionId)) {
-				System.out.println("Not sending to session: " + currentSessionId);
 				// this works similarly to continue in a foreach lambda function
 				return;
 			}
