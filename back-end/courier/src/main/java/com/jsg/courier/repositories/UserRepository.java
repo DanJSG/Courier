@@ -8,10 +8,10 @@ import java.util.Map;
 
 import com.jsg.courier.datatypes.User;
 
-public class UserRepository extends MySQLRepository implements SQLRepository<User> {
+public class UserRepository extends MySQLRepository implements SQLRepository<User> { 
 	
 	public UserRepository() throws Exception {
-		this.tableName = "users.accounts";
+		super.tableName = "users.accounts";
 		super.openConnection();
 	}
 	
