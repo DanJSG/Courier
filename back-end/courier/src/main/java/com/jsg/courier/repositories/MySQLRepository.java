@@ -29,9 +29,9 @@ public abstract class MySQLRepository {
 	
 	protected void save(Map<String, Object> valueMap) throws Exception {
 		Object[] values = valueMap.values().toArray();
-		String prepdQuery = "INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + ") VALUES (" 
+		String query = "INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + ") VALUES (" 
 							+ createParamMarkers(values) + ");";
-		PreparedStatement statement = connection.prepareStatement(prepdQuery);
+		PreparedStatement statement = connection.prepareStatement(query);
 		for(int i=0; i < values.length; i++) {
 			statement.setObject(i + 1, values[i]);
 		}
