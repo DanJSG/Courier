@@ -2,12 +2,12 @@ package com.jsg.courier.repositories;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Map;
 import java.util.Properties;
 
-public abstract class MySQLRepository  {
+public abstract class MySQLRepository {
 
 	protected String tableName;
 	private Connection connection;
@@ -28,21 +28,22 @@ public abstract class MySQLRepository  {
 	}
 	
 	protected void save(Map<String, Object> valueMap) throws Exception {
-		String query = "INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 
-				") VALUES (" + stringifyValues(valueMap) + ");";
-		Statement statement = connection.createStatement();
-		statement.execute(query);
+		Object[] values = valueMap.values().toArray();
+		String query = "INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + ") VALUES (" 
+							+ createParamMarkers(values) + ");";
+		PreparedStatement statement = connection.prepareStatement(query);
+		for(int i=0; i < values.length; i++) {
+			statement.setObject(i + 1, values[i]);
+		}
+		statement.execute();
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected <V> ResultSet findWhereEquals(String column, V value, String resultColumn, int limit) throws Exception {
-		if(value.getClass() == String.class) {
-			value = (V) ("\"" + value + "\"");
-		}
-		Statement statement = connection.createStatement();
+		String query = "SELECT " + resultColumn + " FROM courier.`" + tableName + "` WHERE " + column + "=?;";
+		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setFetchSize(limit);
-		String query = "SELECT " + resultColumn + " FROM courier.`" + tableName + "` WHERE " + column + " = " + value + ";";
-		ResultSet results = statement.executeQuery(query);
+		statement.setObject(1, value);
+		ResultSet results = statement.executeQuery();
 		return results;
 	}
 	
@@ -52,25 +53,21 @@ public abstract class MySQLRepository  {
 		for(int i=0; i< valueMap.keySet().size(); i++) {
 			keyString += keys[i];
 			if(i != valueMap.keySet().size() - 1) {
-				keyString += ", ";
+				keyString += ",";
 			}
 		}
 		return keyString;
 	}
 	
-	private String stringifyValues(Map<String, Object> valueMap) {
-		String valueString = new String();
-		Object[] values = valueMap.values().toArray();
-		for(int i=0; i< valueMap.values().size(); i++) {
-			if(values[i].getClass() == String.class) {
-				values[i] = "\"" + values[i] + "\"";
-			}
-			valueString += values[i];
-			if(i != valueMap.values().size() - 1) {
-				valueString += ",";
+	private String createParamMarkers(Object[] values) {
+		String paramString = new String();
+		for(int i=0; i < values.length; i++) {
+			paramString += "?";
+			if(i < values.length - 1) {
+				paramString += ",";
 			}
 		}
-		return valueString;
+		return paramString;
 	}
 	
 }
