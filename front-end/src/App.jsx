@@ -1,8 +1,8 @@
 import React from 'react';
 import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom'
-import MainPage from './MainPage';
-import SignUpPage from './SignUpPage';
-import LoginPage from './LoginPage';
+import MainPage from './components/MainPage';
+import SignUpPage from './components/SignUpPage';
+import LoginPage from './components/LoginPage';
 
 class App extends React.Component {
 

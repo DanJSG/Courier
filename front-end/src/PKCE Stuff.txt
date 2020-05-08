@@ -1,0 +1,14 @@
+PKCE Stuff
+
+import sha256 from 'crypto-js/sha256'
+
+console.log("Running from index.js");
+const maxCount = 1;
+const randArray = window.crypto.getRandomValues(new Uint8Array(43));
+let secureRand = "";
+randArray.forEach(value => secureRand += value.toString(36));
+console.log(secureRand);
+
+const hash = sha256("hello there!");
+
+console.log(hash.toString());
