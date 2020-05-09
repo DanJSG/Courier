@@ -11,6 +11,8 @@ function CallbackPage() {
     useEffect(() => {
         const state = sessionStorage.getItem("auth.state");
         const code_verifier = sessionStorage.getItem("auth.code_verifier");
+        sessionStorage.removeItem("auth.state");
+        sessionStorage.removeItem("auth.code_verifier");
         requestTokens(params, state, code_verifier);
     })
 
