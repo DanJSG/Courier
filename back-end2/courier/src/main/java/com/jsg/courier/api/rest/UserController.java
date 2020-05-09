@@ -47,11 +47,15 @@ public final class UserController extends ApiController {
 	}
 	
 	@PostMapping(value = "/verifyJwt")
-	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, @CookieValue(required = false) String jwt, 
-			@RequestHeader String authorization) {
+	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, 
+			@CookieValue(name = "acc.tok", required = false) String jwt, @RequestHeader String authorization) {
+		System.out.println("verifyJwt triggered...");
 		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
+		System.out.println("Header JWT is: " + headerJwt);
+		System.out.println("Cookie JWT is: " + jwt);
 		if(!JWTHandler.tokenIsValid(jwt, ACCESS_TOKEN_SECRET) || 
 				!JWTHandler.tokenIsValid(headerJwt, ACCESS_TOKEN_SECRET)) {
+			System.out.println("JWT invalid");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(true);

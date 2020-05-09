@@ -33,7 +33,7 @@ function ChatPage(props) {
     }, [wsConnection]);
 
     const handleConnect = () => {
-        // setWsConnection(new WebSocket("ws://localhost:8080/api/ws", [props.id, props.token]));
+        setWsConnection(new WebSocket("ws://localhost:8080/api/ws", [props.id, props.token]));
         console.log("Would now connect");
     }
 
