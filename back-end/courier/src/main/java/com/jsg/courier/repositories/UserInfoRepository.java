@@ -10,8 +10,8 @@ import com.jsg.courier.datatypes.UserInfo;
 
 public class UserInfoRepository extends MySQLRepository implements SQLRepository<UserInfo> {
 
-	public UserInfoRepository() throws Exception {
-		this.tableName = "users.info";
+	public UserInfoRepository(String connectionString, String username, String password) throws Exception  {
+		super(connectionString, username, password, "users.info");
 		super.openConnection();
 	}
 	
@@ -57,6 +57,17 @@ public class UserInfoRepository extends MySQLRepository implements SQLRepository
 	@Override
 	public Boolean closeConnection() throws Exception {
 		return super.closeConnection();
+	}
+	
+	@Override
+	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) throws Exception {
+		try {
+			super.updateWhereEquals(clauseColumn, clauseValue, updateColumn, updateValue);
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

@@ -15,17 +15,17 @@ public class UserSession {
 	
 	public UserSession() {}
 	
-	public UserSession(long id) {
+	public UserSession(long id, String connectionString, String username, String password) {
 		this.id = id;
 		try {
-			getDisplayName();
+			getDisplayName(connectionString, username, password);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void getDisplayName() throws Exception {
-		UserInfoRepository repo = new UserInfoRepository();
+	private void getDisplayName(String connectionString, String username, String password) throws Exception {
+		UserInfoRepository repo = new UserInfoRepository(connectionString, username, password);
 		List<UserInfo> infoList = repo.findWhereEqual("id", this.id, 1);
 		if(infoList == null || infoList.size() < 1) {
 			this.displayName = "Anonymous";

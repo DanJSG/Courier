@@ -1,6 +1,11 @@
 package com.jsg.courier.datatypes;
 
+import java.util.List;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jsg.courier.repositories.UserRepository;
 
 public class User {
 	
@@ -10,12 +15,8 @@ public class User {
 	@JsonProperty
 	private String email;
 	
-	@JsonProperty
 	private String password;
-	
-	@JsonProperty
-	private String salt;
-	
+		
 	public User() {}
 	
 	public User(String email, String password) {
@@ -43,7 +44,29 @@ public class User {
 	
 	public void clearPassword() {
 		this.password = null;
-		this.salt = null;
+	}
+	
+	public Boolean save(String connectionString, String username, String password) throws Exception {
+		UserRepository repo = new UserRepository(connectionString, username, password);
+		Boolean isSaved = repo.save(this);
+		User user = repo.findWhereEqual("email", email).get(0);
+		id = user.getId();
+		repo.closeConnection();
+		return isSaved;
+	}
+	
+	public Boolean verifyCredentials(UserRepository userRepo) throws Exception {
+		List<User> results = userRepo.findWhereEqual("email", email, 1);
+		if(results == null || results.size() < 1) {
+			return false;
+		}
+		User user = results.get(0);
+		if(!BCrypt.checkpw(password, user.getPassword())) {
+			return false;
+		}
+		user.clearPassword();
+		this.id = user.getId();
+		return true;
 	}
 	
 }

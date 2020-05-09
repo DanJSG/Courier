@@ -1,6 +1,7 @@
 package com.jsg.courier.datatypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jsg.courier.repositories.UserInfoRepository;
 
 public class UserInfo {
 
@@ -16,9 +17,7 @@ public class UserInfo {
 	public UserInfo() {}
 	
 	public UserInfo(long id, String name) {
-		this.id = id;
-		this.displayName = name;
-		this.bio = "";
+		this(id, name, "");
 	}
 	
 	public UserInfo(long id, String displayName, String bio) {
@@ -37,6 +36,13 @@ public class UserInfo {
 	
 	public String getBio() {
 		return this.bio;
+	}
+	
+	public Boolean save(String connectionString, String username, String password) throws Exception {
+		UserInfoRepository repo = new UserInfoRepository(connectionString, username, password);
+		Boolean isSaved = repo.save(this);
+		repo.closeConnection();
+		return isSaved;
 	}
 	
 }

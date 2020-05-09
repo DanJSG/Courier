@@ -1,5 +1,5 @@
 import React from 'react';
-import ChatPicker from './ChatPicker'
+import ChatPicker from './ChatPicker';
 
 function ChatList(props) {
     return (

@@ -10,11 +10,11 @@ import com.jsg.courier.datatypes.User;
 
 public class UserRepository extends MySQLRepository implements SQLRepository<User> { 
 	
-	public UserRepository() throws Exception {
-		super.tableName = "users.accounts";
+	public UserRepository(String connectionString, String username, String password) throws Exception {
+		super(connectionString, username, password, "users.accounts");
 		super.openConnection();
 	}
-	
+
 	@Override
 	public Boolean save(User item) {
 		Map<String, Object> valueMap = new HashMap<>();
@@ -29,7 +29,7 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 			return false;
 		}
 	}
-
+	
 	@Override
 	public <V> List<User> findWhereEqual(String searchColumn, V value) {
 		return findWhereEqual(searchColumn, value, 0);
@@ -56,6 +56,17 @@ public class UserRepository extends MySQLRepository implements SQLRepository<Use
 	@Override
 	public Boolean closeConnection() throws Exception {
 		return super.closeConnection();
+	}
+
+	@Override
+	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) throws Exception {
+		try {
+			super.updateWhereEquals(clauseColumn, clauseValue, updateColumn, updateValue);
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 }
