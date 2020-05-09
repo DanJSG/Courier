@@ -8,8 +8,8 @@ function LandingPage() {
         console.log("Redirecting to sign in...");
         const state = generateState();
         const codeChallenge = generateCodeChallenge();
-        localStorage.setItem("auth.state", state);
-        localStorage.setItem("auth.code_verifier", codeChallenge.code_verifier);
+        sessionStorage.setItem("auth.state", state);
+        sessionStorage.setItem("auth.code_verifier", codeChallenge.code_verifier);
         window.location.href = `http://local.courier.net:3010/oauth2/authorize` +
                                 `?audience=${AUDIENCE}` + 
                                 `&scope=${SCOPE}` + 

@@ -47,18 +47,23 @@ public final class UserController extends ApiController {
 	}
 	
 	@PostMapping(value = "/verifyJwt")
-	public @ResponseBody ResponseEntity<Boolean> verifyJwt(@RequestParam Long id, 
-			@CookieValue(name = "acc.tok", required = false) String jwt, @RequestHeader String authorization) {
-		System.out.println("verifyJwt triggered...");
+	public @ResponseBody ResponseEntity<String> verifyJwt(@CookieValue(name = "acc.tok", required = false) String jwt, 
+			@RequestHeader String authorization) throws Exception {
+//		System.out.println("verifyJwt triggered...");
 		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
-		System.out.println("Header JWT is: " + headerJwt);
-		System.out.println("Cookie JWT is: " + jwt);
+//		System.out.println("Header JWT is: " + headerJwt);
+//		System.out.println("Cookie JWT is: " + jwt);
 		if(!JWTHandler.tokenIsValid(jwt, ACCESS_TOKEN_SECRET) || 
 				!JWTHandler.tokenIsValid(headerJwt, ACCESS_TOKEN_SECRET)) {
-			System.out.println("JWT invalid");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(true);
+		UserInfoRepository repo = new UserInfoRepository(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD);
+		long id = JWTHandler.getIdFromToken(headerJwt);
+		List<UserInfo> infoList = repo.findWhereEqual("id", id, 1);
+		if(infoList == null || infoList.size() < 1) {
+			return UNAUTHORIZED_HTTP_RESPONSE;
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(infoList.get(0)));
 	}
 	
 }

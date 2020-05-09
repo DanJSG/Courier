@@ -9,21 +9,24 @@ function ChatPage(props) {
     const [wsConnection, setWsConnection] = useState(null);
     const [chats, setChats] = useState([]);
     const [currentChat, setCurrentChat] = useState({
-        name: "",
+        name: "Test",
         members: []
     });
 
     // called once on mount
-    useEffect(() => handleConnect(), []);
-
-    // called on unmount
     useEffect(() => {
-        return function cleanup() {
-            if(wsConnection) {
-                new wsConnection.close();
-            }
-        }
-    });
+        console.log(props);
+        handleConnect()
+    }, []);
+
+    // // called on unmount
+    // useEffect(() => {
+    //     return function cleanup() {
+    //         if(wsConnection) {
+    //             wsConnection.close();
+    //         }
+    //     }
+    // });
 
     //called whenever wsConnection changes
     useEffect(() => {
@@ -33,11 +36,13 @@ function ChatPage(props) {
     }, [wsConnection]);
 
     const handleConnect = () => {
-        setWsConnection(new WebSocket("ws://localhost:8080/api/ws", [props.id, props.token]));
+        console.log(props.id);
+        setWsConnection(new WebSocket("ws://local.courier.net:8080/api/ws", [props.id, props.token]));
         console.log("Would now connect");
     }
 
     const addWebSocketEventListeners = () => {
+        console.log(props.id);
         wsConnection.addEventListener("open", () => {
             console.log(`Connection opened with user ID ${props.id}`);
         });
@@ -51,14 +56,14 @@ function ChatPage(props) {
                 // console.log("Received message over websocket:")
                 // console.log(receivedMessage);
                 receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
-                setMessages(prevMessages => prevMessages.push(receivedMessage));
+                setMessages(prevMessages => [...prevMessages, receivedMessage]);
                 return;
             }
+            console.log(e.data);
             const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
             // if session ID is currently null, find entry with 
-            console.log(chatMembers);
-            setCurrentChat(prevState => {return {
-                name: prevState.currentChat.name,
+            setCurrentChat(prevChat => {return {
+                name: prevChat.name,
                 members: chatMembers
             }});
         });
@@ -84,7 +89,8 @@ function ChatPage(props) {
             sender: props.displayName,
             receiver: "ALL"
         }
-        setMessages(prevMessages => prevMessages.push(message));
+        setMessages(prevMessages => [...prevMessages, message]);
+        // setMessages(prevMessages => prevMessages.push(message));
         if(wsConnection) {
             wsConnection.send(JSON.stringify(message));
         }

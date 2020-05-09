@@ -8,13 +8,19 @@ import './App.scss';
 function App() {
 
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [id, setId] = useState(null);
+  const [displayName, setDisplayName] = useState(null);
 
   const checkAuthorization = async () => {
     const lsToken = localStorage.getItem("acc.tok");
     if(!lsToken) {
-      return false;
+      return {
+        authorized: false,
+        id: null,
+        displayName: null
+      };
     };
-    return await fetch(`http://local.courier.net:8080/api/v1/verifyJwt?id=3`, {
+    return await fetch(`http://local.courier.net:8080/api/v1/verifyJwt`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -25,9 +31,20 @@ function App() {
       console.log("Recieved response...");
       console.log(response);
       if(response.status !== 200) {
-        return false;
+        return {
+          authorized: false,
+          id: null,
+          displayName: null
+        };
       }
-      return true;
+      return response.json();
+    })
+    .then((json) => {
+      return {
+        authorized: true,
+        id: json.id,
+        displayName: json.displayName
+      }
     })
     .catch((error) => {
       console.log("fetch error...");
@@ -38,7 +55,9 @@ function App() {
 
   const awaitAuthCheck = async () => {
     const result = await checkAuthorization();
-    setIsAuthorized(result);
+    setId(result.id);
+    setDisplayName(result.displayName);
+    setIsAuthorized(result.authorized);
   }
 
   useEffect(() => {
@@ -52,7 +71,7 @@ function App() {
           {
             isAuthorized
             ?
-            <ChatPage id={3} displayName="Dan" token="9p8ucnyc893ryux3nc"/>
+            <ChatPage id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
             :
             <LandingPage />
           }

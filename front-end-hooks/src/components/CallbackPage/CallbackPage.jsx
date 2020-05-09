@@ -9,8 +9,8 @@ function CallbackPage() {
     const [params] = useState(getQueryStringAsJson(location));
 
     useEffect(() => {
-        const state = localStorage.getItem("auth.state");
-        const code_verifier = localStorage.getItem("auth.code_verifier");
+        const state = sessionStorage.getItem("auth.state");
+        const code_verifier = sessionStorage.getItem("auth.code_verifier");
         requestTokens(params, state, code_verifier);
     })
 

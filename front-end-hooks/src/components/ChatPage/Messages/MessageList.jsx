@@ -3,6 +3,7 @@ import Message from "./Message";
 import MessageBuilder from './MessageBuilder'
 
 function MessageList(props){
+
     return(
         <div className="message-list">
             <h1>Messages</h1>
