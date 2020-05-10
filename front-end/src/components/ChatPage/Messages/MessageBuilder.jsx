@@ -21,7 +21,7 @@ function MessageBuilder(props) {
                     <input type="text" name="message"></input>
                     <button>Send</button>
                 </form>
-                {error}
+                {error && <label>{error}</label>}
             </div>
         );
 
