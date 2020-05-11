@@ -10,14 +10,14 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 public final class JWTHandler {
 	
-	private static final long msSecond = 1000;
+	private static final long SECOND_MS = 1000;
 	
 	public static String createToken(long id, String secret, int expirySecs) {
 		Algorithm algorithm = Algorithm.HMAC256(secret);
 		int hash = Calendar.getInstance().getTime().hashCode();
 		String jwt = JWT.create()
 				.withIssuedAt(new Date())
-				.withExpiresAt(new Date((Calendar.getInstance().getTimeInMillis() * msSecond) + expirySecs))
+				.withExpiresAt(new Date((Calendar.getInstance().getTimeInMillis() * SECOND_MS) + expirySecs))
 				.withClaim("id", id)
 				.withClaim("hash", hash)
 				.sign(algorithm);
