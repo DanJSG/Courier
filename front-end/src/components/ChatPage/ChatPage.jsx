@@ -32,7 +32,7 @@ function ChatPage(props) {
     // called once on mount
     useEffect(() => {
         setWsConnection(
-            initializeWebSocket("ws://local.courier.net:8080/api/ws", 
+            initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", 
             props.id, 
             props.token,
             updateMessagesCallback,
@@ -54,6 +54,9 @@ function ChatPage(props) {
         const response = sendMessage(wsConnection, messageText, props.id, props.displayName);
         if(!response) {
             return "An unhandled error occurred";
+        }
+        if(response.error) {
+            return response.error;
         }
         setMessages(prevMessages => [...prevMessages, response.message]);
     }

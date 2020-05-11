@@ -33,10 +33,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) throws Exception {
 		HttpServletRequest req = ((ServletServerHttpRequest) request).getServletRequest();
-		
 		Cookie cookie = WebUtils.getCookie(req, ACCESS_TOKEN_NAME);
-		
-//		Cookie[] cookies = req.getCookies();
 		String protocolHeader = request.getHeaders().getFirst("sec-websocket-protocol");
 		System.out.println("Protocol header is:" + protocolHeader);
 		if(cookie == null || protocolHeader == null || protocolHeader.contentEquals("")) {

@@ -13,7 +13,7 @@ export const checkAuthorization = async () => {
         displayName: null
       };
     };
-    return await fetch(`http://local.courier.net:8080/api/v1/verifyJwt`, {
+    return await fetch(`http://local.courier.net:8080/api/v1/authorize`, {
       method: "POST",
       credentials: "include",
       headers: {
