@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public abstract class ApiController {
 
 	protected static final String ALPHA_NUM_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	protected static final String REFRESH_TOKEN_NAME = "ref.tok";
 	protected static final String ACCESS_TOKEN_NAME = "acc.tok";
 	protected static final ResponseEntity<String> UNAUTHORIZED_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 	protected static final ResponseEntity<String> BAD_REQUEST_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
