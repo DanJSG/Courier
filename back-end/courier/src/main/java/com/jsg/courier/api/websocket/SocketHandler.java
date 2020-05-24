@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -25,19 +23,6 @@ public class SocketHandler extends TextWebSocketHandler {
 		
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
-	
-	private final String SQL_CONNECTION_STRING;
-	private final String SQL_USERNAME;
-	private final String SQL_PASSWORD;
-	
-	@Autowired
-	public SocketHandler(@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString) {
-		SQL_CONNECTION_STRING = sqlConnectionString;
-		SQL_USERNAME = sqlUsername;
-		SQL_PASSWORD = sqlPassword;
-	}
 		
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
@@ -99,10 +84,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper
-					.writeValueAsString(new UserSession(headers.getId(),
-							SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD))))
-					.getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId())))).getPayload();
 			i++;
 		}
 		json += "]";
