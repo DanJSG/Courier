@@ -19,11 +19,8 @@ import com.jsg.courier.utilities.JWTHandler;
 public class AuthController extends ApiController {
 	
 	@Autowired
-	public AuthController(@Value("${token.secret.access}") String accessTokenSecret,
-			@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString) {
-		super(accessTokenSecret, sqlUsername, sqlPassword, sqlConnectionString);
+	public AuthController(@Value("${token.secret.access}") String accessTokenSecret) {
+		super(accessTokenSecret);
 	}
 	
 	@PostMapping(value = "/authorize")

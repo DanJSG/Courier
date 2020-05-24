@@ -17,24 +17,10 @@ public abstract class ApiController {
 	protected static final ResponseEntity<String> BAD_REQUEST_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	
 	protected final String ACCESS_TOKEN_SECRET;
-	protected final String SQL_USERNAME;
-	protected final String SQL_PASSWORD;
-	protected final String SQL_CONNECTION_STRING;
 	
 	@Autowired
-	protected ApiController(String accessTokenSecret, String sqlUsername,
-			String sqlPassword, String sqlConnectionString) {
+	protected ApiController(String accessTokenSecret) {
 		this.ACCESS_TOKEN_SECRET = accessTokenSecret;
-		this.SQL_CONNECTION_STRING = sqlConnectionString;
-		this.SQL_USERNAME = sqlUsername;
-		this.SQL_PASSWORD = sqlPassword;
-	}
-	
-	protected ApiController(String sqlUsername, String sqlPassword, String sqlConnectionString) {
-		this.ACCESS_TOKEN_SECRET = null;
-		this.SQL_CONNECTION_STRING = sqlConnectionString;
-		this.SQL_USERNAME = sqlUsername;
-		this.SQL_PASSWORD = sqlPassword;
 	}
 	
 }
