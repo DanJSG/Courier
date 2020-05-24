@@ -3,6 +3,7 @@ package com.jsg.courier.datatypes;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jsg.courier.repositories.UserInfoAPIRepository;
 import com.jsg.courier.repositories.UserInfoRepository;
 
 public class UserSession {

@@ -2,6 +2,8 @@ package com.jsg.courier.httprequests;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +23,14 @@ public class HttpRequestBuilder {
 	private Boolean allowOutput = false;
 	private Boolean followRedirects = true;
 	
-	public HttpRequestBuilder() {}
+	public HttpRequestBuilder() {
+		parameters = new ArrayList<String>();
+		headers = new HashMap<String, String>();
+		cookies = new ArrayList<String>();
+	}
 	
 	public HttpRequestBuilder(String url) {
+		this();
 		setUrl(url);
 	}
 	

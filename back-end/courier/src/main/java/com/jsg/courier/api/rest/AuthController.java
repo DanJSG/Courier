@@ -9,6 +9,7 @@ import java.net.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jsg.courier.httprequests.HttpRequestBuilder;
 import com.jsg.courier.httprequests.HttpResponse;
+import com.jsg.courier.repositories.UserInfoAPIRepository;
 import com.jsg.courier.utilities.AuthHeaderHandler;
 import com.jsg.courier.utilities.JWTHandler;
 
@@ -48,17 +50,23 @@ public class AuthController extends ApiController {
 		}
 		
 		long id = JWTHandler.getIdFromToken(headerJwt);
-		HttpRequestBuilder requestBuilder = new HttpRequestBuilder("http://local.courier.net:8090/api/v1/userInfo");
-		requestBuilder.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
-		requestBuilder.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString());
-		requestBuilder.addCookie(ACCESS_TOKEN_NAME, jwt);
-		requestBuilder.addHeader(HttpHeaders.AUTHORIZATION, authorization);
-		requestBuilder.addParameter("id", id);
-		requestBuilder.addParameter("client_id", CLIENT_ID);
-		HttpResponse response = new HttpResponse(requestBuilder.toHttpURLConnection());
-//		System.out.println(response.)
-		
-		
+		HttpResponse response = UserInfoAPIRepository.getUserInfo(ACCESS_TOKEN_NAME, jwt, authorization, id, CLIENT_ID);
+//		HttpRequestBuilder requestBuilder = new HttpRequestBuilder("http://local.courier.net:8090/api/v1/userInfo");
+//		requestBuilder.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
+//		requestBuilder.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString());
+//		requestBuilder.addCookie(ACCESS_TOKEN_NAME, jwt);
+//		requestBuilder.addHeader(HttpHeaders.AUTHORIZATION, authorization);
+//		requestBuilder.addParameter("id", id);
+//		requestBuilder.addParameter("client_id", CLIENT_ID);
+//		requestBuilder.setRequestMethod(HttpMethod.GET);
+//		HttpResponse response = new HttpResponse(requestBuilder.toHttpURLConnection());
+		return ResponseEntity.status(HttpStatus.OK).body(response.getBody());
+//		System.out.println(response.getMethod() + " " + response.getUrl() + response.getQueryString());
+//		System.out.println(response.getStatus() + " " + response.getMessage());
+//		response.getHeaders().forEach((key, value) -> {
+//			System.out.println(key + ":" + value);
+//		});
+//		System.out.println(response.getBody());
 //		URL url = new URL("http://local.courier.net:8090/api/v1/userInfo?client_id=ThpDT2t2EDlO&id=" + id2);
 //		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 //        connection.setRequestProperty(HttpHeaders.CONTENT_TYPE,"application/json");
@@ -69,7 +77,6 @@ public class AuthController extends ApiController {
 //		connection.setRequestMethod("GET");
 //		connection.setConnectTimeout(15000);
 //		connection.setReadTimeout(15000);
-//		
 //		int status = connection.getResponseCode();
 //		System.out.println(status);
 //		InputStream stream;
@@ -94,14 +101,12 @@ public class AuthController extends ApiController {
 //			System.out.println("No error body");
 //		}
 //		connection.disconnect();
-		
 //		UserInfoRepository repo = new UserInfoRepository(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD);
 //		long id = JWTHandler.getIdFromToken(headerJwt);
 //		List<UserInfo> infoList = repo.findWhereEqual("id", id, 1);
 //		if(infoList == null || infoList.size() < 1) {
 //			return UNAUTHORIZED_HTTP_RESPONSE;
 //		}
-		return ResponseEntity.status(HttpStatus.OK).body(response.getBody());
 	}
 
 }
