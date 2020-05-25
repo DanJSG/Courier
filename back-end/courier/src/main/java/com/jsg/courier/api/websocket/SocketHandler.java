@@ -26,19 +26,16 @@ public class SocketHandler extends TextWebSocketHandler {
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
-	private final String SQL_CONNECTION_STRING;
-	private final String SQL_USERNAME;
-	private final String SQL_PASSWORD;
+	private final String CLIENT_ID;
+	private final String CLIENT_SECRET;
 	
 	@Autowired
-	public SocketHandler(@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString) {
-		SQL_CONNECTION_STRING = sqlConnectionString;
-		SQL_USERNAME = sqlUsername;
-		SQL_PASSWORD = sqlPassword;
+	public SocketHandler(@Value("${oauth2.client_id}") String client_id, 
+			@Value("${oauth2.client_secret}") String client_secret) {
+				this.CLIENT_ID = client_id;
+				this.CLIENT_SECRET = client_secret;
 	}
-		
+	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
@@ -99,10 +96,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper
-					.writeValueAsString(new UserSession(headers.getId(),
-							SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD))))
-					.getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), CLIENT_ID, CLIENT_SECRET)))).getPayload();
 			i++;
 		}
 		json += "]";

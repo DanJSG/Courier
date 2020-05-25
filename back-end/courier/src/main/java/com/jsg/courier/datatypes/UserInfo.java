@@ -1,7 +1,6 @@
 package com.jsg.courier.datatypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jsg.courier.repositories.UserInfoRepository;
 
 public class UserInfo {
 
@@ -37,12 +36,5 @@ public class UserInfo {
 	public String getBio() {
 		return this.bio;
 	}
-	
-	public Boolean save(String connectionString, String username, String password) throws Exception {
-		UserInfoRepository repo = new UserInfoRepository(connectionString, username, password);
-		Boolean isSaved = repo.save(this);
-		repo.closeConnection();
-		return isSaved;
-	}
-	
+
 }
