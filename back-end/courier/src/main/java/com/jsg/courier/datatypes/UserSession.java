@@ -26,6 +26,9 @@ public class UserSession {
 	
 	private void getDisplayName() throws Exception {
 		HttpResponse response = UserInfoAPIRepository.getUserInfo(id);
+		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
+			throw new Exception();
+		}
 		UserInfo info = new ObjectMapper().readValue(response.getBody(), UserInfo.class);
 		this.displayName = info.getDisplayName();
 	}

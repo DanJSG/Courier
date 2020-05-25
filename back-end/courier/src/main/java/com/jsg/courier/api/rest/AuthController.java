@@ -27,14 +27,15 @@ public class AuthController extends ApiController {
 	public @ResponseBody ResponseEntity<String> authorize(@CookieValue(name = ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
 		String headerJwt = AuthHeaderHandler.getBearerToken(authorization);
-		System.out.println(headerJwt);
-		System.out.println(jwt);
 		if(!JWTHandler.tokenIsValid(jwt, ACCESS_TOKEN_SECRET) || 
 				!JWTHandler.tokenIsValid(headerJwt, ACCESS_TOKEN_SECRET)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		long id = JWTHandler.getIdFromToken(headerJwt);
 		HttpResponse response = UserInfoAPIRepository.getUserInfo(id);
+		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
+			return BAD_REQUEST_HTTP_RESPONSE;
+		}
 		return ResponseEntity.status(HttpStatus.OK).body(response.getBody());
 	}
 
