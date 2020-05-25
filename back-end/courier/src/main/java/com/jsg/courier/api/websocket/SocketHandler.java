@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -23,7 +25,17 @@ public class SocketHandler extends TextWebSocketHandler {
 		
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
-		
+	
+	private final String CLIENT_ID;
+	private final String CLIENT_SECRET;
+	
+	@Autowired
+	public SocketHandler(@Value("${oauth2.client_id}") String client_id, 
+			@Value("${oauth2.client_secret}") String client_secret) {
+				this.CLIENT_ID = client_id;
+				this.CLIENT_SECRET = client_secret;
+	}
+	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
@@ -84,7 +96,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId())))).getPayload();
+			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), CLIENT_ID, CLIENT_SECRET)))).getPayload();
 			i++;
 		}
 		json += "]";

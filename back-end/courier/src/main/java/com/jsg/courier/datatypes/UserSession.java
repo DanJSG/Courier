@@ -15,17 +15,17 @@ public class UserSession {
 	
 	public UserSession() {}
 	
-	public UserSession(long id) {
+	public UserSession(long id, String client_id, String client_secret) {
 		this.id = id;
 		try {
-			getDisplayName();
+			getDisplayName(client_id, client_secret);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void getDisplayName() throws Exception {
-		HttpResponse response = UserInfoAPIRepository.getUserInfo(id);
+	private void getDisplayName(String client_id, String client_secret) throws Exception {
+		HttpResponse response = UserInfoAPIRepository.getUserInfo(id, client_id, client_secret);
 		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
 			throw new Exception();
 		}

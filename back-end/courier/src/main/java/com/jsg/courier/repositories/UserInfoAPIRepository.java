@@ -10,27 +10,23 @@ import org.springframework.http.MediaType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.httprequests.HttpRequestBuilder;
 import com.jsg.courier.httprequests.HttpResponse;
 
 public class UserInfoAPIRepository {
 	
-	private static final String CLIENT_ID = "ThpDT2t2EDlO";
-	private static final String CLIENT_SECRET = "aU3LCC1vzagDBDqEX7O729rJpgStVkH9";
-	private static final String CLIENT_CREDENTIALS_GRANT_TYPE = "client_credentials";
-	protected static final String ACCESS_TOKEN_NAME = "acc.tok";
-	
-	public static HttpResponse getUserInfo(long id) throws Exception {
-		HttpResponse authResponse = sendTokenRequest(CLIENT_ID, CLIENT_SECRET, CLIENT_CREDENTIALS_GRANT_TYPE);
+	public static HttpResponse getUserInfo(long id, String client_id, String client_secret) throws Exception {
+		HttpResponse authResponse = sendTokenRequest(client_id, client_secret, OAuth2.CLIENT_CREDENTIALS_GRANT_TYPE);
 		String cookieToken = getCookieToken(authResponse);
 		String headerToken = getHeaderToken(authResponse);
 		HttpRequestBuilder requestBuilder = new HttpRequestBuilder("http://local.courier.net:8090/api/v1/userInfo");
 		requestBuilder.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
 		requestBuilder.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString());
-		requestBuilder.addCookie(ACCESS_TOKEN_NAME, cookieToken);
+		requestBuilder.addCookie(OAuth2.ACCESS_TOKEN_NAME, cookieToken);
 		requestBuilder.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + headerToken);
 		requestBuilder.addParameter("id", id);
-		requestBuilder.addParameter("client_id", CLIENT_ID);
+		requestBuilder.addParameter("client_id", client_id);
 		requestBuilder.setRequestMethod(HttpMethod.GET);
 		return new HttpResponse(requestBuilder.toHttpURLConnection());
 	}
@@ -53,7 +49,7 @@ public class UserInfoAPIRepository {
 			return null;
 		}
 		String cookieHeader = cookieHeaders.get(0);
-		if(!cookieHeader.contains(ACCESS_TOKEN_NAME) || !cookieHeader.contains("=") || !cookieHeader.contains(";")) {
+		if(!cookieHeader.contains(OAuth2.ACCESS_TOKEN_NAME) || !cookieHeader.contains("=") || !cookieHeader.contains(";")) {
 			return null;
 		}
 		return cookieHeader.split("=")[1].split(";")[0];
