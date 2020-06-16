@@ -2,7 +2,7 @@ import React from 'react';
 
 function ChatPicker(props) {
     return(
-        <li>{props.name}</li>
+        <li className="list-group-item">{props.name}</li>
     );
 }
 

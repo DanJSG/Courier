@@ -2,13 +2,14 @@ import React, {useState, useEffect} from 'react';
 import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
+import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/chatservice';
 
 function ChatPage(props) {
 
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
-    const [chats] = useState([]);
+    const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
     const [currentChat, setCurrentChat] = useState({
         name: "Test",
         members: []
@@ -39,6 +40,7 @@ function ChatPage(props) {
             updateCurrentChatCallback,
             logErrorCallback
         ));
+        // setChats(prevChats => [...prevChats, {name: "Test", id: "5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
         return () => {
             removeWebSocketListeners(
                 wsConnection, 
@@ -63,10 +65,26 @@ function ChatPage(props) {
 
     return (
     <React.Fragment>
-        <div className="container">
-        <ChatList chats={chats}></ChatList>
-        <MessageList handleSendMessage={handleSendMessage} messages={messages}></MessageList>
-        <ChatInfo currentChat={currentChat}></ChatInfo>
+        <div className="container-fluid inherit-height mh-100">
+            <div className="row justify-content-center inherit-height">
+                <div className="col-2 border">
+                    <ChatList chats={chats}></ChatList>
+                </div>
+                <div className="col-8 border mh-100 inherit-height">
+                    <div className="row h-auto ml-3">
+                        <h1 className="row">{currentChat.name}</h1>
+                    </div>
+                    <div className="row mh-100 h-auto overflow-auto">
+                        <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
+                    </div>
+                    <div className="row h-auto align-items-end">
+                        <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
+                    </div>
+                </div>
+                <div className="col-2 border">
+                    <ChatInfo currentChat={currentChat}></ChatInfo>
+                </div>
+            </div>
         </div>
     </React.Fragment>
     );
