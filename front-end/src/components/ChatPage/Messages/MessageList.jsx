@@ -7,13 +7,11 @@ function MessageList(props){
     return(
         <React.Fragment>
             
-                <div className="col">
-                    <div className="list-group-flush">
+                    <div className="list-group-flush w-100 p-3">
                         {props.messages.map((message) => (
                             <Message message={message} key={message.timestamp + message.sender}></Message>
                         ))}
                     </div>
-                </div>
 
         </React.Fragment>
     );  

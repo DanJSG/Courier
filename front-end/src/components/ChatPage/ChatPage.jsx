@@ -67,21 +67,21 @@ function ChatPage(props) {
     <React.Fragment>
         <div className="container-fluid inherit-height mh-100">
             <div className="row justify-content-center inherit-height">
-                <div className="col-2 border">
+                <div className="col-2 border pt-2">
                     <ChatList chats={chats}></ChatList>
                 </div>
-                <div className="col-8 border mh-100 inherit-height">
+                <div className="col-8 border mh-100 inherit-height pt-2">
                     <div className="row h-auto ml-3">
-                        <h1 className="row">{currentChat.name}</h1>
+                        <h1>{currentChat.name}</h1>
                     </div>
-                    <div className="row mh-100 h-auto overflow-auto">
+                    <div className="row h-auto overflow-auto" style={{minHeight: "87%", maxHeight: "87%"}}>
                         <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                     </div>
                     <div className="row h-auto align-items-end">
                         <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                     </div>
                 </div>
-                <div className="col-2 border">
+                <div className="col-2 border pt-2">
                     <ChatInfo currentChat={currentChat}></ChatInfo>
                 </div>
             </div>
