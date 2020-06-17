@@ -18,9 +18,9 @@ function MessageBuilder(props) {
     return(
         <React.Fragment>    
             <form className="input-group p-0" onSubmit={handleSendMessage}>
-                <input className="form-control" type="text" name="message"></input>
+                <textarea className="form-control rounded-0" type="text" name="message" style={{resize: "none"}}></textarea>
                 <div className="input-group-append">
-                    <button className="btn btn-outline-secondary">Send</button>
+                    <button className="btn btn-outline-secondary pl-4 pr-4 rounded-0">Send</button>
                 </div>
             </form>
             {error && <label>{error}</label>}

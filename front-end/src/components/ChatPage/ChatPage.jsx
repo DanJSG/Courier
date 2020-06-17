@@ -40,7 +40,6 @@ function ChatPage(props) {
             updateCurrentChatCallback,
             logErrorCallback
         ));
-        // setChats(prevChats => [...prevChats, {name: "Test", id: "5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
         return () => {
             removeWebSocketListeners(
                 wsConnection, 
@@ -70,14 +69,12 @@ function ChatPage(props) {
                 <div className="col-2 border pt-2">
                     <ChatList chats={chats}></ChatList>
                 </div>
-                <div className="col-8 border mh-100 inherit-height pt-2">
-                    <div className="row h-auto ml-3">
-                        <h1>{currentChat.name}</h1>
-                    </div>
-                    <div className="row h-auto overflow-auto" style={{minHeight: "87%", maxHeight: "87%"}}>
-                        <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
-                    </div>
-                    <div className="row h-auto align-items-end">
+                <div className="col-8 border pt-2 mh-100 justify-content-between flex-column p-0">
+                    <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
+                        <h1 className="pl-3 pr-3 pb-3 border-bottom">{currentChat.name}</h1>
+                        <div className="mh-100 overflow-auto">
+                            <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
+                        </div>
                         <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                     </div>
                 </div>
