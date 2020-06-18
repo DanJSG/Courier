@@ -2,12 +2,13 @@ import React from 'react';
 
 function Message(props) {
 
-    const senderAlignment = props.isSender ? "d-flex justify-content-end w-100" : "";
+    const senderAlignment = props.isSender ? "d-flex justify-content-end" : "";
+    const margins = props.isSender ? {marginLeft: "35%", width: "65%"} : {marginRight: "35%", width: "65%"};
 
     return(
-        <div className="list-group-item p-2 bg-transparent d-flex flex-row">
+        <div className="list-group-item pt-2 pb-2 bg-transparent d-flex flex-row">
             <div className="w-100">
-                <div className={senderAlignment}>
+                <div className={senderAlignment} style={margins}>
                     <b>{props.message.sender}:</b>&nbsp;{props.message.messageText} 
                 </div>
                 <div className={senderAlignment}>

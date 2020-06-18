@@ -36,7 +36,7 @@ function MessageBuilder(props) {
                           style={{resize: "none"}} 
                           placeholder="Type your message here..."/>
                 <div className="input-group-append">
-                    <button className="btn btn-outline-secondary pl-4 pr-4 rounded-0">Send</button>
+                    <button className="btn btn-outline-secondary pl-4 pr-4 rounded-0">Send&nbsp;&nbsp;<i className="fa fa-paper-plane-o" style={{fontSize: "16px"}}/></button>
                 </div>
             </form>
             {error && <label>{error}</label>}
