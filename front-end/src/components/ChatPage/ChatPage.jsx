@@ -80,10 +80,10 @@ function ChatPage(props) {
                 </div>
                 <div className="col-8 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
-                        <h1 className="pl-3 pr-3 pb-3 border-bottom">{currentChat.name}</h1>
-                        <div id="msg-list" className="mh-100 overflow-auto d-flex flex-column justify-content-end flex-grow-1">
-                            <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
-                        </div>
+                        <h1 className="pl-3 pr-3 bg-light">{currentChat.name}</h1>
+                            <div id="msg-list" className="mh-100 border-top overflow-auto flex-grow-1" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
+                                    <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
+                            </div>
                         <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                     </div>
                 </div>

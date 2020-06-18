@@ -2,9 +2,6 @@ import React from 'react';
 import ChatPicker from './ChatPicker';
 
 function ChatList(props) {
-
-    console.log(props.chats);
-
     return (
         <div>
             <div className="text-center">

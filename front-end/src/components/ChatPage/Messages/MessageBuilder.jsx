@@ -33,7 +33,8 @@ function MessageBuilder(props) {
                           className="form-control rounded-0" 
                           type="text" 
                           name="message" 
-                          style={{resize: "none"}} />
+                          style={{resize: "none"}} 
+                          placeholder="Type your message here..."/>
                 <div className="input-group-append">
                     <button className="btn btn-outline-secondary pl-4 pr-4 rounded-0">Send</button>
                 </div>
