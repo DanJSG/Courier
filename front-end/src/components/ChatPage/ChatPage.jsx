@@ -4,6 +4,7 @@ import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/chatservice';
+import {animateScroll} from 'react-scroll';
 
 function ChatPage(props) {
 
@@ -51,6 +52,14 @@ function ChatPage(props) {
         }
     }, []);
 
+    useEffect(() => {
+        animateScroll.scrollToBottom({
+            containerId: "msg-list",
+            duration: 50,
+            delay: 0
+        });
+    })
+
     const handleSendMessage = (messageText) => {
         const response = sendMessage(wsConnection, messageText, props.id, props.displayName);
         if(!response) {
@@ -72,7 +81,7 @@ function ChatPage(props) {
                 <div className="col-8 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
                         <h1 className="pl-3 pr-3 pb-3 border-bottom">{currentChat.name}</h1>
-                        <div className="mh-100 overflow-auto">
+                        <div id="msg-list" className="mh-100 overflow-auto">
                             <MessageList handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                         </div>
                         <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
