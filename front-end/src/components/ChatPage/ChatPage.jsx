@@ -1,13 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/chatservice';
-import {animateScroll} from 'react-scroll';
+import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
 
+    const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
     const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
@@ -15,6 +16,7 @@ function ChatPage(props) {
         name: "Test",
         members: []
     });
+    const [hasRendered, setHasRendered] = useState(false);
 
     const updateCurrentChatCallback = (members) => {
         setCurrentChat(prevChat => {return {
@@ -41,6 +43,7 @@ function ChatPage(props) {
             updateCurrentChatCallback,
             logErrorCallback
         ));
+        messageScrollbar.current.scrollToBottom();
         return () => {
             removeWebSocketListeners(
                 wsConnection, 
@@ -53,11 +56,8 @@ function ChatPage(props) {
     }, []);
 
     useEffect(() => {
-        animateScroll.scrollToBottom({
-            containerId: "msg-list",
-            duration: 50,
-            delay: 0
-        });
+        // review whether this is a good idea due to blocking other elements loading
+        if(hasRendered) messageScrollbar.current.scrollToBottom();
     })
 
     const handleSendMessage = (messageText) => {
@@ -81,9 +81,9 @@ function ChatPage(props) {
                 <div className="col-8 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
                         <h1 className="pl-3 pr-3 bg-light">{currentChat.name}</h1>
-                            <div id="msg-list" className="mh-100 border-top overflow-auto flex-grow-1" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
-                                    <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
-                            </div>
+                            <Scrollbars ref={messageScrollbar}>
+                                <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
+                            </Scrollbars>
                         <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                     </div>
                 </div>
@@ -97,4 +97,6 @@ function ChatPage(props) {
 
 } 
 
+// <div id="msg-list" className="mh-100 border-top overflow-auto flex-grow-1" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
+// </div>
 export default ChatPage;
