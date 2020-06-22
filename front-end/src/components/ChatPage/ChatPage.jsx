@@ -79,7 +79,7 @@ function ChatPage(props) {
                 <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
                         <h1 className="pl-3 pr-3 bg-light">{currentChat.name}</h1>
-                            <div className="h-100 w-100 mh-100 flex-grow-1" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
+                            <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
                                 <Scrollbars ref={messageScrollbar}>
                                     <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                                 </Scrollbars>
