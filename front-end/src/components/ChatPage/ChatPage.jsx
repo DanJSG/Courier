@@ -17,6 +17,14 @@ function ChatPage(props) {
         members: []
     });
 
+    const createChat = () => {
+        const newChat = {
+            name: "Created",
+            id: (Math.random() * 1000).toString()
+        }
+        setChats(prevChats => [newChat, ...prevChats]);
+    }
+
     const updateCurrentChatCallback = (members) => {
         setCurrentChat(prevChat => {return {
             name: prevChat.name,
@@ -74,7 +82,7 @@ function ChatPage(props) {
         <div className="container-fluid inherit-height mh-100">
             <div className="row justify-content-center inherit-height">
                 <div className="col-3 border pt-2 pl-0 pr-0">
-                    <ChatList chats={chats}></ChatList>
+                    <ChatList createChat={createChat} chats={chats}></ChatList>
                 </div>
                 <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">

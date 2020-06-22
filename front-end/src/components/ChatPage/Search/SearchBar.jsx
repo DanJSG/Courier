@@ -15,7 +15,7 @@ function SearchBar(props) {
     }
 
     return (
-        <div className="p-1 pb-2">
+        <div className="flex-grow-1" style={{maxWidth: "80%"}}>
             <form onSubmit={searchTriggered}>
                 <input onKeyDown={somethingTyped} name="search" className="form-control input-hover rounded-pill" type="text" placeholder="Search chats..."/>
             </form>
