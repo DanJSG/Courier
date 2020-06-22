@@ -97,6 +97,4 @@ function ChatPage(props) {
 
 } 
 
-// <div id="msg-list" className="mh-100 border-top overflow-auto flex-grow-1" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
-// </div>
 export default ChatPage;
