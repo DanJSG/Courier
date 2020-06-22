@@ -7,6 +7,8 @@ function ChatPicker(props) {
     
     const onChatClick = () => {
         console.log(props.name);
+        console.log(props.id);
+        props.changeCurrentChat(props.id);
         // switch chats when this chat is clicked
     }
 

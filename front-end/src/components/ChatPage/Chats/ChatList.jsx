@@ -20,7 +20,7 @@ function ChatList(props) {
             <div className="col mh-100 h-100 flex-grow-1 overflow-auto p-0">
                     <ul className="list-group border-top">
                         {props.chats.map((chat) => (
-                            <ChatPicker isCurrentChat={chat.id === props.currentChat.id} name={chat.name} key={chat.id}></ChatPicker>
+                            <ChatPicker changeCurrentChat={props.changeCurrentChat} isCurrentChat={chat.id === props.currentChat.id} id={chat.id} name={chat.name} key={chat.id}></ChatPicker>
                         ))}
                     </ul>
             </div>
