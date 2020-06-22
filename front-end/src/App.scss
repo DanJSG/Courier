@@ -10,5 +10,9 @@
     background-color: hsl(0, 0%, 92%);
 }
 
+.chat-selected { 
+    background-color: hsl(0, 0%, 90%) !important;
+}
+
 @import '~bootstrap/scss/bootstrap.scss';
 @import '~font-awesome/scss/font-awesome.scss';

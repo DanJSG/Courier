@@ -17,10 +17,10 @@ function ChatList(props) {
                     <button onClick={onCreateChatClicked} className="btn rounded-circle ml-1 mr-1 pl-2 pr-2"><i className="fa fa-plus"/></button>
                 </div>
             </div>
-            <div className="col mh-100 h-100 flex-grow-1 overflow-auto">
+            <div className="col mh-100 h-100 flex-grow-1 overflow-auto p-0">
                     <ul className="list-group border-top">
                         {props.chats.map((chat) => (
-                            <ChatPicker name={chat.name} key={chat.id}></ChatPicker>
+                            <ChatPicker isCurrentChat={chat.id === props.currentChat.id} name={chat.name} key={chat.id}></ChatPicker>
                         ))}
                     </ul>
             </div>

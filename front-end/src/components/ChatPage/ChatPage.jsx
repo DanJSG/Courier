@@ -14,6 +14,7 @@ function ChatPage(props) {
     const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
     const [currentChat, setCurrentChat] = useState({
         name: "Test",
+        id: "5c0f317d-53f9-435e-b537-5a9c48629a83",
         members: []
     });
 
@@ -28,6 +29,7 @@ function ChatPage(props) {
     const updateCurrentChatCallback = (members) => {
         setCurrentChat(prevChat => {return {
             name: prevChat.name,
+            id: prevChat.id,
             members: members
         }});
     }
@@ -82,7 +84,7 @@ function ChatPage(props) {
         <div className="container-fluid inherit-height mh-100">
             <div className="row justify-content-center inherit-height">
                 <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
-                    <ChatList createChat={createChat} chats={chats}></ChatList>
+                    <ChatList currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
                 </div>
                 <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
