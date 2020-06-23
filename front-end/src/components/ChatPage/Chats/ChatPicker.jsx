@@ -25,7 +25,7 @@ function ChatPicker(props) {
             {props.created 
                 ?
             <li onClick={onChatClick} className={chatStyle}>{props.name}</li>
-            :
+                :
             <form onSubmit={onChatNamed} className="list-group-item border-left border-right border-light rounded-0">
                 <input name="name" className="border-0" style={{fontStyle: "italic"}} placeholder="New Chat" autoFocus/>
             </form>
