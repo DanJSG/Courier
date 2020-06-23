@@ -11,7 +11,7 @@ function ChatPage(props) {
     const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
-    const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83"}]);
+    const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83", created: true}]);
     const [currentChat, setCurrentChat] = useState({
         name: "Test",
         id: "5c0f317d-53f9-435e-b537-5a9c48629a83",
@@ -20,8 +20,9 @@ function ChatPage(props) {
 
     const createChat = () => {
         const newChat = {
-            name: "Created",
-            id: (Math.random() * 1000).toString()
+            name: "",
+            id: (Math.random() * 1000).toString(),
+            created: false
         }
         setChats(prevChats => [newChat, ...prevChats]);
     }
@@ -35,6 +36,22 @@ function ChatPage(props) {
                 setCurrentChat(currChat)
             }
         })
+    }
+
+    const setChatName = (name, id) => {
+        // review if we can optimise this -> linear search not ideal
+        for(let i=0; i < chats.length; i++) {
+            if(chats[i].id === id) {
+                setChats(prevChats => {
+                    let newChats = prevChats;
+                    newChats[i].name = name;
+                    newChats[i].created = true;
+                    newChats[i].members = [{id: props.id, displayName: props.displayName}];
+                    return newChats;
+                })
+                setCurrentChat(chats[i]);
+            }
+        }
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -95,7 +112,7 @@ function ChatPage(props) {
         <div className="container-fluid inherit-height mh-100">
             <div className="row justify-content-center inherit-height">
                 <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
-                    <ChatList changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
+                    <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
                 </div>
                 <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">

@@ -6,7 +6,9 @@ function SearchBar(props) {
         e.preventDefault();
         const searchText = e.target.elements.search.value.trim();
         console.log("Triggering unimplemented search call...");
-        console.log(searchText);
+        if(searchText != null && searchText !== "") {
+            console.log(searchText);
+        }
         e.target.elements.search.value = null;
     }
 
