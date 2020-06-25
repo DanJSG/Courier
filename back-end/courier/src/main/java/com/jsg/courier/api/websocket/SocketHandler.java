@@ -22,7 +22,18 @@ import com.jsg.courier.repositories.MessageRepository;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
-		
+	
+	// 							   Chat ID 			    Session ID     Session
+//	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
+	
+//	 User connects
+//	 SQL lookup of chats they are a member of
+//	 Load all of those chat IDs
+//	 Loop through chat IDs
+//		-> If chat ID does not already exist in hashmap
+//			-> Add chat ID to hashmap
+//		-> Add user session ID and session reference to the chat
+	
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
