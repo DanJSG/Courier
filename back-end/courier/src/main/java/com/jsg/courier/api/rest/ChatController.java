@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Chat;
+import com.jsg.courier.datatypes.ChatDTO;
+import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
 @RestController
@@ -36,30 +38,25 @@ public class ChatController extends ApiController {
 	
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> create(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestBody Map<String, String> body) {
+			@RequestHeader String authorization, @RequestBody ChatDTO receivedChat) {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		Chat chat = new Chat(body.get("name"));
-		MySQLRepository<Chat> repo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
-		repo.openConnection();
-		repo.save(chat);
-		Map<String, String> chatJsonMap = new HashMap<>();
-		chatJsonMap.put("id", chat.getId().toString());
-		chatJsonMap.put("name", chat.getName());
-		String jsonMap;
-		try {
-			jsonMap = new ObjectMapper().writeValueAsString(chatJsonMap);
-			return ResponseEntity.status(HttpStatus.OK).body(jsonMap);
-		} catch(Exception e) {
-			e.printStackTrace();
-			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		Chat chat = new Chat(receivedChat.getName());
+		receivedChat.setChatId(chat.getId());
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
+		chatRepo.openConnection();
+		chatRepo.save(chat);
+		chatRepo.closeConnection();
+		if(receivedChat.getMembers().size() == 0) {
+			return BAD_REQUEST_HTTP_RESPONSE;
 		}
-		// TODO implement members
-//		List<String> members = body.get("members");
-//		if(members.size() == 0) {
-//			return BAD_REQUEST_HTTP_RESPONSE;
-//		}
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
+		memberRepo.openConnection();
+		for(long memberId : receivedChat.getMembers()) {
+			memberRepo.save(new ChatMember(chat.getId(), memberId));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(receivedChat.writeValueAsString());
 	}
 
 }
