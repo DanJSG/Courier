@@ -20,10 +20,18 @@ public class Chat implements SQLEntity {
 		this(UUID.randomUUID(), name);
 	}
 	
+	public UUID getId() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
 	@Override
 	public Map<String, Object> toHashMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("chatid", this.id);
+		map.put("chatid", this.id.toString());
 		map.put("name", this.name);
 		return map;
 	}
