@@ -64,7 +64,8 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			for(int i=0; i < values.length; i++) {
 				statement.setObject(i + 1, values[i]);
 			}
-			return statement.execute();
+			statement.execute();
+			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return false;

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ChatDTO implements DTO {
 	
 	@JsonProperty
-	private UUID chatid;
+	private UUID id;
 	
 	@JsonProperty
 	private String name;
@@ -18,8 +18,8 @@ public class ChatDTO implements DTO {
 	@JsonProperty
 	private List<Long> members;
 	
-	public UUID getChatId() {
-		return this.chatid;
+	public UUID getId() {
+		return this.id;
 	}
 	
 	public String getName() {
@@ -31,7 +31,7 @@ public class ChatDTO implements DTO {
 	}
 	
 	public void setChatId(UUID id) {
-		this.chatid = id;
+		this.id = id;
 	}
 	
 	public void setName(String name) {

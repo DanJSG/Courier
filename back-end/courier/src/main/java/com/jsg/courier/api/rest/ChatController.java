@@ -1,8 +1,5 @@
 package com.jsg.courier.api.rest;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatDTO;
@@ -46,16 +42,19 @@ public class ChatController extends ApiController {
 		receivedChat.setChatId(chat.getId());
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
 		chatRepo.openConnection();
-		chatRepo.save(chat);
+		if(!chatRepo.save(chat)) {
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		}
 		chatRepo.closeConnection();
 		if(receivedChat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
-		memberRepo.openConnection();
+		memberRepo.openConnection(); 
 		for(long memberId : receivedChat.getMembers()) {
 			memberRepo.save(new ChatMember(chat.getId(), memberId));
 		}
+		memberRepo.closeConnection();
 		return ResponseEntity.status(HttpStatus.OK).body(receivedChat.writeValueAsString());
 	}
 
