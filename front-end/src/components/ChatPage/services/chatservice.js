@@ -21,7 +21,6 @@ const wsMessageListener = (e, messageCallback, chatCallback) => {
         messageCallback(receivedMessage);
         return;
     }
-    console.log(e.data);
     const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
     chatCallback(chatMembers);
 }

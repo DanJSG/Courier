@@ -6,10 +6,7 @@ function ChatPicker(props) {
     const chatStyle = props.isCurrentChat ? defaultChatStyle + " chat-selected" : defaultChatStyle;
     
     const onChatClick = () => {
-        console.log(props.name);
-        console.log(props.id);
         props.changeCurrentChat(props.id);
-        // switch chats when this chat is clicked
     }
 
     const onChatNamed = (e) => {

@@ -21,7 +21,7 @@ function ChatPage(props) {
     const [addChatMembersInProgress, setAddChatMembersInProgress] = useState(false);
 
     const changeCurrentChat = (id) => {
-        // review if we can optimise this -> linear search not ideal
+        // TODO review if we can optimise -> linear search not ideal
         // stop using an array and start using json like a hash table -> best case O(1) access time
         chats.forEach(currChat => {
             if(currChat.id === id) {
@@ -39,7 +39,6 @@ function ChatPage(props) {
         e.preventDefault();
         const membersText = e.target.elements.members.value.trim().split(",");
         const members = membersText.map(member => {return {id: parseInt(member), displayName: member.trim()}});
-        console.log(currentChat.id);
         setCurrentChat(existingChat => {
             let newChat = {...existingChat};
             newChat.members = [{id: props.id, displayName: props.displayName}, ...members];
@@ -74,6 +73,7 @@ function ChatPage(props) {
             existingChat.id = id;
             return existingChat;
         })
+        // TODO review optimisation -> linear search currently used
         for(let i=0; i < chats.length; i++) {
             if(chats[i].id === currentChat.id) {
                 setChats(prevChats => {
@@ -86,6 +86,39 @@ function ChatPage(props) {
         }
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
+        saveChat(name);
+    }
+
+    // TODO refactor into separate file
+    // possibly move existing chat service into something such as
+    // message service and create a separate service file for this stuff
+    const saveChat = (name) => {
+        const chat = {
+            id: null,
+            name: name,
+            members: currentChat.members.map(member => member.id),
+        }
+        
+        fetch("http://local.courier.net:8080/api/v1/chat/create", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Authorization": `Bearer ${props.token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(chat)
+        })
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
+        .then(json => {
+            console.log(json);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+        
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -158,7 +191,9 @@ function ChatPage(props) {
                                 <input name="members" className="border-0"/>
                             </form>
                             :
-                            <h1 className="pl-3 pr-3">{currentChat.name}</h1>
+                            <h1 className="pl-3 pr-3">
+                                {currentChat.name === "" || currentChat.name == null ? <i className="text-muted">New Chat</i>: currentChat.name}
+                            </h1>
                         }
                         <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
                             <Scrollbars ref={messageScrollbar}>
