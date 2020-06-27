@@ -15,43 +15,77 @@ function ChatPage(props) {
     const [currentChat, setCurrentChat] = useState({
         name: "Test",
         id: "5c0f317d-53f9-435e-b537-5a9c48629a83",
-        members: []
+        members: [],
     });
-
-    const createChat = () => {
-        const newChat = {
-            name: "",
-            id: (Math.random() * 1000).toString(),
-            created: false
-        }
-        setChats(prevChats => [newChat, ...prevChats]);
-    }
+    const [nameChatInProgress, setNameChatInProgress] = useState(false);
+    const [addChatMembersInProgress, setAddChatMembersInProgress] = useState(false);
 
     const changeCurrentChat = (id) => {
         // review if we can optimise this -> linear search not ideal
+        // stop using an array and start using json like a hash table -> best case O(1) access time
         chats.forEach(currChat => {
             if(currChat.id === id) {
                 // modify with code to lookup chat members
                 currChat.members = [{id: props.id, displayName: props.displayName}];
-                setCurrentChat(currChat)
+                setCurrentChat(currChat);
             }
         })
     }
 
+    const addMembers = (e) => {
+        if(!addChatMembersInProgress) {
+            return;
+        }
+        e.preventDefault();
+        const membersText = e.target.elements.members.value.trim().split(",");
+        const members = membersText.map(member => {return {id: parseInt(member), displayName: member.trim()}});
+        console.log(currentChat.id);
+        setCurrentChat(existingChat => {
+            let newChat = {...existingChat};
+            newChat.members = [{id: props.id, displayName: props.displayName}, ...members];
+            return newChat;
+        });
+        setAddChatMembersInProgress(false);
+    }
+
+    const createChat = () => {
+        if(nameChatInProgress) {
+            return;
+        }
+        const newChat = {
+            name: "",
+            id: Math.floor(Math.random() * 1000).toString(),
+            members: [{id: props.id, displayName: props.displayName}],
+            created: false
+        };
+        setChats(prevChats => [newChat, ...prevChats]);
+        setNameChatInProgress(true);
+        setAddChatMembersInProgress(true);
+        setCurrentChat(newChat);
+        setMessages([]);
+    }
+
     const setChatName = (name, id) => {
-        // review if we can optimise this -> linear search not ideal
+        if(!nameChatInProgress) {
+            return;
+        }
+        setCurrentChat(existingChat => {
+            existingChat.name = name;
+            existingChat.id = id;
+            return existingChat;
+        })
         for(let i=0; i < chats.length; i++) {
-            if(chats[i].id === id) {
+            if(chats[i].id === currentChat.id) {
                 setChats(prevChats => {
                     let newChats = prevChats;
                     newChats[i].name = name;
                     newChats[i].created = true;
-                    newChats[i].members = [{id: props.id, displayName: props.displayName}];
                     return newChats;
                 })
-                setCurrentChat(chats[i]);
             }
         }
+        setAddChatMembersInProgress(false);
+        setNameChatInProgress(false);
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -116,7 +150,16 @@ function ChatPage(props) {
                 </div>
                 <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                     <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
-                        <h1 className="pl-3 pr-3 bg-light">{currentChat.name}</h1>
+                        {
+                            addChatMembersInProgress
+                            ?
+                            <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
+                                <label>To:&nbsp;</label>
+                                <input name="members" className="border-0"/>
+                            </form>
+                            :
+                            <h1 className="pl-3 pr-3">{currentChat.name}</h1>
+                        }
                         <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
                             <Scrollbars ref={messageScrollbar}>
                                 <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
