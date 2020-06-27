@@ -16,6 +16,14 @@ public class ChatMember implements SQLEntity {
 		this.memberId = memberId;
 	}
 	
+	public UUID getChatId() { 
+		return this.chatId;
+	}
+	
+	public long getMemberId() {
+		return this.memberId;
+	}
+	
 	@Override
 	public Map<String, Object> toHashMap() {
 		Map<String, Object> map = new HashMap<>();
