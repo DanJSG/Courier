@@ -98,7 +98,6 @@ function ChatPage(props) {
             name: name,
             members: currentChat.members.map(member => member.id),
         }
-        
         fetch("http://local.courier.net:8080/api/v1/chat/create", {
             method: "POST",
             credentials: "include",
@@ -109,16 +108,64 @@ function ChatPage(props) {
             body: JSON.stringify(chat)
         })
         .then(response => {
+            if(response.status !== 200) {
+                return null;
+            }
             console.log(response);
             return response.json();
         })
         .then(json => {
+            if(!json) {
+                return null;
+            }
+            setCurrentChat(existingChat => {
+                let newChat = {...existingChat};
+                newChat.id = json.id;
+                return newChat;
+            })
             console.log(json);
         })
         .catch(error => {
             console.log(error);
         })
         
+    }
+
+    const loadAllChats = () => {
+        console.log("loading all chats...");
+        const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
+        fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Authorization": `Bearer ${props.token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if(response.status !== 200) {
+                return null;
+            }
+            return response.json();
+        })
+        .then(json => {
+            if(!json) {
+                return null;
+            }
+            // setChats(json);
+            const loadedChats = json.map(receivedChat => {
+                return {
+                    id: receivedChat.id,
+                    name: receivedChat.name,
+                    created: true
+                }
+            });
+            setChats(loadedChats);
+            console.log(loadedChats);
+        })
+        .catch(error => {
+            console.log(error);
+        })
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -139,6 +186,7 @@ function ChatPage(props) {
 
     // called once on mount
     useEffect(() => {
+        loadAllChats();
         setWsConnection(
             initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", 
             props.id, 

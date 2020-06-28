@@ -20,6 +20,7 @@ public class GlobalCorsConfig implements WebMvcConfigurer {
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/api/v1/authorize*").allowCredentials(true).allowedOrigins(origins);
 		registry.addMapping("/api/v1/chat/create*").allowCredentials(true).allowedOrigins(origins);
+		registry.addMapping("/api/v1/chat/getAll*").allowCredentials(true).allowedOrigins(origins);
 	}
 	
 }

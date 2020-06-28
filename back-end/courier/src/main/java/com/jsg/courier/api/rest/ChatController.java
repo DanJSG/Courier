@@ -79,18 +79,22 @@ public class ChatController extends ApiController {
 		memberRepo.openConnection();
 		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
 		memberRepo.closeConnection();
+		if(chatMembers == null || chatMembers.size() == 0) {
+			return ResponseEntity.status(HttpStatus.OK).body(null);
+		}
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
 		List<Chat> chats = new ArrayList<>();
 		chatRepo.openConnection();
 		for(ChatMember currentUser : chatMembers) {
 			List<Chat> currentChat = chatRepo.findWhereEqual("chatid", currentUser.getChatId().toString(), new ChatBuilder());
-			if(currentChat == null || currentChat.size() < 1) {
-				System.out.println("No items with chat ID " + currentUser.getChatId());
-				continue;
+			if(currentChat != null && currentChat.size() > 0) {
+				chats.add(currentChat.get(0));
 			}
-			chats.add(currentChat.get(0));
 		}
 		chatRepo.closeConnection();
+		if(chats.size() == 0) {
+			return ResponseEntity.status(HttpStatus.OK).body(null);
+		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;
 		try {
