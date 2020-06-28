@@ -33,6 +33,10 @@ public class Message {
 	
 	public Message() {}
 	
+	public UUID getChatId() {
+		return this.chatId;
+	}
+	
 	public void print() {
 		System.out.println("{");
 		System.out.println("messageText: " + this.messageText);

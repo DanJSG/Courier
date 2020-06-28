@@ -51,7 +51,8 @@ public class SocketHandler extends TextWebSocketHandler {
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
 		MessageRepository repo = new MessageRepository();
-		repo.save(message, "messages");
+		String collectionName = message.getChatId() != null ? message.getChatId().toString() : "messages";
+		repo.save(message, collectionName);
 		repo.closeConnection();
 		broadcastMessage(message, UUID.fromString(session.getId()));
 	}
