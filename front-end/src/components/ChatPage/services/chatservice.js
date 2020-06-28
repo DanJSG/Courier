@@ -39,7 +39,7 @@ export const removeWebSocketListeners = (ws, id, messageCallback, chatCallback, 
     ws.removeEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback));
 }
 
-export const sendMessage = (wsConnection, messageText, id, displayName) => {
+export const sendMessage = (wsConnection, messageText, id, displayName, chatId) => {
     if(!wsConnection) {
         return {
             message: null,
@@ -65,6 +65,7 @@ export const sendMessage = (wsConnection, messageText, id, displayName) => {
         };
     }
     const message = {
+            chatId: chatId,
             messageText: messageText,
             timestamp: new Date().toUTCString(),
             senderId: id,

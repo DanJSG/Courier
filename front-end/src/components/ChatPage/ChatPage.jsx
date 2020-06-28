@@ -29,7 +29,7 @@ function ChatPage(props) {
                 currChat.members = [{id: props.id, displayName: props.displayName}];
                 setCurrentChat(currChat);
             }
-        })
+        });
     }
 
     const addMembers = (e) => {
@@ -212,7 +212,7 @@ function ChatPage(props) {
     })
 
     const handleSendMessage = (messageText) => {
-        const response = sendMessage(wsConnection, messageText, props.id, props.displayName);
+        const response = sendMessage(wsConnection, messageText, props.id, props.displayName, currentChat.id);
         if(!response) {
             return "An unhandled error occurred";
         }
