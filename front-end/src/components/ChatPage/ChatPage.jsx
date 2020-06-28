@@ -11,14 +11,15 @@ function ChatPage(props) {
     const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
-    const [chats, setChats] = useState([{name:"Test", id:"5c0f317d-53f9-435e-b537-5a9c48629a83", created: true}]);
+    const [chats, setChats] = useState([]);
     const [currentChat, setCurrentChat] = useState({
-        name: "Test",
-        id: "5c0f317d-53f9-435e-b537-5a9c48629a83",
-        members: [],
+        id: null,
+        name: null,
+        members: []
     });
     const [nameChatInProgress, setNameChatInProgress] = useState(false);
     const [addChatMembersInProgress, setAddChatMembersInProgress] = useState(false);
+    const [dataIsLoaded, setDataIsLoaded] = useState(false);
 
     const changeCurrentChat = (id) => {
         // TODO review if we can optimise -> linear search not ideal
@@ -132,7 +133,6 @@ function ChatPage(props) {
     }
 
     const loadAllChats = () => {
-        console.log("loading all chats...");
         const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
         fetch(url, {
             method: "GET",
@@ -152,7 +152,6 @@ function ChatPage(props) {
             if(!json) {
                 return null;
             }
-            // setChats(json);
             const loadedChats = json.map(receivedChat => {
                 return {
                     id: receivedChat.id,
@@ -160,8 +159,48 @@ function ChatPage(props) {
                     created: true
                 }
             });
+            setCurrentChat(() => {
+                return {
+                    id: loadedChats[0].id,
+                    name: loadedChats[0].name,
+                    members:[]
+                };
+            })
             setChats(loadedChats);
-            console.log(loadedChats);
+            console.log(loadedChats[0]);
+            // console.log(loadedChats);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    const loadCurrentChatHistory = () => {
+        const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${currentChat.id}`;
+        fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Authorization": `Bearer ${props.token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if(response.status !== 200) {
+                return null;
+            }
+            return response.json();
+        })
+        .then(json => {
+            if(!json) {
+                return null;
+            }
+            const dateFixedJson = json.map(message => {
+                message.timestamp = (new Date(message.timestamp)).toUTCString();
+                return message;
+            })
+            setMessages(dateFixedJson);
+            console.log(dateFixedJson);
         })
         .catch(error => {
             console.log(error);
@@ -183,6 +222,16 @@ function ChatPage(props) {
     const logErrorCallback = (error) => {
         console.log(error);
     }
+
+    useEffect(() => {
+        if(currentChat.id != null) {
+            if(!dataIsLoaded) {
+                setDataIsLoaded(true);
+            }
+            loadCurrentChatHistory();
+        }
+        console.log(currentChat);
+    }, [currentChat]);
 
     // called once on mount
     useEffect(() => {
@@ -207,9 +256,11 @@ function ChatPage(props) {
     }, []);
 
     useEffect(() => {
-        // review whether this is a good idea due to blocking other elements loading
-        messageScrollbar.current.scrollToBottom();
-    })
+        // TODO review whether this is a good idea due to blocking other elements loading
+        if(dataIsLoaded) {
+            messageScrollbar.current.scrollToBottom();
+        }
+    });
 
     const handleSendMessage = (messageText) => {
         const response = sendMessage(wsConnection, messageText, props.id, props.displayName, currentChat.id);
@@ -224,6 +275,13 @@ function ChatPage(props) {
 
     return (
     <React.Fragment>
+    {
+        !dataIsLoaded
+        ?
+        <div>
+            <p>Loading...</p>
+        </div>
+        :
         <div className="container-fluid inherit-height mh-100">
             <div className="row justify-content-center inherit-height">
                 <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
@@ -256,6 +314,7 @@ function ChatPage(props) {
                 </div>
             </div>
         </div>
+    }
     </React.Fragment>
     );
 

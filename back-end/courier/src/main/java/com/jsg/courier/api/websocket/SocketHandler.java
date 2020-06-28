@@ -64,7 +64,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			return;
 		}
 		sessions.put(UUID.fromString(session.getId()), session);
-		getChatHistory(session);
+//		getChatHistory(session);
 		System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
 		broadcastSessions();
 	}
@@ -118,13 +118,13 @@ public class SocketHandler extends TextWebSocketHandler {
 		}
 	}
 	
-	private void getChatHistory(WebSocketSession session) throws Exception {
-		MessageRepository repo = new MessageRepository();
-		List<Message> messages = repo.findAll("messages");
-		repo.closeConnection();
-		for(Message message : messages) {
-			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-		}
-	}
+//	private void getChatHistory(WebSocketSession session) throws Exception {
+//		MessageRepository repo = new MessageRepository();
+//		List<Message> messages = repo.findAll("messages");
+//		repo.closeConnection();
+//		for(Message message : messages) {
+//			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+//		}
+//	}
 	
 }

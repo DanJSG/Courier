@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class MessageController extends ApiController {
 		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
 	}
 
-	@GetMapping(value = "/messages/getAll")
+	@GetMapping(value = "/messages/getAll", produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
 		if(!tokensAreValid(authorization, jwt)) {
@@ -40,8 +41,12 @@ public class MessageController extends ApiController {
 		MessageRepository repo = new MessageRepository();
 		try {
 			List<Message> messages = repo.findAll(chatId);
+			if(messages.size() == 0) {
+				return ResponseEntity.status(HttpStatus.OK).body("[]");
+			}
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResponse = mapper.writeValueAsString(messages);
+			System.out.println(jsonResponse);
 			return ResponseEntity.status(HttpStatus.OK).body(jsonResponse);
 		} catch (Exception e) {
 			e.printStackTrace();

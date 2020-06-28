@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 
 function ChatInfo(props) {
     return(
@@ -12,7 +12,5 @@ function ChatInfo(props) {
         </div>
     );
 }
-
-// <div className="list-group-item" key={member.id}>{member.displayName} </div>
 
 export default ChatInfo;
