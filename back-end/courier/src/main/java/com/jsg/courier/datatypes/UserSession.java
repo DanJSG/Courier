@@ -27,7 +27,7 @@ public class UserSession {
 	private void getDisplayName(String client_id, String client_secret) throws Exception {
 		HttpResponse response = UserInfoAPIRepository.getUserInfo(id, client_id, client_secret);
 		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
-			throw new Exception();
+			this.displayName = "Deleted user";
 		}
 		UserInfo info = new ObjectMapper().readValue(response.getBody(), UserInfo.class);
 		this.displayName = info.getDisplayName();
