@@ -32,7 +32,7 @@ public class MessageController extends ApiController {
 		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
 	}
 
-	@GetMapping(value = "/messages/getAll", produces=MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/messages/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
 		if(!tokensAreValid(authorization, jwt)) {
@@ -42,7 +42,7 @@ public class MessageController extends ApiController {
 		try {
 			List<Message> messages = repo.findAll(chatId);
 			if(messages.size() == 0) {
-				return ResponseEntity.status(HttpStatus.OK).body("[]");
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 			}
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResponse = mapper.writeValueAsString(messages);

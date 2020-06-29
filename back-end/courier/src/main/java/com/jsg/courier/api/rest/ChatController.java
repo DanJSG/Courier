@@ -25,6 +25,7 @@ import com.jsg.courier.datatypes.ChatBuilder;
 import com.jsg.courier.datatypes.ChatDTO;
 import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.ChatMemberBuilder;
+import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
 @RestController
@@ -104,6 +105,38 @@ public class ChatController extends ApiController {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(responseJson);
+	}
+	
+	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
+			@RequestHeader String authorization, @RequestParam String chatId) {
+//		if(!tokensAreValid(authorization, jwt)) {
+//			return UNAUTHORIZED_HTTP_RESPONSE;
+//		}
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
+		memberRepo.openConnection();
+		System.out.println(chatId);
+		// TODO This all needs optimising as it is far too slow (~600-700ms for a chat with 7 members)
+		// 		I should look at doing a number of things differently 
+		//			-> Storing users within courier DB alongside auth provider and auth provider ID
+		//			-> Use SQL views for easy lookups
+		//			-> Modify or add to data structure to fit SQL view
+		List<ChatMember> members = memberRepo.findWhereEqual("chatid", chatId, new ChatMemberBuilder());
+		memberRepo.closeConnection();
+		if(members == null || members.size() == 0) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+		}
+		List<UserSession> users = new ArrayList<>();
+		for(ChatMember member : members) {
+			users.add(new UserSession(member.getMemberId(), CLIENT_ID, CLIENT_SECRET));
+		}
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString(users));
+		} catch(Exception e) {
+			e.printStackTrace();
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		}
 	}
 
 }
