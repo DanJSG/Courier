@@ -20,6 +20,8 @@ function ChatPage(props) {
     const [nameChatInProgress, setNameChatInProgress] = useState(false);
     const [addChatMembersInProgress, setAddChatMembersInProgress] = useState(false);
     const [dataIsLoaded, setDataIsLoaded] = useState(false);
+    const [chatMembersAreLoaded, setChatMembersAreLoaded] = useState(false);
+    const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
 
     const changeCurrentChat = (id) => {
         // TODO review if we can optimise -> linear search not ideal
@@ -31,6 +33,8 @@ function ChatPage(props) {
                 setCurrentChat(currChat);
             }
         });
+        setChatMembersAreLoaded(false);
+        setChatHistoryIsLoaded(false);
     }
 
     const addMembers = (e) => {
@@ -207,12 +211,45 @@ function ChatPage(props) {
         })
     }
 
+    const loadCurrentChatMembers = () => {
+        const url = `http://local.courier.net:8080/api/v1/chat/getMembers?chatId=${currentChat.id}`;
+        fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Authorization": `Bearer ${props.token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            if(response.status !== 200) {
+                return null;
+            }
+            return response.json();
+        })
+        .then(json => {
+            if(!json) {
+                return null;
+            }
+            console.log(json);
+            setCurrentChat(prevChat => {
+                return {
+                    id: prevChat.id,
+                    name: prevChat.name,
+                    members: json
+                }
+            })
+        })
+    }
+
     const updateCurrentChatCallback = (members) => {
-        setCurrentChat(prevChat => {return {
-            name: prevChat.name,
-            id: prevChat.id,
-            members: members
-        }});
+        // old method for loading users
+        // TODO modify and reuse to determine which users are currently online
+        // setCurrentChat(prevChat => {return {
+        //     name: prevChat.name,
+        //     id: prevChat.id,
+        //     members: members
+        // }});
     }
 
     const updateMessagesCallback = (message) => {
@@ -228,7 +265,14 @@ function ChatPage(props) {
             if(!dataIsLoaded) {
                 setDataIsLoaded(true);
             }
-            loadCurrentChatHistory();
+            if(!chatHistoryIsLoaded) {
+                loadCurrentChatHistory();
+                setChatHistoryIsLoaded(true);
+            }
+            if(!chatMembersAreLoaded) {
+                loadCurrentChatMembers();
+                setChatMembersAreLoaded(true);
+            }
         }
         console.log(currentChat);
     }, [currentChat]);
