@@ -19,7 +19,7 @@ function ChatPage(props) {
     });
     const [nameChatInProgress, setNameChatInProgress] = useState(false);
     const [addChatMembersInProgress, setAddChatMembersInProgress] = useState(false);
-    const [dataIsLoaded, setDataIsLoaded] = useState(false);
+    const [currentChatIsLoaded, setCurrentChatIsLoaded] = useState(false);
     const [chatMembersAreLoaded, setChatMembersAreLoaded] = useState(false);
     const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
     const [receivedMessage, setReceivedMessage] = useState(null);
@@ -39,9 +39,7 @@ function ChatPage(props) {
     }
 
     const addMembers = (e) => {
-        if(!addChatMembersInProgress) {
-            return;
-        }
+        if(!addChatMembersInProgress) return;
         e.preventDefault();
         const membersText = e.target.elements.members.value.trim().split(",");
         const members = membersText.map(member => {return {id: parseInt(member), displayName: member.trim()}});
@@ -54,9 +52,7 @@ function ChatPage(props) {
     }
 
     const createChat = () => {
-        if(nameChatInProgress) {
-            return;
-        }
+        if(nameChatInProgress) return;
         const newChat = {
             name: "",
             id: Math.floor(Math.random() * 1000).toString(),
@@ -71,9 +67,7 @@ function ChatPage(props) {
     }
 
     const setChatName = (name, id) => {
-        if(!nameChatInProgress) {
-            return;
-        }
+        if(!nameChatInProgress) return;
         setCurrentChat(existingChat => {
             existingChat.name = name;
             existingChat.id = id;
@@ -135,6 +129,7 @@ function ChatPage(props) {
         
     }
 
+    // TODO refactor into separate file
     const loadAllChats = () => {
         const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
         fetch(url, {
@@ -176,6 +171,7 @@ function ChatPage(props) {
         })
     }
 
+    // TODO refactor into separate file
     const loadCurrentChatHistory = () => {
         const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${currentChat.id}`;
         fetch(url, {
@@ -210,6 +206,7 @@ function ChatPage(props) {
         })
     }
 
+    // TODO refactor into separate file
     const loadCurrentChatMembers = () => {
         const url = `http://local.courier.net:8080/api/v1/chat/getMembers?chatId=${currentChat.id}`;
         fetch(url, {
@@ -260,8 +257,8 @@ function ChatPage(props) {
 
     useEffect(() => {
         if(currentChat.id != null) {
-            if(!dataIsLoaded) {
-                setDataIsLoaded(true);
+            if(!currentChatIsLoaded) {
+                setCurrentChatIsLoaded(true);
             }
             if(!chatHistoryIsLoaded) {
                 loadCurrentChatHistory();
@@ -314,7 +311,7 @@ function ChatPage(props) {
 
     useEffect(() => {
         // TODO review whether this is a good idea due to blocking other elements loading
-        if(dataIsLoaded) {
+        if(currentChatIsLoaded) {
             messageScrollbar.current.scrollToBottom();
         }
     });
@@ -333,7 +330,7 @@ function ChatPage(props) {
     return (
     <React.Fragment>
     {
-        !dataIsLoaded
+        !currentChatIsLoaded
         ?
         <div>
             <p>Loading...</p>

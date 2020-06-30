@@ -20,27 +20,14 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatDTO;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.repositories.MessageRepository;
-import com.mongodb.util.JSON;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
-	
-	// 							   Chat ID 			    Session ID     Session
-//	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
-	
-//	 User connects
-//	 SQL lookup of chats they are a member of
-//	 Load all of those chat IDs
-//	 Loop through chat IDs
-//		-> If chat ID does not already exist in hashmap
-//			-> Add chat ID to hashmap
-//		-> Add user session ID and session reference to the chat
 	
 	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -120,19 +107,6 @@ public class SocketHandler extends TextWebSocketHandler {
 				return;
 			}
 		});
-//		System.out.println("(broadcast)Session size is: " + sessions.size());
-//		sessions.forEach((currentSessionId, currentSession) -> {
-//			if(currentSessionId.equals(sessionId)) {
-//				// this works similarly to continue in a foreach lambda function
-//				return;
-//			}
-//			try {
-//				currentSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				return;
-//			}
-//		});
 	}
 	
 	private void broadcastSessions() throws Exception {
@@ -176,14 +150,5 @@ public class SocketHandler extends TextWebSocketHandler {
 			chats.get(chat.getId()).put(UUID.fromString(session.getId()), session);
 		}
 	}
-	
-//	private void getChatHistory(WebSocketSession session) throws Exception {
-//		MessageRepository repo = new MessageRepository();
-//		List<Message> messages = repo.findAll("messages");
-//		repo.closeConnection();
-//		for(Message message : messages) {
-//			session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-//		}
-//	}
 	
 }
