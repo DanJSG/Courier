@@ -3,6 +3,8 @@ package com.jsg.courier.datatypes;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,9 +15,11 @@ public class ChatDTO implements DTO {
 	private UUID id;
 	
 	@JsonProperty
+	@JsonInclude(Include.NON_NULL)
 	private String name;
 	
 	@JsonProperty
+	@JsonInclude(Include.NON_NULL)
 	private List<Long> members;
 	
 	public UUID getId() {

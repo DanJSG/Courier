@@ -28,6 +28,7 @@ public class UserSession {
 		HttpResponse response = UserInfoAPIRepository.getUserInfo(id, client_id, client_secret);
 		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
 			this.displayName = "Deleted user";
+			return;
 		}
 		UserInfo info = new ObjectMapper().readValue(response.getBody(), UserInfo.class);
 		this.displayName = info.getDisplayName();

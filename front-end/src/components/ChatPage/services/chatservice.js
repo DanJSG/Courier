@@ -33,6 +33,20 @@ export const initializeWebSocket = (url, id, token, messageCallback, chatCallbac
     return ws;
 }
 
+export const broadcastChats = (ws, chats) => {
+    if(!ws) {
+        console.log("no websocket connection yet");
+        return false;
+    }
+    const chatIds = chats.map(chat => {
+        return {
+            id: chat.id
+        }
+    })
+    ws.send('@' + JSON.stringify(chatIds));
+    return true;
+}
+
 export const removeWebSocketListeners = (ws, id, messageCallback, chatCallback, errorCallback) => {
     ws.removeEventListener("open", () => wsOpenListener(id));
     ws.removeEventListener("error", () => wsErrorListener(errorCallback));

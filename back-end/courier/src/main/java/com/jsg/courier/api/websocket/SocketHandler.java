@@ -1,7 +1,11 @@
 package com.jsg.courier.api.websocket;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,11 +18,15 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.datatypes.Chat;
+import com.jsg.courier.datatypes.ChatDTO;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.repositories.MessageRepository;
+import com.mongodb.util.JSON;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
@@ -34,6 +42,7 @@ public class SocketHandler extends TextWebSocketHandler {
 //			-> Add chat ID to hashmap
 //		-> Add user session ID and session reference to the chat
 	
+	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
@@ -49,7 +58,12 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
-		Message message = objectMapper.readValue(messageJson.getPayload(), Message.class);
+		String messageJsonPayload = messageJson.getPayload();
+		if(messageJsonPayload.charAt(0) == '@') {
+			addChatSession(session, messageJsonPayload);
+			return;
+		}
+		Message message = objectMapper.readValue(messageJsonPayload, Message.class);
 		MessageRepository repo = new MessageRepository();
 		String collectionName = message.getChatId() != null ? message.getChatId().toString() : "messages";
 		repo.save(message, collectionName);
@@ -71,28 +85,54 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-		if(sessions.remove(UUID.fromString(session.getId())) == null) {
-			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + session.getId());
-			return;
-		};
-		System.out.println("WebSocket connection closed.");
+		List<UUID> emptyChatIds = new ArrayList<>();
+		chats.forEach((currentChatId, currentSessionMap) -> {
+			currentSessionMap.remove(UUID.fromString(session.getId()));
+			if(currentSessionMap.size() == 0) {
+				emptyChatIds.add(currentChatId);
+			}
+		});
+		for(UUID chatId : emptyChatIds) {
+			chats.remove(chatId);
+		}
+		sessions.remove(UUID.fromString(session.getId()));
+//		if(sessions.remove(UUID.fromString(session.getId())) == null) {
+//			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + session.getId());
+//			return;
+//		};
+//		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
 	
 	private void broadcastMessage(Message message, UUID sessionId) throws Exception {
-		System.out.println("(broadcast)Session size is: " + sessions.size());
-		sessions.forEach((currentSessionId, currentSession) -> {
+		if(!chats.containsKey(message.getChatId())) {
+			return;
+		}
+		Map<UUID, WebSocketSession> chatSessions = chats.get(message.getChatId());
+		chatSessions.forEach((currentSessionId, currentSession) -> {
 			if(currentSessionId.equals(sessionId)) {
-				// this works similarly to continue in a foreach lambda function
 				return;
 			}
 			try {
 				currentSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
 		});
+//		System.out.println("(broadcast)Session size is: " + sessions.size());
+//		sessions.forEach((currentSessionId, currentSession) -> {
+//			if(currentSessionId.equals(sessionId)) {
+//				// this works similarly to continue in a foreach lambda function
+//				return;
+//			}
+//			try {
+//				currentSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				return;
+//			}
+//		});
 	}
 	
 	private void broadcastSessions() throws Exception {
@@ -115,6 +155,25 @@ public class SocketHandler extends TextWebSocketHandler {
 		System.out.println(json);
 		for(WebSocketSession session : sessions.values()) {
 			session.sendMessage(new TextMessage(json));
+		}
+	}
+	
+	private void addChatSession(WebSocketSession session, String receivedChats) {
+		String chatsJson = receivedChats.substring(1);
+		System.out.println(chatsJson);
+		List<ChatDTO> chatList;
+		try {
+			chatList = Arrays.asList(objectMapper.readValue(chatsJson, ChatDTO[].class));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return;
+		}
+		for(ChatDTO chat : chatList) {
+			if(!chats.containsKey(chat.getId())) {
+				ConcurrentHashMap<UUID, WebSocketSession> newSessionMap = new ConcurrentHashMap<>();
+				chats.put(chat.getId(), newSessionMap);
+			}
+			chats.get(chat.getId()).put(UUID.fromString(session.getId()), session);
 		}
 	}
 	

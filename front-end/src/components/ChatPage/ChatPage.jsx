@@ -3,7 +3,7 @@ import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
-import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/chatservice';
+import {initializeWebSocket, removeWebSocketListeners, sendMessage, broadcastChats} from './services/chatservice';
 import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
@@ -22,6 +22,7 @@ function ChatPage(props) {
     const [dataIsLoaded, setDataIsLoaded] = useState(false);
     const [chatMembersAreLoaded, setChatMembersAreLoaded] = useState(false);
     const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
+    const [receivedMessage, setReceivedMessage] = useState(null);
 
     const changeCurrentChat = (id) => {
         // TODO review if we can optimise -> linear search not ideal
@@ -116,7 +117,6 @@ function ChatPage(props) {
             if(response.status !== 200) {
                 return null;
             }
-            console.log(response);
             return response.json();
         })
         .then(json => {
@@ -128,7 +128,6 @@ function ChatPage(props) {
                 newChat.id = json.id;
                 return newChat;
             })
-            console.log(json);
         })
         .catch(error => {
             console.log(error);
@@ -171,8 +170,6 @@ function ChatPage(props) {
                 };
             })
             setChats(loadedChats);
-            console.log(loadedChats[0]);
-            // console.log(loadedChats);
         })
         .catch(error => {
             console.log(error);
@@ -190,7 +187,10 @@ function ChatPage(props) {
             }
         })
         .then(response => {
-            if(response.status !== 200) {
+            if(response.status === 204) {
+                setChats([]);
+                return null;
+            } else if(response.status !== 200) {
                 return null;
             }
             return response.json();
@@ -204,7 +204,6 @@ function ChatPage(props) {
                 return message;
             })
             setMessages(dateFixedJson);
-            console.log(dateFixedJson);
         })
         .catch(error => {
             console.log(error);
@@ -231,7 +230,6 @@ function ChatPage(props) {
             if(!json) {
                 return null;
             }
-            console.log(json);
             setCurrentChat(prevChat => {
                 return {
                     id: prevChat.id,
@@ -253,7 +251,7 @@ function ChatPage(props) {
     }
 
     const updateMessagesCallback = (message) => {
-        setMessages(prevMessages => [...prevMessages, message]);
+        setReceivedMessage(message);
     }
 
     const logErrorCallback = (error) => {
@@ -274,20 +272,35 @@ function ChatPage(props) {
                 setChatMembersAreLoaded(true);
             }
         }
-        console.log(currentChat);
     }, [currentChat]);
+
+    useEffect(() => {
+        if(!wsConnection) return;
+        if(!chats || chats.length === 0) return;
+        broadcastChats(wsConnection, chats);
+    }, [chats]);
+
+    useEffect(() => {
+        if(!receivedMessage) return;
+        if(!currentChat) return;
+        if(receivedMessage.chatId === currentChat.id) {
+            setMessages(prevMessages => [...prevMessages, receivedMessage]);
+        }
+        setReceivedMessage(null);
+    }, [receivedMessage])
 
     // called once on mount
     useEffect(() => {
-        loadAllChats();
         setWsConnection(
-            initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", 
-            props.id, 
-            props.token,
-            updateMessagesCallback,
-            updateCurrentChatCallback,
-            logErrorCallback
+            initializeWebSocket(
+                "ws://local.courier.net:8080/api/v1/ws", 
+                props.id, 
+                props.token,
+                updateMessagesCallback,
+                updateCurrentChatCallback,
+                logErrorCallback
         ));
+        loadAllChats();
         return () => {
             removeWebSocketListeners(
                 wsConnection, 
