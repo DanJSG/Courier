@@ -110,9 +110,9 @@ public class ChatController extends ApiController {
 	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
-//		if(!tokensAreValid(authorization, jwt)) {
-//			return UNAUTHORIZED_HTTP_RESPONSE;
-//		}
+		if(!tokensAreValid(authorization, jwt)) {
+			return UNAUTHORIZED_HTTP_RESPONSE;
+		}
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
 		memberRepo.openConnection();
 		System.out.println(chatId);

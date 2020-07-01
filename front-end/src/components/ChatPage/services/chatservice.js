@@ -1,38 +1,3 @@
-const wsOpenListener = (id) => {
-    console.log(`WebSocket connection opened for user with ID ${id}.` )
-}
-
-const wsErrorListener = (errorCallback) => {
-    if(errorCallback === null || errorCallback === undefined) {
-        return;
-    }
-    alert("Failed to connect to chat room server.");
-    errorCallback("wsErrorListener");
-}
-
-const wsMessageListener = (e, messageCallback, chatCallback) => {
-    if(messageCallback === null || messageCallback === undefined ||
-        chatCallback === null || chatCallback === undefined) {
-        return;
-    }
-    if(e.data.charAt(0) !== "`") {
-        const receivedMessage = JSON.parse(e.data);
-        receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
-        messageCallback(receivedMessage);
-        return;
-    }
-    const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
-    chatCallback(chatMembers);
-}
-
-export const initializeWebSocket = (url, id, token, messageCallback, chatCallback, errorCallback) => {
-    const ws = new WebSocket(url, [id, token]);
-    ws.addEventListener("open", () => wsOpenListener(id));
-    ws.addEventListener("error", () => wsErrorListener(errorCallback));
-    ws.addEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback));
-    return ws;
-}
-
 export const broadcastChats = (ws, chats) => {
     if(!ws) {
         console.log("no websocket connection yet");
@@ -47,48 +12,63 @@ export const broadcastChats = (ws, chats) => {
     return true;
 }
 
-export const removeWebSocketListeners = (ws, id, messageCallback, chatCallback, errorCallback) => {
-    ws.removeEventListener("open", () => wsOpenListener(id));
-    ws.removeEventListener("error", () => wsErrorListener(errorCallback));
-    ws.removeEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback));
+export const loadAllChats = async(userId, token) => {
+    const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${userId}`;
+    return await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if(response.status !== 200) return null;
+        return response.json();
+    })
+    .then(json => {
+        if(!json) return null;
+        const loadedChats = json.map(receivedChat => {
+            return {
+                id: receivedChat.id,
+                name: receivedChat.name,
+                created: true
+            }
+        });
+        return loadedChats;
+    })
+    .catch(error => {
+        console.log(error);
+    });
 }
 
-export const sendMessage = (wsConnection, messageText, id, displayName, chatId) => {
-    if(!wsConnection) {
-        return {
-            message: null,
-            error: "Could not connect to the chat server."
-        };
-    }
-    if(!messageText) {
-        return {
-            message: null,
-            error: "You must enter a message to send."
-        };
-    }
-    if(!id) {
-        return {
-            message: null,
-            error: "An authorization error occurred. Please refresh your page."
-        };
-    }
-    if(wsConnection.readyState !== wsConnection.OPEN) {
-        return {
-            message: null,
-            error: "You are not connected to the chat room server."
-        };
-    }
-    const message = {
-            chatId: chatId,
-            messageText: messageText,
-            timestamp: new Date().toUTCString(),
-            senderId: id,
-            sender: displayName,
-            receiver: "ALL"
-    }
-    wsConnection.send(JSON.stringify(message));
-    return {
-        message: message,
-        error: null
-    }
+export const loadChatHistory = async(chatId, token) => {
+    const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${chatId}`;
+    return await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if(response.status === 204) {
+            return [];
+        } else if(response.status !== 200) {
+            return null;
+        }
+        return response.json();
+    })
+    .then(json => {
+        if(!json) return null;
+        const dateFixedJson = json.map(message => {
+            message.timestamp = (new Date(message.timestamp)).toUTCString();
+            return message;
+        })
+        return dateFixedJson;
+    })
+    .catch(error => {
+        console.log(error);
+    })
 }

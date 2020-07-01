@@ -3,7 +3,8 @@ import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
-import {initializeWebSocket, removeWebSocketListeners, sendMessage, broadcastChats} from './services/chatservice';
+import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
+import {loadAllChats, loadChatHistory, broadcastChats} from './services/chatservice'
 import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
@@ -130,81 +131,81 @@ function ChatPage(props) {
     }
 
     // TODO refactor into separate file
-    const loadAllChats = () => {
-        const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
-        fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Authorization": `Bearer ${props.token}`,
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if(response.status !== 200) {
-                return null;
-            }
-            return response.json();
-        })
-        .then(json => {
-            if(!json) {
-                return null;
-            }
-            const loadedChats = json.map(receivedChat => {
-                return {
-                    id: receivedChat.id,
-                    name: receivedChat.name,
-                    created: true
-                }
-            });
-            setCurrentChat(() => {
-                return {
-                    id: loadedChats[0].id,
-                    name: loadedChats[0].name,
-                    members:[]
-                };
-            })
-            setChats(loadedChats);
-        })
-        .catch(error => {
-            console.log(error);
-        })
-    }
+    // const loadAllChats = () => {
+    //     const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
+    //     fetch(url, {
+    //         method: "GET",
+    //         credentials: "include",
+    //         headers: {
+    //             "Authorization": `Bearer ${props.token}`,
+    //             "Content-Type": "application/json"
+    //         }
+    //     })
+    //     .then(response => {
+    //         if(response.status !== 200) {
+    //             return null;
+    //         }
+    //         return response.json();
+    //     })
+    //     .then(json => {
+    //         if(!json) {
+    //             return null;
+    //         }
+    //         const loadedChats = json.map(receivedChat => {
+    //             return {
+    //                 id: receivedChat.id,
+    //                 name: receivedChat.name,
+    //                 created: true
+    //             }
+    //         });
+    //         setCurrentChat(() => {
+    //             return {
+    //                 id: loadedChats[0].id,
+    //                 name: loadedChats[0].name,
+    //                 members:[]
+    //             };
+    //         })
+    //         setChats(loadedChats);
+    //     })
+    //     .catch(error => {
+    //         console.log(error);
+    //     })
+    // }
 
     // TODO refactor into separate file
-    const loadCurrentChatHistory = () => {
-        const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${currentChat.id}`;
-        fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Authorization": `Bearer ${props.token}`,
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if(response.status === 204) {
-                setChats([]);
-                return null;
-            } else if(response.status !== 200) {
-                return null;
-            }
-            return response.json();
-        })
-        .then(json => {
-            if(!json) {
-                return null;
-            }
-            const dateFixedJson = json.map(message => {
-                message.timestamp = (new Date(message.timestamp)).toUTCString();
-                return message;
-            })
-            setMessages(dateFixedJson);
-        })
-        .catch(error => {
-            console.log(error);
-        })
-    }
+    // const loadCurrentChatHistory = () => {
+    //     const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${currentChat.id}`;
+    //     fetch(url, {
+    //         method: "GET",
+    //         credentials: "include",
+    //         headers: {
+    //             "Authorization": `Bearer ${props.token}`,
+    //             "Content-Type": "application/json"
+    //         }
+    //     })
+    //     .then(response => {
+    //         if(response.status === 204) {
+    //             setMessages([]);
+    //             return null;
+    //         } else if(response.status !== 200) {
+    //             return null;
+    //         }
+    //         return response.json();
+    //     })
+    //     .then(json => {
+    //         if(!json) {
+    //             return null;
+    //         }
+    //         const dateFixedJson = json.map(message => {
+    //             message.timestamp = (new Date(message.timestamp)).toUTCString();
+    //             return message;
+    //         })
+    //         setMessages(dateFixedJson);
+    //     })
+    //     .catch(error => {
+    //         console.log(error);
+    //     })
+    // }
 
     // TODO refactor into separate file
     const loadCurrentChatMembers = () => {
@@ -256,12 +257,16 @@ function ChatPage(props) {
     }
 
     useEffect(() => {
+        async function fetchHistory() {
+            const messages = await loadChatHistory(currentChat.id, props.token);
+            setMessages(messages);
+        }
         if(currentChat.id != null) {
             if(!currentChatIsLoaded) {
                 setCurrentChatIsLoaded(true);
             }
             if(!chatHistoryIsLoaded) {
-                loadCurrentChatHistory();
+                fetchHistory();
                 setChatHistoryIsLoaded(true);
             }
             if(!chatMembersAreLoaded) {
@@ -288,16 +293,25 @@ function ChatPage(props) {
 
     // called once on mount
     useEffect(() => {
-        setWsConnection(
-            initializeWebSocket(
-                "ws://local.courier.net:8080/api/v1/ws", 
-                props.id, 
-                props.token,
-                updateMessagesCallback,
-                updateCurrentChatCallback,
-                logErrorCallback
-        ));
-        loadAllChats();
+        async function loadChats() {
+            const loadedChats = await loadAllChats(props.id, props.token);
+            setChats(loadedChats);
+            setCurrentChat(() => {
+                return {
+                    id: loadedChats[0].id,
+                    name: loadedChats[0].name,
+                    members: []
+                }
+            });
+        }
+        loadChats();
+        const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", 
+                                        props.id, 
+                                        props.token,
+                                        updateMessagesCallback,
+                                        updateCurrentChatCallback,
+                                        logErrorCallback);
+        setWsConnection(ws);
         return () => {
             removeWebSocketListeners(
                 wsConnection, 
