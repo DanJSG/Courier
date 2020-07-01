@@ -4,7 +4,7 @@ import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
-import {loadAllChats, loadChatHistory, broadcastChats} from './services/chatservice'
+import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers} from './services/chatservice'
 import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
@@ -67,7 +67,7 @@ function ChatPage(props) {
         setMessages([]);
     }
 
-    const setChatName = (name, id) => {
+    const setChatName = async(name, id) => {
         if(!nameChatInProgress) return;
         setCurrentChat(existingChat => {
             existingChat.name = name;
@@ -87,155 +87,8 @@ function ChatPage(props) {
         }
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
-        saveChat(name);
-    }
-
-    // TODO refactor into separate file
-    // possibly move existing chat service into something such as
-    // message service and create a separate service file for this stuff
-    const saveChat = (name) => {
-        const chat = {
-            id: null,
-            name: name,
-            members: currentChat.members.map(member => member.id),
-        }
-        fetch("http://local.courier.net:8080/api/v1/chat/create", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Authorization": `Bearer ${props.token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(chat)
-        })
-        .then(response => {
-            if(response.status !== 200) {
-                return null;
-            }
-            return response.json();
-        })
-        .then(json => {
-            if(!json) {
-                return null;
-            }
-            setCurrentChat(existingChat => {
-                let newChat = {...existingChat};
-                newChat.id = json.id;
-                return newChat;
-            })
-        })
-        .catch(error => {
-            console.log(error);
-        })
-        
-    }
-
-    // TODO refactor into separate file
-    // const loadAllChats = () => {
-    //     const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${props.id}`;
-    //     fetch(url, {
-    //         method: "GET",
-    //         credentials: "include",
-    //         headers: {
-    //             "Authorization": `Bearer ${props.token}`,
-    //             "Content-Type": "application/json"
-    //         }
-    //     })
-    //     .then(response => {
-    //         if(response.status !== 200) {
-    //             return null;
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(json => {
-    //         if(!json) {
-    //             return null;
-    //         }
-    //         const loadedChats = json.map(receivedChat => {
-    //             return {
-    //                 id: receivedChat.id,
-    //                 name: receivedChat.name,
-    //                 created: true
-    //             }
-    //         });
-    //         setCurrentChat(() => {
-    //             return {
-    //                 id: loadedChats[0].id,
-    //                 name: loadedChats[0].name,
-    //                 members:[]
-    //             };
-    //         })
-    //         setChats(loadedChats);
-    //     })
-    //     .catch(error => {
-    //         console.log(error);
-    //     })
-    // }
-
-    // TODO refactor into separate file
-    // const loadCurrentChatHistory = () => {
-    //     const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${currentChat.id}`;
-    //     fetch(url, {
-    //         method: "GET",
-    //         credentials: "include",
-    //         headers: {
-    //             "Authorization": `Bearer ${props.token}`,
-    //             "Content-Type": "application/json"
-    //         }
-    //     })
-    //     .then(response => {
-    //         if(response.status === 204) {
-    //             setMessages([]);
-    //             return null;
-    //         } else if(response.status !== 200) {
-    //             return null;
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(json => {
-    //         if(!json) {
-    //             return null;
-    //         }
-    //         const dateFixedJson = json.map(message => {
-    //             message.timestamp = (new Date(message.timestamp)).toUTCString();
-    //             return message;
-    //         })
-    //         setMessages(dateFixedJson);
-    //     })
-    //     .catch(error => {
-    //         console.log(error);
-    //     })
-    // }
-
-    // TODO refactor into separate file
-    const loadCurrentChatMembers = () => {
-        const url = `http://local.courier.net:8080/api/v1/chat/getMembers?chatId=${currentChat.id}`;
-        fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Authorization": `Bearer ${props.token}`,
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if(response.status !== 200) {
-                return null;
-            }
-            return response.json();
-        })
-        .then(json => {
-            if(!json) {
-                return null;
-            }
-            setCurrentChat(prevChat => {
-                return {
-                    id: prevChat.id,
-                    name: prevChat.name,
-                    members: json
-                }
-            })
-        })
+        const chatWithId = await saveChat(name, currentChat.members, props.token);
+        setCurrentChat(chatWithId);
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -261,6 +114,16 @@ function ChatPage(props) {
             const messages = await loadChatHistory(currentChat.id, props.token);
             setMessages(messages);
         }
+        async function fetchMembers() {
+            const members = await loadChatMembers(currentChat.id, props.token);
+            setCurrentChat(prevChat => {
+                return {
+                    id: prevChat.id,
+                    name: prevChat.name,
+                    members: members
+                };
+            });
+        }
         if(currentChat.id != null) {
             if(!currentChatIsLoaded) {
                 setCurrentChatIsLoaded(true);
@@ -270,7 +133,7 @@ function ChatPage(props) {
                 setChatHistoryIsLoaded(true);
             }
             if(!chatMembersAreLoaded) {
-                loadCurrentChatMembers();
+                fetchMembers();
                 setChatMembersAreLoaded(true);
             }
         }
@@ -305,12 +168,8 @@ function ChatPage(props) {
             });
         }
         loadChats();
-        const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", 
-                                        props.id, 
-                                        props.token,
-                                        updateMessagesCallback,
-                                        updateCurrentChatCallback,
-                                        logErrorCallback);
+        const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", props.id, props.token,
+                                        updateMessagesCallback, updateCurrentChatCallback, logErrorCallback);
         setWsConnection(ws);
         return () => {
             removeWebSocketListeners(
@@ -342,48 +201,48 @@ function ChatPage(props) {
     }
 
     return (
-    <React.Fragment>
-    {
-        !currentChatIsLoaded
-        ?
-        <div>
-            <p>Loading...</p>
-        </div>
-        :
-        <div className="container-fluid inherit-height mh-100">
-            <div className="row justify-content-center inherit-height">
-                <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
-                    <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
-                </div>
-                <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
-                    <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
-                        {
-                            addChatMembersInProgress
-                            ?
-                            <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
-                                <label>To:&nbsp;</label>
-                                <input name="members" className="border-0"/>
-                            </form>
-                            :
-                            <h1 className="pl-3 pr-3">
-                                {currentChat.name === "" || currentChat.name == null ? <i className="text-muted">New Chat</i>: currentChat.name}
-                            </h1>
-                        }
-                        <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
-                            <Scrollbars ref={messageScrollbar}>
-                                <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
-                            </Scrollbars>
+        <React.Fragment>
+        {
+            !currentChatIsLoaded
+            ?
+            <div>
+                <p>Loading...</p>
+            </div>
+            :
+            <div className="container-fluid inherit-height mh-100">
+                <div className="row justify-content-center inherit-height">
+                    <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
+                        <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
+                    </div>
+                    <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
+                        <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
+                            {
+                                addChatMembersInProgress
+                                ?
+                                <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
+                                    <label>To:&nbsp;</label>
+                                    <input name="members" className="border-0"/>
+                                </form>
+                                :
+                                <h1 className="pl-3 pr-3">
+                                    {currentChat.name === "" || currentChat.name == null ? <i className="text-muted">New Chat</i>: currentChat.name}
+                                </h1>
+                            }
+                            <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
+                                <Scrollbars ref={messageScrollbar}>
+                                    <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
+                                </Scrollbars>
+                            </div>
+                            <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                         </div>
-                        <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
+                    </div>
+                    <div className="col-2 border pt-2">
+                        <ChatInfo currentChat={currentChat}></ChatInfo>
                     </div>
                 </div>
-                <div className="col-2 border pt-2">
-                    <ChatInfo currentChat={currentChat}></ChatInfo>
-                </div>
             </div>
-        </div>
-    }
-    </React.Fragment>
+        }
+        </React.Fragment>
     );
 
 } 

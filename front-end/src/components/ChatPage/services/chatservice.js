@@ -72,3 +72,52 @@ export const loadChatHistory = async(chatId, token) => {
         console.log(error);
     })
 }
+
+export const saveChat = async(chatName, chatMembers, token) => {
+    const chat = {
+        id: null,
+        name: chatName,
+        members: chatMembers.map(member => member.id),
+    }
+    return await fetch("http://local.courier.net:8080/api/v1/chat/create", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(chat)
+    })
+    .then(response => {
+        if(response.status !== 200) return null;
+        return response.json();
+    })
+    .then(json => {
+        if(!json) return null;
+        chat.id = json.id;
+        return chat;
+    })
+    .catch(error => {
+        console.log(error);
+    })
+}
+
+export const loadChatMembers = async(chatId, token) => {
+    const url = `http://local.courier.net:8080/api/v1/chat/getMembers?chatId=${chatId}`;
+    return await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if(response.status !== 200) return null;
+        return response.json();
+    })
+    .then(members => {
+        if(!members) return null;
+        return members;
+    })
+}
