@@ -53,6 +53,7 @@ public class ChatController extends ApiController {
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
 		chatRepo.openConnection();
 		if(!chatRepo.save(chat)) {
+			chatRepo.closeConnection();
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		chatRepo.closeConnection();
@@ -62,7 +63,6 @@ public class ChatController extends ApiController {
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
 		memberRepo.openConnection(); 
 		for(long memberId : receivedChat.getMembers()) {
-			System.out.println(memberId);
 			memberRepo.save(new ChatMember(chat.getId(), memberId));
 		}
 		memberRepo.closeConnection();

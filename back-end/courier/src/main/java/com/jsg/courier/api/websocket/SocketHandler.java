@@ -83,11 +83,6 @@ public class SocketHandler extends TextWebSocketHandler {
 			chats.remove(chatId);
 		}
 		sessions.remove(UUID.fromString(session.getId()));
-//		if(sessions.remove(UUID.fromString(session.getId())) == null) {
-//			System.out.println("Failed to close WebSocket connection. Could not find session with ID " + session.getId());
-//			return;
-//		};
-//		System.out.println("WebSocket connection closed.");
 		broadcastSessions();
 	}
 	
