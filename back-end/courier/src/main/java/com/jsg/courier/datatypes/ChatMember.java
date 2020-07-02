@@ -25,7 +25,7 @@ public class ChatMember implements SQLEntity {
 	}
 	
 	@Override
-	public Map<String, Object> toHashMap() {
+	public Map<String, Object> toSqlMap() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("chatid", chatId.toString());
 		map.put("memberid", memberId);

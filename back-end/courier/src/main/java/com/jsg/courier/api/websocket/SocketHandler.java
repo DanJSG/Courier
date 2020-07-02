@@ -20,7 +20,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.datatypes.ChatDTO;
+import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.datatypes.WebSocketHeaders;
@@ -130,14 +130,14 @@ public class SocketHandler extends TextWebSocketHandler {
 	private void addChatSession(WebSocketSession session, String receivedChats) {
 		String chatsJson = receivedChats.substring(1);
 		System.out.println(chatsJson);
-		List<ChatDTO> chatList;
+		List<Chat> chatList;
 		try {
-			chatList = Arrays.asList(objectMapper.readValue(chatsJson, ChatDTO[].class));
+			chatList = Arrays.asList(objectMapper.readValue(chatsJson, Chat[].class));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return;
 		}
-		for(ChatDTO chat : chatList) {
+		for(Chat chat : chatList) {
 			if(!chats.containsKey(chat.getId())) {
 				ConcurrentHashMap<UUID, WebSocketSession> newSessionMap = new ConcurrentHashMap<>();
 				chats.put(chat.getId(), newSessionMap);

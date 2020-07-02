@@ -53,7 +53,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public Boolean save(T object) {
-		Map<String, Object> valueMap = object.toHashMap();
+		Map<String, Object> valueMap = object.toSqlMap();
 		Object[] values = valueMap.values().toArray();
 		String query = 
 				"INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 

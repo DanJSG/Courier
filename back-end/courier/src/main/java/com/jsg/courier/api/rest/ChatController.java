@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatBuilder;
-import com.jsg.courier.datatypes.ChatDTO;
 import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.ChatMemberBuilder;
 import com.jsg.courier.datatypes.UserSession;
@@ -44,12 +43,11 @@ public class ChatController extends ApiController {
 	
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> create(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestBody ChatDTO receivedChat) {
+			@RequestHeader String authorization, @RequestBody Chat chat) {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		Chat chat = new Chat(receivedChat.getName());
-		receivedChat.setChatId(chat.getId());
+		chat.generateChatId();
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
 		chatRepo.openConnection();
 		if(!chatRepo.save(chat)) {
@@ -57,16 +55,16 @@ public class ChatController extends ApiController {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		chatRepo.closeConnection();
-		if(receivedChat.getMembers().size() == 0) {
+		if(chat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
 		memberRepo.openConnection(); 
-		for(long memberId : receivedChat.getMembers()) {
+		for(long memberId : chat.getMembers()) {
 			memberRepo.save(new ChatMember(chat.getId(), memberId));
 		}
 		memberRepo.closeConnection();
-		return ResponseEntity.status(HttpStatus.OK).body(receivedChat.writeValueAsString());
+		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 	
 	@GetMapping(value = "/chat/getAll")

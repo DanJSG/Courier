@@ -88,7 +88,12 @@ function ChatPage(props) {
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
         const chatWithId = await saveChat(name, currentChat.members, props.token);
+        console.log(chatWithId);
         setCurrentChat(chatWithId);
+        setChats(prevChats => {
+            prevChats[0].id = chatWithId.id;
+            return prevChats;
+        })
     }
 
     const updateCurrentChatCallback = (members) => {
