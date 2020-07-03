@@ -4,12 +4,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.jsg.courier.config.SQLConnectionPool;
 
 public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 
@@ -29,32 +32,38 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public Boolean openConnection() {
-		Properties properties = new Properties();
-		properties.put("user", sqlUsername);
-		properties.put("password", sqlPassword);
-		try {
-			connection = DriverManager.getConnection(connectionString, properties);
-			return true;
-		} catch(Exception e) {
-			return false;
-		}
+//		Properties properties = new Properties();
+//		properties.put("user", sqlUsername);
+//		properties.put("password", sqlPassword);
+//		try {
+//			connection = DriverManager.getConnection(connectionString, properties);
+//			return true;
+//		} catch(Exception e) {
+//			return false;
+//		}
+		return true;
 	}
 	
 	@Override
 	public Boolean closeConnection() {
-		try {
-			if(connection.isClosed()) {
-				return false;
-			}
-			connection.close();
-			return true;
-		} catch(Exception e) {
-			return false;
-		}
+//		try {
+//			if(connection.isClosed()) {
+//				return false;
+//			}
+//			connection.close();
+//			return true;
+//		} catch(Exception e) {
+//			return false;
+//		}
+		return true;
 	}
 	
 	@Override
 	public Boolean save(T object) {
+		Connection connection = getConnection();
+		if(connection == null) {
+			return false;
+		}
 		Map<String, Object> valueMap = object.toSqlMap();
 		Object[] values = valueMap.values().toArray();
 		String query = 
@@ -76,6 +85,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+		Connection connection = getConnection();
+		if(connection == null) {
+			return null;
+		}
 		if(!checkColumnName(searchColumn)) {
 			System.out.println("Column name contains dangerous characters.");
 			return null;
@@ -106,6 +119,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
+		Connection connection = getConnection();
+		if(connection == null) {
+			return false;
+		}
 		if(!checkColumnName(clauseColumn) || !checkColumnName(updateColumn)) {
 			System.out.println("Column name contains dangerous characters.");
 			return false;
@@ -153,6 +170,15 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		Pattern blacklist = Pattern.compile("[ ][--]*");
 		Matcher matcher = blacklist.matcher(columnName);
 		return !matcher.find();
+	}
+	
+	private Connection getConnection() {
+		try {
+			return SQLConnectionPool.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 }
