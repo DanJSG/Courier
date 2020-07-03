@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 
@@ -74,6 +76,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+		if(!checkColumnName(searchColumn)) {
+			System.out.println("Column name contains dangerous characters.");
+			return null;
+		}
 		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + "=?;";
 		try {
 			PreparedStatement statement = connection.prepareStatement(query);
@@ -100,6 +106,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
+		if(!checkColumnName(clauseColumn) || !checkColumnName(updateColumn)) {
+			System.out.println("Column name contains dangerous characters.");
+			return false;
+		}
 		String query = "UPDATE `" + tableName + "` SET " + updateColumn + "= ? WHERE " + clauseColumn + " = ?;";
 		try {
 			PreparedStatement statement = connection.prepareStatement(query);
@@ -134,6 +144,13 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			}
 		}
 		return paramString;
+	}
+	
+	//Blocks SQL column 
+	private Boolean checkColumnName(String columnName) {
+		Pattern blacklist = Pattern.compile("[ ][--]*");
+		Matcher matcher = blacklist.matcher(columnName);
+		return !matcher.find();
 	}
 	
 }
