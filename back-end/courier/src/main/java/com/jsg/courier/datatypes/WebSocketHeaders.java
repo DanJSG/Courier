@@ -2,6 +2,7 @@ package com.jsg.courier.datatypes;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class WebSocketHeaders {
@@ -9,7 +10,8 @@ public class WebSocketHeaders {
 	@JsonProperty
 	private long id;
 
-	public WebSocketHeaders() {}
+	@JsonCreator
+	private WebSocketHeaders() {}
 	
 	public WebSocketHeaders(WebSocketSession session) {		
 		String[] headers = session.getHandshakeHeaders().getFirst("sec-websocket-protocol").split(",");

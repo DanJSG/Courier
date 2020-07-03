@@ -3,6 +3,7 @@ package com.jsg.courier.datatypes;
 import java.util.Date;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,7 +35,8 @@ public class Message implements JsonObject {
 	@JsonInclude(Include.NON_NULL)
 	private UUID chatId;
 	
-	public Message() {}
+	@JsonCreator
+	private Message() {}
 	
 	public UUID getChatId() {
 		return this.chatId;

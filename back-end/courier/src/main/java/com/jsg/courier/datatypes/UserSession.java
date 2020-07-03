@@ -1,5 +1,6 @@
 package com.jsg.courier.datatypes;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.httprequests.HttpResponse;
@@ -13,7 +14,8 @@ public class UserSession {
 	@JsonProperty
 	private long id;
 	
-	public UserSession() {}
+	@JsonCreator
+	private UserSession() {}
 	
 	public UserSession(long id, String client_id, String client_secret) {
 		this.id = id;
