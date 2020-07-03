@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jsg.courier.config.SQLConnectionPool;
-
 public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	private final String tableName;

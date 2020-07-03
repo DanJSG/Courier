@@ -1,4 +1,4 @@
-package com.jsg.courier.config;
+package com.jsg.courier.libs.nosql;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.jsg.courier.config;
+package com.jsg.courier.libs.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;

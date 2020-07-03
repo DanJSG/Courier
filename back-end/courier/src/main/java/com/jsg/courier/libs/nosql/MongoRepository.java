@@ -7,7 +7,6 @@ import org.bson.BSONObject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import com.jsg.courier.config.MongoConnectionPool;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
