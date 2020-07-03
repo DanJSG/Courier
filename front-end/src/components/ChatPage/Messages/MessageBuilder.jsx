@@ -1,8 +1,9 @@
-import React, {useState, useRef} from 'react';
+import React, {useRef} from 'react';
 
 function MessageBuilder(props) {
 
-    const [error, setError] = useState("");
+    // commenting out whilst not used, might be reimplemented later
+    // const [error, setError] = useState("");
     const formRef = useRef(null);
 
     const onClickSendMessage = (e) => {
@@ -20,7 +21,7 @@ function MessageBuilder(props) {
         const messageText = formRef.current.elements.message.value.trim();
         formRef.current.elements.message.value = null;
         const errorMsg = props.handleSendMessage(messageText);
-        setError(errorMsg);
+        // setError(errorMsg);
         if(!errorMsg) {
             formRef.current.elements.message.value = '';
         }

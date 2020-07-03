@@ -1,6 +1,5 @@
 import React from 'react';
 import Message from "./Message";
-import MessageBuilder from './MessageBuilder'
 
 function MessageList(props){
 

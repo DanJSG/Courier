@@ -5,7 +5,7 @@ function ChatInfo(props) {
         <div>
             <h2 className="text-center">Members:</h2>
             <div className="list-group-flush">
-                {props.currentChat.members.map((member) => <div className="list-group-item" key={member.id}>{member.displayName} </div>)}
+                {props.currentChat.members.map((member) => <div className="list-group-item" key={member.id}>{member.displayName}</div>)}
             </div>
         </div>
     );
