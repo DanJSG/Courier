@@ -16,11 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Message;
-import com.jsg.courier.repositories.MessageRepository;
+import com.jsg.courier.datatypes.MessageBuilder;
+import com.jsg.courier.libs.nosql.MongoRepository;
 
 @RestController
 public class MessageController extends APIController {
-
+	
+	private final String MONGO_CONNECTION_STRING;
+	private final String MONGO_DATABASE_NAME;
+	
 	@Autowired
 	public MessageController(
 			@Value("${token.secret.access}") String accessTokenSecret,
@@ -28,8 +32,12 @@ public class MessageController extends APIController {
 			@Value("${oauth2.client_secret}") String client_secret,
 			@Value("${sql.username}") String sqlUsername,
 			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString) {
+			@Value("${sql.connectionstring}") String sqlConnectionString,
+			@Value("${mongo.connectionstring}") String mongoConnectionString,
+			@Value("${mongo.database.name}") String mongoDbName) {
 		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
+		this.MONGO_CONNECTION_STRING = mongoConnectionString;
+		this.MONGO_DATABASE_NAME = mongoDbName;
 	}
 
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,9 +46,9 @@ public class MessageController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MessageRepository repo = new MessageRepository();
+		MongoRepository<Message> repo = new MongoRepository<>(MONGO_CONNECTION_STRING, MONGO_DATABASE_NAME);
 		try {
-			List<Message> messages = repo.findAll(chatId);
+			List<Message> messages = repo.findAll(chatId, new MessageBuilder());
 			if(messages.size() == 0) {
 				return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 			}

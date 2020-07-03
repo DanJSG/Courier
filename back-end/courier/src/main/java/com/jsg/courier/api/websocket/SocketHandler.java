@@ -22,9 +22,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.Message;
+import com.jsg.courier.datatypes.MessageBuilder;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.datatypes.WebSocketHeaders;
-import com.jsg.courier.repositories.MessageRepository;
+import com.jsg.courier.libs.nosql.MongoRepository;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
@@ -35,12 +36,19 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	private final String CLIENT_ID;
 	private final String CLIENT_SECRET;
+	private final String MONGO_CONNECTION_STRING;
+	private final String MONGO_DATABASE_NAME;
 	
 	@Autowired
-	public SocketHandler(@Value("${oauth2.client_id}") String client_id, 
-			@Value("${oauth2.client_secret}") String client_secret) {
+	public SocketHandler(
+			@Value("${oauth2.client_id}") String client_id, 
+			@Value("${oauth2.client_secret}") String client_secret,
+			@Value("${mongo.connectionstring}") String mongoConnectionString,
+			@Value("${mongo.database.name}") String mongoDbName) {
 				this.CLIENT_ID = client_id;
 				this.CLIENT_SECRET = client_secret;
+				this.MONGO_CONNECTION_STRING = mongoConnectionString;
+				this.MONGO_DATABASE_NAME = mongoDbName;
 	}
 	
 	@Override
@@ -50,9 +58,12 @@ public class SocketHandler extends TextWebSocketHandler {
 			addChatSession(session, messageJsonPayload);
 			return;
 		}
-		Message message = objectMapper.readValue(messageJsonPayload, Message.class);
-		MessageRepository repo = new MessageRepository();
-		String collectionName = message.getChatId() != null ? message.getChatId().toString() : "messages";
+		Message message = new MessageBuilder().fromJson(messageJsonPayload);
+		if(message.getChatId() == null) {
+			return;
+		}
+		MongoRepository<Message> repo = new MongoRepository<>(MONGO_CONNECTION_STRING, MONGO_DATABASE_NAME);
+		String collectionName = message.getChatId().toString();
 		repo.save(message, collectionName);
 		repo.closeConnection();
 		broadcastMessage(message, UUID.fromString(session.getId()));
