@@ -146,8 +146,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		return paramString;
 	}
 	
-	//Blocks SQL column 
 	private Boolean checkColumnName(String columnName) {
+		// Blocks SQL column name from including dangerous input:
+		// spaces or --. This helps prevent SQL injection through a badly 
+		// implemented query.
 		Pattern blacklist = Pattern.compile("[ ][--]*");
 		Matcher matcher = blacklist.matcher(columnName);
 		return !matcher.find();
