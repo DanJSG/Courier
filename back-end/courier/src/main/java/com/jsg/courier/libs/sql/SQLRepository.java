@@ -12,8 +12,4 @@ public interface SQLRepository<T extends SQLEntity> {
 	
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue);
 	
-	public Boolean closeConnection();
-	
-	public Boolean openConnection();
-	
 }

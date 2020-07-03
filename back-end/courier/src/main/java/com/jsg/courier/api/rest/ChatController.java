@@ -48,22 +48,17 @@ public class ChatController extends APIController {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		chat.generateChatId();
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
-		chatRepo.openConnection();
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		if(!chatRepo.save(chat)) {
-			chatRepo.closeConnection();
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
-		chatRepo.closeConnection();
 		if(chat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
-		memberRepo.openConnection(); 
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
 		for(long memberId : chat.getMembers()) {
 			memberRepo.save(new ChatMember(chat.getId(), memberId));
 		}
-		memberRepo.closeConnection();
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 	
@@ -74,23 +69,19 @@ public class ChatController extends APIController {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		// TODO optimise this bad implementation with a SQL joined view and change to data structure
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
-		memberRepo.openConnection();
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
 		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
-		memberRepo.closeConnection();
 		if(chatMembers == null || chatMembers.size() == 0) {
 			return ResponseEntity.status(HttpStatus.OK).body(null);
 		}
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.chats");
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		List<Chat> chats = new ArrayList<>();
-		chatRepo.openConnection();
 		for(ChatMember currentUser : chatMembers) {
 			List<Chat> currentChat = chatRepo.findWhereEqual("chatid", currentUser.getChatId().toString(), new ChatBuilder());
 			if(currentChat != null && currentChat.size() > 0) {
 				chats.add(currentChat.get(0));
 			}
 		}
-		chatRepo.closeConnection();
 		if(chats.size() == 0) {
 			return ResponseEntity.status(HttpStatus.OK).body(null);
 		}
@@ -111,8 +102,7 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>(SQL_CONNECTION_STRING, SQL_USERNAME, SQL_PASSWORD, "chat.members");
-		memberRepo.openConnection();
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>("chat.members");
 		System.out.println(chatId);
 		// TODO This all needs optimising as it is far too slow (~600-700ms for a chat with 7 members)
 		// 		I should look at doing a number of things differently 
@@ -120,7 +110,6 @@ public class ChatController extends APIController {
 		//			-> Use SQL views for easy lookups
 		//			-> Modify or add to data structure to fit SQL view
 		List<ChatMember> members = memberRepo.findWhereEqual("chatid", chatId, new ChatMemberBuilder());
-		memberRepo.closeConnection();
 		if(members == null || members.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}

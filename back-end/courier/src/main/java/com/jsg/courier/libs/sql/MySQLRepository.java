@@ -1,61 +1,23 @@
 package com.jsg.courier.libs.sql;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.jsg.courier.config.SQLConnectionPool;
 
 public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
-
-	private Connection connection;
 	
 	private final String tableName;
-	private final String connectionString;
-	private final String sqlUsername;
-	private final String sqlPassword;
 	
-	public MySQLRepository(String connectionString, String username, String password, String tableName) {
-		this.connectionString = connectionString;
-		this.sqlUsername = username;
-		this.sqlPassword = password;
+	public MySQLRepository(String tableName) {
 		this.tableName = tableName;
-	}
-	
-	@Override
-	public Boolean openConnection() {
-//		Properties properties = new Properties();
-//		properties.put("user", sqlUsername);
-//		properties.put("password", sqlPassword);
-//		try {
-//			connection = DriverManager.getConnection(connectionString, properties);
-//			return true;
-//		} catch(Exception e) {
-//			return false;
-//		}
-		return true;
-	}
-	
-	@Override
-	public Boolean closeConnection() {
-//		try {
-//			if(connection.isClosed()) {
-//				return false;
-//			}
-//			connection.close();
-//			return true;
-//		} catch(Exception e) {
-//			return false;
-//		}
-		return true;
 	}
 	
 	@Override
