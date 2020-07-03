@@ -10,9 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.libs.nosql.JsonObject;
 import com.jsg.courier.libs.sql.SQLEntity;
 
-public class Chat implements SQLEntity, DTO {
+public class Chat implements SQLEntity, JsonObject {
 	
 	@JsonProperty
 	private UUID id;

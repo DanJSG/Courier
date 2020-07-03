@@ -6,10 +6,13 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.jsg.courier.libs.nosql.JsonObject;
 import com.jsg.courier.utilities.MongoDateDeserializer;
 
-public class Message {
+public class Message implements JsonObject {
 	
 	@JsonProperty
 	private String messageText;
@@ -45,6 +48,18 @@ public class Message {
 		System.out.println("sender: " + this.sender);
 		System.out.println("receiver: " + this.receiver);
 		System.out.println("}");
+	}
+
+	@Override
+	public String writeValueAsString() {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String json = mapper.writeValueAsString(this);
+			return json;
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 }
