@@ -13,6 +13,7 @@ import com.mongodb.client.MongoDatabase;
 public final class MongoConnectionPool {
 
 	private static MongoClient connection;
+	private static String databaseName;
 	
 	private MongoConnectionPool(@Value("${mongo.connectionstring}") String mongoConnectionString,
 								@Value("${mongo.database.name}") String mongoDbName) {
@@ -21,9 +22,10 @@ public final class MongoConnectionPool {
 		options.connectionsPerHost(200);
 		MongoClientURI connectionString = new MongoClientURI(mongoConnectionString, options);
 		connection = new MongoClient(connectionString);
+		databaseName = mongoDbName;
 	}
 	
-	public static MongoDatabase getDatabase(String databaseName) {
+	public static MongoDatabase getDatabase() {
 		return connection.getDatabase(databaseName);
 	}
 }

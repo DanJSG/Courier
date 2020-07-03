@@ -16,21 +16,17 @@ import com.mongodb.client.model.Projections;
 
 public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>{
 	
-	private String databaseName;
-	
-	public MongoRepository(String databaseName) {
-		this.databaseName = databaseName;
-	}
+	public MongoRepository() {}
 	
 	@Override
 	public void createCollection(String name) {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		database.createCollection(name);
 	}
 
 	@Override
 	public void save(T item, String collectionName) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		Document document = Document.parse(item.writeValueAsString());
 		collection.insertOne(document);
@@ -43,7 +39,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public List<T> findAll(String collectionName, int limit, JsonObjectBuilder<T> builder) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		FindIterable<Document> documents;
 		if(limit > 0) {
@@ -60,7 +56,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public <V> List<T> findAllWhereEquals(String field, V value, String collectionName, JsonObjectBuilder<T> builder) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		BasicDBObject query = new BasicDBObject();
 		query.put(field, value);
 		MongoCollection<Document> collection = database.getCollection(collectionName);
@@ -74,7 +70,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public long count(String collectionName) {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		long count = collection.countDocuments();
 		return count;
@@ -82,7 +78,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public void delete(T item, String collectionName) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		BasicDBObject query = new BasicDBObject();
 		query.putAll((BSONObject) BasicDBObject.parse(item.writeValueAsString()));
@@ -91,7 +87,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public void delete(String id, String collectionName) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
@@ -100,7 +96,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public void deleteAll(String collectionName) {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		BasicDBObject query = new BasicDBObject();
 		collection.deleteMany(query);
@@ -108,7 +104,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public Boolean exists(T item, String collectionName) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		BasicDBObject query = new BasicDBObject();
 		query.putAll((BSONObject) BasicDBObject.parse(item.writeValueAsString()));
@@ -120,7 +116,7 @@ public class MongoRepository<T extends JsonObject> implements NoSQLRepository<T>
 
 	@Override
 	public Boolean exists(String id, String collectionName) throws Exception {
-		MongoDatabase database = MongoConnectionPool.getDatabase(databaseName);
+		MongoDatabase database = MongoConnectionPool.getDatabase();
 		MongoCollection<Document> collection = database.getCollection(collectionName);
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
