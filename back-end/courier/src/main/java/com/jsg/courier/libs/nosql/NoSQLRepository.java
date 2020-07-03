@@ -26,6 +26,4 @@ public interface NoSQLRepository<T extends JsonObject> {
 	
 	public Boolean exists(String id, String collectionName) throws Exception;
 	
-	public void closeConnection() throws Exception;
-	
 }

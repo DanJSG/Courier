@@ -22,22 +22,12 @@ import com.jsg.courier.libs.nosql.MongoRepository;
 @RestController
 public class MessageController extends APIController {
 	
-	private final String MONGO_CONNECTION_STRING;
-	private final String MONGO_DATABASE_NAME;
-	
 	@Autowired
 	public MessageController(
 			@Value("${token.secret.access}") String accessTokenSecret,
 			@Value("${oauth2.client_id}") String client_id, 
-			@Value("${oauth2.client_secret}") String client_secret,
-			@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString,
-			@Value("${mongo.connectionstring}") String mongoConnectionString,
-			@Value("${mongo.database.name}") String mongoDbName) {
-		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
-		this.MONGO_CONNECTION_STRING = mongoConnectionString;
-		this.MONGO_DATABASE_NAME = mongoDbName;
+			@Value("${oauth2.client_secret}") String client_secret) {
+		super(accessTokenSecret, client_id, client_secret);
 	}
 
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,7 +36,7 @@ public class MessageController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MongoRepository<Message> repo = new MongoRepository<>(MONGO_CONNECTION_STRING, MONGO_DATABASE_NAME);
+		MongoRepository<Message> repo = new MongoRepository<>();
 		try {
 			List<Message> messages = repo.findAll(chatId, new MessageBuilder());
 			if(messages.size() == 0) {

@@ -22,11 +22,8 @@ public class AuthController extends APIController {
 	public AuthController(
 			@Value("${token.secret.access}") String accessTokenSecret,
 			@Value("${oauth2.client_id}") String client_id, 
-			@Value("${oauth2.client_secret}") String client_secret,
-			@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString) {
-		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
+			@Value("${oauth2.client_secret}") String client_secret) {
+		super(accessTokenSecret, client_id, client_secret);
 	}
 	
 	@PostMapping(value = "/authorize")

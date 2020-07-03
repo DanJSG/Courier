@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -25,6 +26,9 @@ public class Chat implements SQLEntity, JsonObject {
 	@JsonProperty
 	@JsonInclude(Include.NON_NULL)
 	private List<Long> members;
+	
+	@JsonCreator
+	private Chat() {};
 	
 	public Chat(UUID id, String name) {
 		this.id = id;

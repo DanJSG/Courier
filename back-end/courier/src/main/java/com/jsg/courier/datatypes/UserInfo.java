@@ -1,5 +1,6 @@
 package com.jsg.courier.datatypes;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserInfo {
@@ -13,7 +14,8 @@ public class UserInfo {
 	@JsonProperty
 	private String bio;
 	
-	public UserInfo() {}
+	@JsonCreator
+	private UserInfo() {}
 	
 	public UserInfo(long id, String name) {
 		this(id, name, "");
