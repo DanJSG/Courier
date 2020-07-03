@@ -28,4 +28,8 @@ public final class MongoConnectionPool {
 	public static MongoDatabase getDatabase() {
 		return connection.getDatabase(databaseName);
 	}
+	
+	public static MongoClient getConnection() {
+		return connection;
+	}
 }
