@@ -43,7 +43,7 @@ export const loadAllChats = async(userId, token) => {
 }
 
 export const loadChatHistory = async(chatId, token) => {
-    const url = `http://local.courier.net:8080/api/v1/messages/getAll?chatId=${chatId}`;
+    const url = `http://local.courier.net:8080/api/v1/message/getAll?chatId=${chatId}`;
     return await fetch(url, {
         method: "GET",
         credentials: "include",

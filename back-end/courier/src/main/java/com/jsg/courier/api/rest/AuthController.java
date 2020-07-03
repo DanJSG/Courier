@@ -16,7 +16,7 @@ import com.jsg.courier.repositories.UserInfoAPIRepository;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
-public class AuthController extends ApiController {
+public class AuthController extends APIController {
 	
 	@Autowired
 	public AuthController(

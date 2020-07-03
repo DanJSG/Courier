@@ -28,7 +28,7 @@ import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
 @RestController
-public class ChatController extends ApiController {
+public class ChatController extends APIController {
 
 	@Autowired
 	public ChatController(

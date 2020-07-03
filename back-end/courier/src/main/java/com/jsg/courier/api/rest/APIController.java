@@ -9,7 +9,7 @@ import com.jsg.courier.utilities.AuthHeaderHandler;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RequestMapping("/api/v1")
-public abstract class ApiController {
+public abstract class APIController {
 
 	protected static final String ALPHA_NUM_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	protected static final ResponseEntity<String> UNAUTHORIZED_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -24,7 +24,7 @@ public abstract class ApiController {
 	protected final String SQL_CONNECTION_STRING;
 	
 	@Autowired
-	protected ApiController(String accessTokenSecret, String client_id, String client_secret, 
+	protected APIController(String accessTokenSecret, String client_id, String client_secret, 
 			String sqlUsername, String sqlPassword, String sqlConnectionString) {
 		ACCESS_TOKEN_SECRET = accessTokenSecret;
 		CLIENT_ID = client_id;
