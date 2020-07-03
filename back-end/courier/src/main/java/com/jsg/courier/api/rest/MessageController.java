@@ -43,7 +43,7 @@ public class MessageController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MongoRepository<Message> repo = new MongoRepository<>(MONGO_CONNECTION_STRING, MONGO_DATABASE_NAME);
+		MongoRepository<Message> repo = new MongoRepository<>(MONGO_DATABASE_NAME);
 		try {
 			List<Message> messages = repo.findAll(chatId, new MessageBuilder());
 			if(messages.size() == 0) {

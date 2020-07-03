@@ -62,10 +62,9 @@ public class SocketHandler extends TextWebSocketHandler {
 		if(message.getChatId() == null) {
 			return;
 		}
-		MongoRepository<Message> repo = new MongoRepository<>(MONGO_CONNECTION_STRING, MONGO_DATABASE_NAME);
+		MongoRepository<Message> repo = new MongoRepository<>(MONGO_DATABASE_NAME);
 		String collectionName = message.getChatId().toString();
 		repo.save(message, collectionName);
-		repo.closeConnection();
 		broadcastMessage(message, UUID.fromString(session.getId()));
 	}
 	
