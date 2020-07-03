@@ -30,12 +30,9 @@ public class MessageController extends APIController {
 			@Value("${token.secret.access}") String accessTokenSecret,
 			@Value("${oauth2.client_id}") String client_id, 
 			@Value("${oauth2.client_secret}") String client_secret,
-			@Value("${sql.username}") String sqlUsername,
-			@Value("${sql.password}") String sqlPassword,
-			@Value("${sql.connectionstring}") String sqlConnectionString,
 			@Value("${mongo.connectionstring}") String mongoConnectionString,
 			@Value("${mongo.database.name}") String mongoDbName) {
-		super(accessTokenSecret, client_id, client_secret, sqlUsername, sqlPassword, sqlConnectionString);
+		super(accessTokenSecret, client_id, client_secret);
 		this.MONGO_CONNECTION_STRING = mongoConnectionString;
 		this.MONGO_DATABASE_NAME = mongoDbName;
 	}
