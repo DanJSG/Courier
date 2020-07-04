@@ -121,6 +121,10 @@ function ChatPage(props) {
         }
         async function fetchMembers() {
             const members = await loadChatMembers(currentChat.id, props.token);
+            if(members == null) {
+                console.log("Members is null...");
+                console.log(members);
+            }
             setCurrentChat(prevChat => {
                 return {
                     id: prevChat.id,
@@ -164,6 +168,10 @@ function ChatPage(props) {
     useEffect(() => {
         async function loadChats() {
             const loadedChats = await loadAllChats(props.id, props.token);
+            if(loadedChats == null || loadedChats.length == 0) {
+                setCurrentChatIsLoaded(true);
+                return;
+            }
             setChats(loadedChats);
             setCurrentChat(() => {
                 return {

@@ -58,6 +58,8 @@ public class ChatController extends APIController {
 			members.add(new ChatMember(chat.getId(), memberId));
 		}
 		memberRepo.saveMany(members);
+		System.out.println("CHAT JSON OBJECT:");
+		System.out.println(chat.writeValueAsString());
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 	
@@ -71,7 +73,7 @@ public class ChatController extends APIController {
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
 		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
 		if(chatMembers == null || chatMembers.size() == 0) {
-			return ResponseEntity.status(HttpStatus.OK).body(null);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		List<Chat> chats = new ArrayList<>();
@@ -82,7 +84,7 @@ public class ChatController extends APIController {
 			}
 		}
 		if(chats.size() == 0) {
-			return ResponseEntity.status(HttpStatus.OK).body(null);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;

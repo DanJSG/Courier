@@ -113,11 +113,15 @@ export const loadChatMembers = async(chatId, token) => {
         }
     })
     .then(response => {
+        if(response.status === 204) return [];
         if(response.status !== 200) return null;
         return response.json();
     })
     .then(members => {
         if(!members) return null;
         return members;
+    })
+    .catch(error => {
+        console.log(error);
     })
 }
