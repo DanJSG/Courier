@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -20,27 +21,46 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public Boolean save(T object) {
+		return saveMany(Arrays.asList(object));
+	}
+	
+	@Override
+	public Boolean saveMany(List<T> objects) {
 		Connection connection = getConnection();
-		if(connection == null) {
+		if(connection == null || objects.size() == 0) {
 			return false;
 		}
-		Map<String, Object> valueMap = object.toSqlMap();
+		Map<String, Object> valueMap = objects.get(0).toSqlMap();
 		Object[] values = valueMap.values().toArray();
 		String query = 
 				"INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 
-				") VALUES (" + createParamMarkers(values) + ");";
+				") VALUES (" + createParamMarkers(values) + ")";
 		PreparedStatement statement;
 		try {
+			int count = 0;
 			statement = connection.prepareStatement(query);
-			for(int i=0; i < values.length; i++) {
-				statement.setObject(i + 1, values[i]);
+			for(T object : objects) {
+				if(count > 0) {
+					valueMap = object.toSqlMap();
+					values = valueMap.values().toArray();
+				}
+				for(int i=0; i < values.length; i++) {
+					statement.setObject(i + 1, values[i]);
+				}
+				statement.addBatch();
+				count++;
+				if(count % 500 == 0 || count == objects.size()) {
+					System.out.println("Executing batched statement!");
+					statement.executeBatch();
+					connection.commit();
+				}
 			}
-			statement.execute();
 			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return false;
 		}
+		
 	}
 	
 	@Override
@@ -59,6 +79,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			statement.setFetchSize(limit);
 			statement.setObject(1, value);
 			ResultSet results = statement.executeQuery();
+			connection.commit();
 			ArrayList<T> objectList = new ArrayList<>();
 			while(results.next()) {
 				objectList.add(builder.fromResultSet(results));
@@ -93,6 +114,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			statement.setObject(1, updateValue);
 			statement.setObject(2, clauseValue);
 			statement.executeUpdate();
+			connection.commit();
 			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -134,7 +156,9 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	private Connection getConnection() {
 		try {
-			return SQLConnectionPool.getConnection();
+			Connection connection = SQLConnectionPool.getConnection();
+			connection.setAutoCommit(false);
+			return connection;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;

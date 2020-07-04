@@ -6,6 +6,8 @@ public interface SQLRepository<T extends SQLEntity> {
 	
 	public Boolean save(T item);
 	
+	public Boolean saveMany(List<T> objects);
+	
 	public <V> List<T> findWhereEqual(String searchColumn, V value, SQLEntityBuilder<T> builder);
 	
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder);

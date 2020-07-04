@@ -53,9 +53,11 @@ public class ChatController extends APIController {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
+		List<ChatMember> members = new ArrayList<>();
 		for(long memberId : chat.getMembers()) {
-			memberRepo.save(new ChatMember(chat.getId(), memberId));
+			members.add(new ChatMember(chat.getId(), memberId));
 		}
+		memberRepo.saveMany(members);
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 	
