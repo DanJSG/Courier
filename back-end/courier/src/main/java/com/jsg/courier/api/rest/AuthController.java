@@ -1,5 +1,7 @@
 package com.jsg.courier.api.rest;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jsg.courier.constants.OAuth2;
-import com.jsg.courier.httprequests.HttpResponse;
-import com.jsg.courier.repositories.UserInfoAPIRepository;
+import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.UserBuilder;
+import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
@@ -31,14 +34,26 @@ public class AuthController extends APIController {
 			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
 		if(!tokensAreValid(authorization, jwt)) {
+			System.out.println("Tokens are not valid...");
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		long id = JWTHandler.getIdFromToken(jwt);
-		HttpResponse response = UserInfoAPIRepository.getUserInfo(id, CLIENT_ID, CLIENT_SECRET);
-		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
-			return BAD_REQUEST_HTTP_RESPONSE;
+		System.out.println("Tokens are valid...");
+		MySQLRepository<User> repo = new MySQLRepository<>("users");
+		long oauthId = JWTHandler.getIdFromToken(jwt);
+		String name = JWTHandler.getNameFromToken(jwt);
+		System.out.println(oauthId);
+		System.out.println(name);
+		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		if(foundUsers == null || foundUsers.size() == 0) {
+			repo.save(new User(oauthId, name));
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(response.getBody());
+		foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		if(foundUsers == null || foundUsers.size() == 0) {
+			System.out.println("Failed to find user");
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		}
+		User user = foundUsers.get(0);
+		return ResponseEntity.status(HttpStatus.OK).body(user.writeValueAsString());
 	}
 
 }
