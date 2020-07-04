@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -20,27 +21,45 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public Boolean save(T object) {
+		return saveMany(Arrays.asList(object));
+	}
+	
+	@Override
+	public Boolean saveMany(List<T> objects) {
 		Connection connection = getConnection();
-		if(connection == null) {
+		if(connection == null || objects.size() == 0) {
 			return false;
 		}
-		Map<String, Object> valueMap = object.toSqlMap();
+		Map<String, Object> valueMap = objects.get(0).toSqlMap();
 		Object[] values = valueMap.values().toArray();
 		String query = 
 				"INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 
-				") VALUES (" + createParamMarkers(values) + ");";
+				") VALUES (" + createParamMarkers(values) + ")";
 		PreparedStatement statement;
 		try {
+			int count = 0;
 			statement = connection.prepareStatement(query);
-			for(int i=0; i < values.length; i++) {
-				statement.setObject(i + 1, values[i]);
+			for(T object : objects) {
+				if(count > 0) {
+					valueMap = object.toSqlMap();
+					values = valueMap.values().toArray();
+				}
+				for(int i=0; i < values.length; i++) {
+					statement.setObject(i + 1, values[i]);
+				}
+				statement.addBatch();
+				count++;
+				if(count % 500 == 0 || count == objects.size()) {
+					System.out.println("Executing batched statement!");
+					statement.executeBatch();
+				}
 			}
-			statement.execute();
 			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return false;
 		}
+		
 	}
 	
 	@Override
