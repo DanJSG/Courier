@@ -4,6 +4,9 @@ export const broadcastChats = (ws, chats) => {
         return false;
     }
     const chatIds = chats.map(chat => {
+        // console.log(chat.id);
+        // console.log(chat.id.toString());
+        // console.log(chat.id.toString().contains("-"));
         return {
             id: chat.id
         }

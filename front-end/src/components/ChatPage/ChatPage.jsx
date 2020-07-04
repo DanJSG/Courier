@@ -147,6 +147,8 @@ function ChatPage(props) {
     useEffect(() => {
         if(!wsConnection) return;
         if(!chats || chats.length === 0) return;
+        if(currentChat.id != null && !currentChat.id.includes("-")) return;
+        console.log(currentChat.id);
         broadcastChats(wsConnection, chats);
     }, [chats]);
 
