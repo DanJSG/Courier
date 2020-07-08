@@ -3,6 +3,7 @@ package com.jsg.courier.datatypes;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,9 @@ public class User implements SQLEntity, JsonObject {
 	
 	@JsonProperty("displayName")
 	private String username;
+	
+	@JsonCreator
+	private User() {}
 	
 	public User(long id, long oauthId, String username) {
 		this.id = id;

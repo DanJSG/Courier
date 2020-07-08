@@ -26,6 +26,8 @@ import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatBuilder;
 import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.ChatMemberBuilder;
+import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
@@ -118,9 +120,14 @@ public class ChatController extends APIController {
 		if(members == null || members.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
-		List<UserSession> users = new ArrayList<>();
+		List<User> users = new ArrayList<>();
+		MySQLRepository<User> userRepo = new MySQLRepository<>("users");
 		for(ChatMember member : members) {
-			users.add(new UserSession(member.getMemberId(), CLIENT_ID, CLIENT_SECRET));
+			List<User> userResponse = userRepo.findWhereEqual("id", member.getMemberId(), 1, new UserBuilder());
+			if(userResponse == null || userResponse.size() == 0) {
+				continue;
+			}
+			users.add(userResponse.get(0));
 		}
 		try {
 			ObjectMapper mapper = new ObjectMapper();
