@@ -63,6 +63,10 @@ public class Chat implements SQLEntity, JsonObject {
 		this.name = name;
 	}
 	
+	public void setMembers(List<Long> members) {
+		this.members = members;
+	}
+	
 	@Override
 	public Map<String, Object> toSqlMap() {
 		Map<String, Object> map = new HashMap<>();

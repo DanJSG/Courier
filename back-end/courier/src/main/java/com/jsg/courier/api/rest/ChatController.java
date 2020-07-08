@@ -1,7 +1,9 @@
 package com.jsg.courier.api.rest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +47,8 @@ public class ChatController extends APIController {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		chat.generateChatId();
+		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
+		chat.setMembers(new ArrayList<>(uniqueMembers));
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		if(!chatRepo.save(chat)) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
