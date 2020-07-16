@@ -75,21 +75,29 @@ public class ChatController extends APIController {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		// TODO optimise this bad implementation with a SQL joined view and change to data structure
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
-		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
-		if(chatMembers == null || chatMembers.size() == 0) {
+//		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
+//		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
+//		if(chatMembers == null || chatMembers.size() == 0) {
+//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+//		}
+//		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
+//		List<Chat> chats = new ArrayList<>();
+//		for(ChatMember currentUser : chatMembers) {
+//			List<Chat> currentChat = chatRepo.findWhereEqual("chatid", currentUser.getChatId().toString(), new ChatBuilder());
+//			if(currentChat != null && currentChat.size() > 0) {
+//				chats.add(currentChat.get(0));
+//			}
+//		}
+//		if(chats.size() == 0) {
+//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+//		}
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chatdetails");
+		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
+		if(chats == null || chats.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
-		List<Chat> chats = new ArrayList<>();
-		for(ChatMember currentUser : chatMembers) {
-			List<Chat> currentChat = chatRepo.findWhereEqual("chatid", currentUser.getChatId().toString(), new ChatBuilder());
-			if(currentChat != null && currentChat.size() > 0) {
-				chats.add(currentChat.get(0));
-			}
-		}
-		if(chats.size() == 0) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+		for(Chat chat : chats) {
+			System.out.println(chat.writeValueAsString());
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;
