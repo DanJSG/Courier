@@ -50,14 +50,14 @@ public class ChatController extends APIController {
 		chat.generateChatId();
 		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
 		chat.setMembers(new ArrayList<>(uniqueMembers));
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("Chats");
 		if(!chatRepo.save(chat)) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		if(chat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("ChatMembers");
 		List<ChatMember> members = new ArrayList<>();
 		for(long memberId : chat.getMembers()) {
 			members.add(new ChatMember(chat.getId(), memberId));
@@ -91,7 +91,7 @@ public class ChatController extends APIController {
 //		if(chats.size() == 0) {
 //			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 //		}
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chatdetails");
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("ChatsFull");
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
@@ -136,7 +136,7 @@ public class ChatController extends APIController {
 //			}
 //			users.add(userResponse.get(0));
 //		}
-		MySQLRepository<User> userRepo = new MySQLRepository<>("chatdetails");
+		MySQLRepository<User> userRepo = new MySQLRepository<>("ChatsFull");
 		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
 		if(users == null || users.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
