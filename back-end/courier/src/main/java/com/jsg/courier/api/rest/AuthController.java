@@ -1,5 +1,7 @@
 package com.jsg.courier.api.rest;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jsg.courier.constants.OAuth2;
-import com.jsg.courier.httprequests.HttpResponse;
-import com.jsg.courier.repositories.UserInfoAPIRepository;
+import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.UserBuilder;
+import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
@@ -33,12 +36,19 @@ public class AuthController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		long id = JWTHandler.getIdFromToken(jwt);
-		HttpResponse response = UserInfoAPIRepository.getUserInfo(id, CLIENT_ID, CLIENT_SECRET);
-		if(response == null || response.getStatus() > 299 || response.getBody() == null) {
-			return BAD_REQUEST_HTTP_RESPONSE;
+		MySQLRepository<User> repo = new MySQLRepository<>("users");
+		long oauthId = JWTHandler.getIdFromToken(jwt);
+		String name = JWTHandler.getNameFromToken(jwt);
+		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		if(foundUsers == null || foundUsers.size() == 0) {
+			repo.save(new User(oauthId, name));
 		}
-		return ResponseEntity.status(HttpStatus.OK).body(response.getBody());
+		foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		if(foundUsers == null || foundUsers.size() == 0) {
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		}
+		User user = foundUsers.get(0);
+		return ResponseEntity.status(HttpStatus.OK).body(user.writeValueAsString());
 	}
 
 }

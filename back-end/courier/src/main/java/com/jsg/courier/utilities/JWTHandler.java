@@ -41,6 +41,11 @@ public final class JWTHandler {
 		return jwt.getClaim("id").asLong();
 	}
 	
+	public static String getNameFromToken(String token) {
+		DecodedJWT jwt = JWT.decode(token);
+		return jwt.getClaim("name").asString();
+	}
+	
 	public static Boolean tokenIsValid(String token, String secret) {
 		if(token == null || !JWTHandler.verifyToken(token, secret)) {
 			return false;

@@ -1,7 +1,9 @@
 package com.jsg.courier.api.rest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +26,8 @@ import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatBuilder;
 import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.ChatMemberBuilder;
-import com.jsg.courier.datatypes.UserSession;
+import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
 @RestController
@@ -45,6 +48,8 @@ public class ChatController extends APIController {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		chat.generateChatId();
+		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
+		chat.setMembers(new ArrayList<>(uniqueMembers));
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		if(!chatRepo.save(chat)) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
@@ -58,6 +63,8 @@ public class ChatController extends APIController {
 			members.add(new ChatMember(chat.getId(), memberId));
 		}
 		memberRepo.saveMany(members);
+		System.out.println("CHAT JSON OBJECT:");
+		System.out.println(chat.writeValueAsString());
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 	
@@ -71,7 +78,7 @@ public class ChatController extends APIController {
 		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
 		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
 		if(chatMembers == null || chatMembers.size() == 0) {
-			return ResponseEntity.status(HttpStatus.OK).body(null);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
 		List<Chat> chats = new ArrayList<>();
@@ -82,7 +89,7 @@ public class ChatController extends APIController {
 			}
 		}
 		if(chats.size() == 0) {
-			return ResponseEntity.status(HttpStatus.OK).body(null);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;
@@ -112,9 +119,14 @@ public class ChatController extends APIController {
 		if(members == null || members.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
-		List<UserSession> users = new ArrayList<>();
+		List<User> users = new ArrayList<>();
+		MySQLRepository<User> userRepo = new MySQLRepository<>("users");
 		for(ChatMember member : members) {
-			users.add(new UserSession(member.getMemberId(), CLIENT_ID, CLIENT_SECRET));
+			List<User> userResponse = userRepo.findWhereEqual("id", member.getMemberId(), 1, new UserBuilder());
+			if(userResponse == null || userResponse.size() == 0) {
+				continue;
+			}
+			users.add(userResponse.get(0));
 		}
 		try {
 			ObjectMapper mapper = new ObjectMapper();
