@@ -76,7 +76,7 @@ public class ChatController extends APIController {
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("ChatsFull");
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+			return NO_CONTENT_HTTP_RESPONSE;
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;
@@ -98,7 +98,7 @@ public class ChatController extends APIController {
 		MySQLRepository<User> userRepo = new MySQLRepository<>("ChatsFull");
 		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
 		if(users == null || users.size() == 0) {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+			return NO_CONTENT_HTTP_RESPONSE;
 		}
 		try {
 			ObjectMapper mapper = new ObjectMapper();
