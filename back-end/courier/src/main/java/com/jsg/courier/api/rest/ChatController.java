@@ -25,7 +25,6 @@ import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatBuilder;
 import com.jsg.courier.datatypes.ChatMember;
-import com.jsg.courier.datatypes.ChatMemberBuilder;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
@@ -74,30 +73,10 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		// TODO optimise this bad implementation with a SQL joined view and change to data structure
-//		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("chat.members");
-//		List<ChatMember> chatMembers = memberRepo.findWhereEqual("memberid", id, new ChatMemberBuilder());
-//		if(chatMembers == null || chatMembers.size() == 0) {
-//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-//		}
-//		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("chat.chats");
-//		List<Chat> chats = new ArrayList<>();
-//		for(ChatMember currentUser : chatMembers) {
-//			List<Chat> currentChat = chatRepo.findWhereEqual("chatid", currentUser.getChatId().toString(), new ChatBuilder());
-//			if(currentChat != null && currentChat.size() > 0) {
-//				chats.add(currentChat.get(0));
-//			}
-//		}
-//		if(chats.size() == 0) {
-//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-//		}
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("ChatsFull");
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-		}
-		for(Chat chat : chats) {
-			System.out.println(chat.writeValueAsString());
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		String responseJson;
@@ -116,33 +95,10 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-//		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>("chat.members");
-//		System.out.println(chatId);
-		// TODO This all needs optimising as it is far too slow (~600-700ms for a chat with 7 members)
-		// 		I should look at doing a number of things differently 
-		//			-> Storing users within courier DB alongside auth provider and auth provider ID
-		//			-> Use SQL views for easy lookups
-		//			-> Modify or add to data structure to fit SQL view
-//		List<ChatMember> members = memberRepo.findWhereEqual("chatid", chatId, new ChatMemberBuilder());
-//		if(members == null || members.size() == 0) {
-//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-//		}
-//		List<User> users = new ArrayList<>();
-//		MySQLRepository<User> userRepo = new MySQLRepository<>("users");
-//		for(ChatMember member : members) {
-//			List<User> userResponse = userRepo.findWhereEqual("id", member.getMemberId(), 1, new UserBuilder());
-//			if(userResponse == null || userResponse.size() == 0) {
-//				continue;
-//			}
-//			users.add(userResponse.get(0));
-//		}
 		MySQLRepository<User> userRepo = new MySQLRepository<>("ChatsFull");
 		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
 		if(users == null || users.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-		}
-		for(User user : users) {
-			System.out.println(user.writeValueAsString());
 		}
 		try {
 			ObjectMapper mapper = new ObjectMapper();
