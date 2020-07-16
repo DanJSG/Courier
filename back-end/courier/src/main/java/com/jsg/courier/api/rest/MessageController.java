@@ -40,7 +40,7 @@ public class MessageController extends APIController {
 		try {
 			List<Message> messages = repo.findAll(chatId, new MessageBuilder());
 			if(messages.size() == 0) {
-				return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+				return NO_CONTENT_HTTP_RESPONSE;
 			}
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResponse = mapper.writeValueAsString(messages);

@@ -36,7 +36,7 @@ public class AuthController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<User> repo = new MySQLRepository<>("users");
+		MySQLRepository<User> repo = new MySQLRepository<>("Users");
 		long oauthId = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);
 		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
