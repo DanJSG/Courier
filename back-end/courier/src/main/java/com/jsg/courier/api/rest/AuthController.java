@@ -34,22 +34,17 @@ public class AuthController extends APIController {
 			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
 		if(!tokensAreValid(authorization, jwt)) {
-			System.out.println("Tokens are not valid...");
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		System.out.println("Tokens are valid...");
 		MySQLRepository<User> repo = new MySQLRepository<>("users");
 		long oauthId = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);
-		System.out.println(oauthId);
-		System.out.println(name);
 		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
 			repo.save(new User(oauthId, name));
 		}
 		foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
-			System.out.println("Failed to find user");
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		User user = foundUsers.get(0);

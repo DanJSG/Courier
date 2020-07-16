@@ -28,7 +28,6 @@ import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.ChatMemberBuilder;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
-import com.jsg.courier.datatypes.UserSession;
 import com.jsg.courier.libs.sql.MySQLRepository;
 
 @RestController
