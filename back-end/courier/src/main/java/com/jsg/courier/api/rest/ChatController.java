@@ -108,25 +108,33 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>("chat.members");
-		System.out.println(chatId);
+//		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<ChatMember>("chat.members");
+//		System.out.println(chatId);
 		// TODO This all needs optimising as it is far too slow (~600-700ms for a chat with 7 members)
 		// 		I should look at doing a number of things differently 
 		//			-> Storing users within courier DB alongside auth provider and auth provider ID
 		//			-> Use SQL views for easy lookups
 		//			-> Modify or add to data structure to fit SQL view
-		List<ChatMember> members = memberRepo.findWhereEqual("chatid", chatId, new ChatMemberBuilder());
-		if(members == null || members.size() == 0) {
+//		List<ChatMember> members = memberRepo.findWhereEqual("chatid", chatId, new ChatMemberBuilder());
+//		if(members == null || members.size() == 0) {
+//			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+//		}
+//		List<User> users = new ArrayList<>();
+//		MySQLRepository<User> userRepo = new MySQLRepository<>("users");
+//		for(ChatMember member : members) {
+//			List<User> userResponse = userRepo.findWhereEqual("id", member.getMemberId(), 1, new UserBuilder());
+//			if(userResponse == null || userResponse.size() == 0) {
+//				continue;
+//			}
+//			users.add(userResponse.get(0));
+//		}
+		MySQLRepository<User> userRepo = new MySQLRepository<>("chatdetails");
+		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
+		if(users == null || users.size() == 0) {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 		}
-		List<User> users = new ArrayList<>();
-		MySQLRepository<User> userRepo = new MySQLRepository<>("users");
-		for(ChatMember member : members) {
-			List<User> userResponse = userRepo.findWhereEqual("id", member.getMemberId(), 1, new UserBuilder());
-			if(userResponse == null || userResponse.size() == 0) {
-				continue;
-			}
-			users.add(userResponse.get(0));
+		for(User user : users) {
+			System.out.println(user.writeValueAsString());
 		}
 		try {
 			ObjectMapper mapper = new ObjectMapper();
