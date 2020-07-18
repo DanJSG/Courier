@@ -12,7 +12,7 @@ function ChatPage(props) {
     const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
-    const [chats, setChats] = useState([]);
+    const [chats, setChats] = useState(new Map());
     const [currentChat, setCurrentChat] = useState({
         id: null,
         name: null,
@@ -26,15 +26,9 @@ function ChatPage(props) {
     const [receivedMessage, setReceivedMessage] = useState(null);
 
     const changeCurrentChat = (id) => {
-        // TODO review if we can optimise -> linear search not ideal
-        // stop using an array and start using json like a hash table -> best case O(1) access time
-        chats.forEach(currChat => {
-            if(currChat.id === id) {
-                // modify with code to lookup chat members
-                currChat.members = [{id: props.id, displayName: props.displayName}];
-                setCurrentChat(currChat);
-            }
-        });
+        let chat = chats.get(id);
+        chat.members = [{id: props.id, displayName: props.displayName}];
+        setCurrentChat(chat);
         setChatMembersAreLoaded(false);
         setChatHistoryIsLoaded(false);
     }
@@ -60,7 +54,10 @@ function ChatPage(props) {
             members: [{id: props.id, displayName: props.displayName}],
             created: false
         };
-        setChats(prevChats => [newChat, ...prevChats]);
+        setChats(prevChats => {
+            prevChats.set(newChat.id, newChat);
+            return prevChats;
+        })
         setNameChatInProgress(true);
         setAddChatMembersInProgress(true);
         setCurrentChat(newChat);
@@ -74,27 +71,19 @@ function ChatPage(props) {
             existingChat.id = id;
             return existingChat;
         })
-        // TODO review optimisation -> linear search currently used
-        for(let i=0; i < chats.length; i++) {
-            if(chats[i].id === currentChat.id) {
-                setChats(prevChats => {
-                    let newChats = prevChats;
-                    newChats[i].name = name;
-                    newChats[i].created = true;
-                    return newChats;
-                })
-            }
-        }
+        let updatable = chats.get(id);
+        updatable.name = name;
+        updatable.created = true;
+        chats.set(id, updatable);
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
         const chatWithId = await saveChat(name, currentChat.members, props.token);
-        console.log(chatWithId);
+        updatable = chats.get(id);
+        updatable.id = chatWithId.id;
+        chats.delete(id);
+        chats.set(updatable.id, updatable);
         setChatMembersAreLoaded(false);
         setCurrentChat(chatWithId);
-        setChats(prevChats => {
-            prevChats[0].id = chatWithId.id;
-            return prevChats;
-        })
     }
 
     const updateCurrentChatCallback = (members) => {
@@ -173,7 +162,11 @@ function ChatPage(props) {
                 setCurrentChatIsLoaded(true);
                 return;
             }
-            setChats(loadedChats);
+            let chatsMap = new Map();
+            loadedChats.forEach(chat => {
+                chatsMap.set(chat.id, chat);
+            })
+            setChats(chatsMap);
             setCurrentChat(() => {
                 return {
                     id: loadedChats[0].id,

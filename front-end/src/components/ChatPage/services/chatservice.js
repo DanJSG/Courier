@@ -3,7 +3,8 @@ export const broadcastChats = (ws, chats) => {
         console.log("no websocket connection yet");
         return false;
     }
-    const chatIds = chats.map(chat => {
+    const chatArray = [...chats.values()];
+    const chatIds = chatArray.map(chat => {
         return {
             id: chat.id
         }
