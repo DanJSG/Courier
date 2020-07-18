@@ -163,8 +163,8 @@ function ChatPage(props) {
                 return;
             }
             let chatsMap = new Map();
-            loadedChats.forEach((object) => {
-                chatsMap.set(object.id, object);
+            loadedChats.forEach(chat => {
+                chatsMap.set(chat.id, chat);
             })
             setChats(chatsMap);
             setCurrentChat(() => {
