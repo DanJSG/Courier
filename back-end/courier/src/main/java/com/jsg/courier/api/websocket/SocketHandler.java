@@ -31,8 +31,8 @@ import com.jsg.courier.libs.nosql.MongoRepository;
 public class SocketHandler extends TextWebSocketHandler {
 	
 	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<UUID, List<UUID>> sessionChats = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
-	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	private final String CLIENT_ID;
 	private final String CLIENT_SECRET;
@@ -65,21 +65,23 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		if(sessions.containsKey(UUID.fromString(session.getId()))) {
+		UUID sessionId = UUID.fromString(session.getId());
+		if(sessions.containsKey(sessionId)) {
 			System.out.println("WebSocket connection already exists between server and session: " + session.getId());
 			return;
 		}
-		sessions.put(UUID.fromString(session.getId()), session);
+		sessions.put(sessionId, session);
 //		getChatHistory(session);
 		System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
-		broadcastSessions();
+		broadcastSessions(sessionId);
 	}
 	
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 		List<UUID> emptyChatIds = new ArrayList<>();
+		UUID sessionId = UUID.fromString(session.getId());
 		chats.forEach((currentChatId, currentSessionMap) -> {
-			currentSessionMap.remove(UUID.fromString(session.getId()));
+			currentSessionMap.remove(sessionId);
 			if(currentSessionMap.size() == 0) {
 				emptyChatIds.add(currentChatId);
 			}
@@ -87,8 +89,8 @@ public class SocketHandler extends TextWebSocketHandler {
 		for(UUID chatId : emptyChatIds) {
 			chats.remove(chatId);
 		}
-		sessions.remove(UUID.fromString(session.getId()));
-		broadcastSessions();
+		sessions.remove(sessionId);
+		broadcastSessions(sessionId);
 	}
 	
 	private void broadcastMessage(Message message, UUID sessionId) throws Exception {
@@ -101,7 +103,7 @@ public class SocketHandler extends TextWebSocketHandler {
 				return;
 			}
 			try {
-				currentSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+				currentSession.sendMessage(new TextMessage(new ObjectMapper().writeValueAsString(message)));
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
@@ -109,7 +111,10 @@ public class SocketHandler extends TextWebSocketHandler {
 		});
 	}
 	
-	private void broadcastSessions() throws Exception {
+	private void broadcastSessions(UUID sessionId) throws Exception {
+		
+		
+		
 		String json = "`[";
 		int i = 0;
 		Set<Long> idSet = new HashSet<>();
@@ -122,7 +127,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			if(i != 0) {
 				json += ",";
 			}
-			json += (new TextMessage(objectMapper.writeValueAsString(new UserSession(headers.getId(), CLIENT_ID, CLIENT_SECRET)))).getPayload();
+			json += (new TextMessage(new ObjectMapper().writeValueAsString(new UserSession(headers.getId(), CLIENT_ID, CLIENT_SECRET)))).getPayload();
 			i++;
 		}
 		json += "]";
@@ -134,20 +139,26 @@ public class SocketHandler extends TextWebSocketHandler {
 	
 	private void addChatSession(WebSocketSession session, String receivedChats) {
 		String chatsJson = receivedChats.substring(1);
+		UUID sessionId = UUID.fromString(session.getId());
 		System.out.println(chatsJson);
 		List<Chat> chatList;
 		try {
-			chatList = Arrays.asList(objectMapper.readValue(chatsJson, Chat[].class));
+			chatList = Arrays.asList(new ObjectMapper().readValue(chatsJson, Chat[].class));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return;
 		}
+		List<UUID> chatIds = new ArrayList<>();
+		for(Chat chat : chatList) {
+			chatIds.add(chat.getId());
+		}
+		sessionChats.put(sessionId, chatIds);
 		for(Chat chat : chatList) {
 			if(!chats.containsKey(chat.getId())) {
 				ConcurrentHashMap<UUID, WebSocketSession> newSessionMap = new ConcurrentHashMap<>();
 				chats.put(chat.getId(), newSessionMap);
 			}
-			chats.get(chat.getId()).put(UUID.fromString(session.getId()), session);
+			chats.get(chat.getId()).put(sessionId, session);
 		}
 	}
 	
