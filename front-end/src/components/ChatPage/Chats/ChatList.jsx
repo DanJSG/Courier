@@ -19,7 +19,7 @@ function ChatList(props) {
             </div>
             <div className="col mh-100 h-100 flex-grow-1 overflow-auto p-0">
                     <ul className="list-group border-top">
-                        {props.chats.map((chat) => (
+                        {[...props.chats.values()].map((chat) => (
                             <ChatPicker changeCurrentChat={props.changeCurrentChat} 
                                         setChatName={props.setChatName}
                                         isCurrentChat={chat.id === props.currentChat.id} 
