@@ -4,7 +4,7 @@ import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
-import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers} from './services/chatservice'
+import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers, broadcastActiveChat} from './services/chatservice'
 import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
@@ -124,6 +124,7 @@ function ChatPage(props) {
             });
         }
         if(currentChat.id != null) {
+            broadcastActiveChat(wsConnection, currentChat.id);
             if(!currentChatIsLoaded) {
                 setCurrentChatIsLoaded(true);
             }
