@@ -25,10 +25,7 @@ import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.MessageBuilder;
 import com.jsg.courier.datatypes.User;
-import com.jsg.courier.datatypes.UserBuilder;
-import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.libs.nosql.MongoRepository;
-import com.jsg.courier.libs.sql.MySQLRepository;
 
 @Service
 public class SocketHandler extends TextWebSocketHandler {
@@ -123,26 +120,16 @@ public class SocketHandler extends TextWebSocketHandler {
 	private void broadcastSessions(UUID chatId, @Nullable Map<UUID, Boolean> sessionsToSkip) throws Exception {
 		ConcurrentHashMap<UUID, ChatSession> chatSessions = chats.get(chatId);
 		Set<User> users = new HashSet<>();
-		MySQLRepository<User> repo = new MySQLRepository<>("users");
-		WebSocketHeaders header;
-		// TODO refactor user lookup
-		for(ChatSession chatSession : chatSessions.values()) {
-			header = new WebSocketHeaders(chatSession.getSession());
-			List<User> results = repo.findWhereEqual("id", header.getId(), 1, new UserBuilder());
-			if(results == null) 
-				continue;
-			User user = results.get(0);
-			users.add(user);
+		for(ChatSession chatSession : chatSessions.values()) {			
+			users.add(chatSession.getUser());
 		}
 		String jsonResponse = "`";
 		jsonResponse += new ObjectMapper().writeValueAsString(users);
 		System.out.println(jsonResponse);
 		for(ChatSession chatSession : chatSessions.values()) {
 			if(sessionsToSkip != null) {
-				if(sessionsToSkip.containsKey(UUID.fromString(chatSession.getSession().getId()))) {
-					System.out.println("Skipping session: " + chatSession.getSession().getId());
+				if(sessionsToSkip.containsKey(UUID.fromString(chatSession.getSession().getId())))
 					continue;
-				}
 				sessionsToSkip.put(UUID.fromString(chatSession.getSession().getId()), true);
 			}
 			chatSession.getSession().sendMessage(new TextMessage(jsonResponse));

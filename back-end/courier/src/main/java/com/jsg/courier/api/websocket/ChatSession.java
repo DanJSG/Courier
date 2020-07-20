@@ -47,4 +47,5 @@ public class ChatSession {
 		}
 		user = results.get(0);
 	}
+	
 }
