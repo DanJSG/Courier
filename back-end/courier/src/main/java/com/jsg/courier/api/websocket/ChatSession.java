@@ -15,11 +15,13 @@ public class ChatSession {
 	private WebSocketSession session;
 	private UUID activeChatId;
 	private User user;
+	private UUID sessionId;
 	
 	public ChatSession(WebSocketSession session) {
 		this.session = session;
-		activeChatId = null;
+		this.sessionId = UUID.fromString(session.getId());
 		setUser(new WebSocketHeaders(session).getId());
+		activeChatId = null;
 	}
 	
 	public WebSocketSession getSession() {
@@ -32,6 +34,10 @@ public class ChatSession {
 	
 	public User getUser() {
 		return user;
+	}
+	
+	public UUID getSessionId() {
+		return sessionId;
 	}
 	
 	public void setActiveChatId(UUID id) {
