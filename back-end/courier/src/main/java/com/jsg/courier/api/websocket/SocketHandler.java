@@ -35,9 +35,6 @@ public class SocketHandler extends TextWebSocketHandler {
 
 	//							   Chat ID               Session ID    Session
 	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
-
-	//						     Session ID  Chat IDs
-	private static ConcurrentHashMap<UUID, List<UUID>> sessionChats = new ConcurrentHashMap<>();
 	
 	//                             Session ID     Session
 	private static ConcurrentHashMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
@@ -99,7 +96,6 @@ public class SocketHandler extends TextWebSocketHandler {
 		for(UUID chatId : emptyChatIds) {
 			chats.remove(chatId);
 		}
-		sessionChats.remove(sessionId);
 		sessions.remove(sessionId);
 		broadcastSessions(sessionId);
 	}
@@ -204,17 +200,12 @@ public class SocketHandler extends TextWebSocketHandler {
 			e.printStackTrace();
 			return;
 		}
-		List<UUID> chatIds = new ArrayList<>();
-		for(Chat chat : chatList) {
-			chatIds.add(chat.getId());
-		}
-		sessionChats.put(sessionId, chatIds);
 		for(Chat chat : chatList) {
 			if(!chats.containsKey(chat.getId())) {
 				ConcurrentHashMap<UUID, ChatSession> newSessionMap = new ConcurrentHashMap<>();
 				chats.put(chat.getId(), newSessionMap);
 			}
-			chats.get(chat.getId()).put(sessionId, new ChatSession(session));
+			chats.get(chat.getId()).put(sessionId, sessions.get(sessionId));
 		}
 	}
 	

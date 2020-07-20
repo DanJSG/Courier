@@ -124,7 +124,6 @@ function ChatPage(props) {
             });
         }
         if(currentChat.id != null) {
-            broadcastActiveChat(wsConnection, currentChat.id);
             if(!currentChatIsLoaded) {
                 setCurrentChatIsLoaded(true);
             }
@@ -133,6 +132,7 @@ function ChatPage(props) {
                 setChatHistoryIsLoaded(true);
             }
             if(!chatMembersAreLoaded) {
+                broadcastActiveChat(wsConnection, currentChat.id);
                 fetchMembers();
                 setChatMembersAreLoaded(true);
             }
