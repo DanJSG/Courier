@@ -9,7 +9,7 @@ function ChatInfo(props) {
                     props.currentChat.members.map((member) => {
                         let onlineIcon = null;
                         if((props.activeMembers != null || props.activeMembers != undefined) && props.activeMembers.has(member.id)) {
-                            onlineIcon = <i className="text-success fa fa-check-circle "></i>;
+                            onlineIcon = <small><i className="text-success fa fa-check-circle "></i></small>;
                         }
                         return <div className="list-group-item" key={member.id}>{member.displayName}&nbsp;{onlineIcon}</div>;
                     })
