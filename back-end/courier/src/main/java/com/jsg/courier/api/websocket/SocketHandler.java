@@ -153,7 +153,6 @@ public class SocketHandler extends TextWebSocketHandler {
 	}
 	
 	private void broadcastSessions(UUID chatId) throws Exception {
-		
 		ConcurrentHashMap<UUID, ChatSession> chatSessions = chats.get(chatId);
 		Set<User> users = new HashSet<>();
 		MySQLRepository<User> repo = new MySQLRepository<>("users");
@@ -173,74 +172,6 @@ public class SocketHandler extends TextWebSocketHandler {
 			chatSession.getSession().sendMessage(new TextMessage(jsonResponse));
 		}
 		return;
-		
-		// Get list of chat IDs used by session
-		
-		// Build set of users from all users within the chats used by the session
-		
-		// Loop through 
-		
-		// loop over each chat ID in the list
-		// loop over each chat member in the the current chat and add them to a set
-		
-//		ChatID
-//			SessionID -> user IDs
-//				
-//		
-//		
-//		
-//		
-//		
-		
-		// TODO sort this shitty innefficient mess out
-//		List<UUID> chatIds = sessionChats.get(sessionId);
-//		if(chatIds == null) return;
-//		String membersJson;
-//		for(UUID id : chatIds) {
-//			membersJson = "`";
-//			ConcurrentHashMap<UUID, WebSocketSession> activeChatSessions = chats.get(id);
-//			List<User> currentUserList = new ArrayList<>();
-//			Set<User> userSet = new HashSet<>();
-//			for(WebSocketSession session : activeChatSessions.values()) {
-//				WebSocketHeaders headers = new WebSocketHeaders(session);
-//				System.out.println("ID from header:" + headers.getId());
-//				MySQLRepository<User> userRepo = new MySQLRepository<>("users");
-//				List<User> userResult = userRepo.findWhereEqual("id", headers.getId(), 1, new UserBuilder());
-//				if(userResult == null || userResult.size() == 0) {
-//					continue;
-//				}
-//				User user = userResult.get(0);
-//				currentUserList.add(user);
-//			}
-//			membersJson += new ObjectMapper().writeValueAsString(currentUserList);
-//			System.out.println(membersJson);
-//			for(WebSocketSession session : activeChatSessions.values()) {
-//				if(!session.getId().contentEquals(sessionId.toString())) {
-//					session.sendMessage(new TextMessage(membersJson));
-//				}			
-//			}
-//		}
-		
-//		String json = "`[";
-//		int i = 0;
-//		Set<Long> idSet = new HashSet<>();
-//		for(WebSocketSession session : sessions.values()) {
-//			WebSocketHeaders headers = new WebSocketHeaders(session);
-//			if(idSet.contains(headers.getId())) {
-//				continue;
-//			}
-//			idSet.add(headers.getId());
-//			if(i != 0) {
-//				json += ",";
-//			}
-//			json += (new TextMessage(new ObjectMapper().writeValueAsString(new UserSession(headers.getId(), CLIENT_ID, CLIENT_SECRET)))).getPayload();
-//			i++;
-//		}
-//		json += "]";
-//		System.out.println(json);
-//		for(WebSocketSession session : sessions.values()) {
-//			session.sendMessage(new TextMessage(json));
-//		}
 	}
 	
 	private void addChatSession(WebSocketSession session, String receivedChats) {
