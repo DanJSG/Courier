@@ -57,8 +57,35 @@ public class SocketHandler extends TextWebSocketHandler {
 		UUID sessionId = UUID.fromString(session.getId());
 		if(messageJsonPayload.charAt(0) == '@') {
 			addChatSession(session, messageJsonPayload);
-			broadcastSessions(sessionId);
 			return;
+		} else if(messageJsonPayload.charAt(0) == '~') {
+			String chatIdJson = messageJsonPayload.substring(1);
+			UUID activeChatId = new ObjectMapper().readValue(chatIdJson, UUID.class);
+			sessions.get(sessionId).setActiveChatId(activeChatId);
+			broadcastSessions(activeChatId);
+//			System.out.println("Received/parsed data: ");
+//			System.out.println(messageJsonPayload);
+//			System.out.println(activeChatId.toString());
+//			System.out.println("Stored data: ");
+//			System.out.println("From sessions: " + 
+//								sessions.get(sessionId).getActiveChatId().toString() + 
+//								"; " + sessions.get(sessionId).getSession().getId());
+//			
+//			chats.forEach((chatId, chatSessions) -> {
+//				for(ChatSession currSession : chatSessions.values()) {
+//					System.out.println("From chat " + chatId.toString() + ": " + 
+//									   currSession.getActiveChatId() + 
+//									   "; " + currSession.getSession().getId());
+//				}
+//			});
+//			for(ConcurrentHashMap<UUID, ChatSession> chatSessions : chats.values()) {
+//				for(ChatSession currSession : chatSessions.values()) {
+//					System.out.println("From chats (pubsub queue): " + 
+//									   currSession.getActiveChatId() + 
+//									   "; " + currSession.getSession().getId());
+//				}
+//			}
+			return;	
 		}
 		Message message = new MessageBuilder().fromJson(messageJsonPayload);
 		if(message.getChatId() == null) {
@@ -87,17 +114,24 @@ public class SocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 		List<UUID> emptyChatIds = new ArrayList<>();
 		UUID sessionId = UUID.fromString(session.getId());
+		List<UUID> chatIds = new ArrayList<>();
 		chats.forEach((currentChatId, currentSessionMap) -> {
+			if(currentSessionMap.containsKey(sessionId)) {
+				chatIds.add(currentChatId);
+			}
 			currentSessionMap.remove(sessionId);
 			if(currentSessionMap.size() == 0) {
 				emptyChatIds.add(currentChatId);
+				chatIds.remove(currentChatId);
 			}
 		});
 		for(UUID chatId : emptyChatIds) {
 			chats.remove(chatId);
 		}
 		sessions.remove(sessionId);
-		broadcastSessions(sessionId);
+		for(UUID chatId : chatIds) {
+			broadcastSessions(chatId);
+		}
 	}
 	
 	private void broadcastMessage(Message message, UUID sessionId) throws Exception {
@@ -118,7 +152,27 @@ public class SocketHandler extends TextWebSocketHandler {
 		});
 	}
 	
-	private void broadcastSessions(UUID sessionId) throws Exception {
+	private void broadcastSessions(UUID chatId) throws Exception {
+		
+		ConcurrentHashMap<UUID, ChatSession> chatSessions = chats.get(chatId);
+		Set<User> users = new HashSet<>();
+		MySQLRepository<User> repo = new MySQLRepository<>("users");
+		WebSocketHeaders header;
+		for(ChatSession chatSession : chatSessions.values()) {
+			header = new WebSocketHeaders(chatSession.getSession());
+			List<User> results = repo.findWhereEqual("id", header.getId(), 1, new UserBuilder());
+			if(results == null) 
+				continue;
+			User user = results.get(0);
+			users.add(user);
+		}
+		String jsonResponse = "`";
+		jsonResponse += new ObjectMapper().writeValueAsString(users);
+		System.out.println(jsonResponse);
+		for(ChatSession chatSession : chatSessions.values()) {
+			chatSession.getSession().sendMessage(new TextMessage(jsonResponse));
+		}
+		return;
 		
 		// Get list of chat IDs used by session
 		
