@@ -24,6 +24,7 @@ function ChatPage(props) {
     const [chatMembersAreLoaded, setChatMembersAreLoaded] = useState(false);
     const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
     const [receivedMessage, setReceivedMessage] = useState(null);
+    const [activeMembers, setActiveMembers] = useState(null);
 
     const changeCurrentChat = (id) => {
         let chat = chats.get(id);
@@ -87,13 +88,11 @@ function ChatPage(props) {
     }
 
     const updateCurrentChatCallback = (members) => {
-        // old method for loading users
-        // TODO modify and reuse to determine which users are currently online
-        // setCurrentChat(prevChat => {return {
-        //     name: prevChat.name,
-        //     id: prevChat.id,
-        //     members: members
-        // }});
+        let activeUserMap = new Map();
+        members.forEach(member => {
+            activeUserMap.set(member.id, true);
+        })
+        setActiveMembers(activeUserMap);
     }
 
     const updateMessagesCallback = (message) => {
@@ -246,7 +245,7 @@ function ChatPage(props) {
                         </div>
                     </div>
                     <div className="col-2 border pt-2">
-                        <ChatInfo currentChat={currentChat}></ChatInfo>
+                        <ChatInfo activeMembers={activeMembers} currentChat={currentChat}></ChatInfo>
                     </div>
                 </div>
             </div>
