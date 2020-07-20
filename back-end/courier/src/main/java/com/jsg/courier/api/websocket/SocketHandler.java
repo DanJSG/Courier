@@ -128,9 +128,9 @@ public class SocketHandler extends TextWebSocketHandler {
 		System.out.println(jsonResponse);
 		for(ChatSession chatSession : chatSessions.values()) {
 			if(sessionsToSkip != null) {
-				if(sessionsToSkip.containsKey(UUID.fromString(chatSession.getSession().getId())))
+				if(sessionsToSkip.containsKey(chatSession.getSessionId()))
 					continue;
-				sessionsToSkip.put(UUID.fromString(chatSession.getSession().getId()), true);
+				sessionsToSkip.put(chatSession.getSessionId(), true);
 			}
 			chatSession.getSession().sendMessage(new TextMessage(jsonResponse));
 		}
