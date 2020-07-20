@@ -90,7 +90,7 @@ function ChatPage(props) {
     const updateCurrentChatCallback = (members) => {
         let activeUserMap = new Map();
         members.forEach(member => {
-            activeUserMap.set(member.id, true);
+            activeUserMap.set(member.id, null);
         })
         setActiveMembers(activeUserMap);
     }
