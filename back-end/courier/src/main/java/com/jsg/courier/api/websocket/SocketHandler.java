@@ -125,6 +125,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		Set<User> users = new HashSet<>();
 		MySQLRepository<User> repo = new MySQLRepository<>("users");
 		WebSocketHeaders header;
+		// TODO refactor user lookup
 		for(ChatSession chatSession : chatSessions.values()) {
 			header = new WebSocketHeaders(chatSession.getSession());
 			List<User> results = repo.findWhereEqual("id", header.getId(), 1, new UserBuilder());
