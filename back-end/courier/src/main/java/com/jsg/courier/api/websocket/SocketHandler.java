@@ -34,13 +34,13 @@ import com.jsg.courier.libs.sql.MySQLRepository;
 public class SocketHandler extends TextWebSocketHandler {
 
 	//							   Chat ID               Session ID    Session
-	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, WebSocketSession>> chats = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
 
 	//						     Session ID  Chat IDs
 	private static ConcurrentHashMap<UUID, List<UUID>> sessionChats = new ConcurrentHashMap<>();
 	
 	//                             Session ID     Session
-	private static ConcurrentHashMap<UUID, WebSocketSession> sessions = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
 	
 	private final String CLIENT_ID;
 	private final String CLIENT_SECRET;
@@ -80,7 +80,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			System.out.println("WebSocket connection already exists between server and session: " + session.getId());
 			return;
 		}
-		sessions.put(sessionId, session);
+		sessions.put(sessionId, new ChatSession(session));
 //		getChatHistory(session);
 		System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
 //		broadcastSessions(sessionId);
@@ -108,13 +108,13 @@ public class SocketHandler extends TextWebSocketHandler {
 		if(!chats.containsKey(message.getChatId())) {
 			return;
 		}
-		Map<UUID, WebSocketSession> chatSessions = chats.get(message.getChatId());
+		Map<UUID, ChatSession> chatSessions = chats.get(message.getChatId());
 		chatSessions.forEach((currentSessionId, currentSession) -> {
 			if(currentSessionId.equals(sessionId)) {
-				return;
+				return; //equivalent to continue
 			}
 			try {
-				currentSession.sendMessage(new TextMessage(new ObjectMapper().writeValueAsString(message)));
+				currentSession.getSession().sendMessage(new TextMessage(new ObjectMapper().writeValueAsString(message)));
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
@@ -211,10 +211,10 @@ public class SocketHandler extends TextWebSocketHandler {
 		sessionChats.put(sessionId, chatIds);
 		for(Chat chat : chatList) {
 			if(!chats.containsKey(chat.getId())) {
-				ConcurrentHashMap<UUID, WebSocketSession> newSessionMap = new ConcurrentHashMap<>();
+				ConcurrentHashMap<UUID, ChatSession> newSessionMap = new ConcurrentHashMap<>();
 				chats.put(chat.getId(), newSessionMap);
 			}
-			chats.get(chat.getId()).put(sessionId, session);
+			chats.get(chat.getId()).put(sessionId, new ChatSession(session));
 		}
 	}
 	
