@@ -7,11 +7,11 @@ function ChatInfo(props) {
             <div className="list-group-flush">
                 {
                     props.currentChat.members.map((member) => {
-                        let userDisplay = member.displayName;
+                        let onlineIcon = null;
                         if((props.activeMembers != null || props.activeMembers != undefined) && props.activeMembers.has(member.id)) {
-                            userDisplay += " [Online]";
+                            onlineIcon = <i className="text-success fa fa-check-circle "></i>;
                         }
-                        return <div className="list-group-item" key={member.id}>{userDisplay}</div>;
+                        return <div className="list-group-item" key={member.id}>{member.displayName}&nbsp;{onlineIcon}</div>;
                     })
                 }
             </div>
