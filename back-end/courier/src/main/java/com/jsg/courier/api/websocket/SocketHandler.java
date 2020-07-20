@@ -125,7 +125,6 @@ public class SocketHandler extends TextWebSocketHandler {
 		}
 		String jsonResponse = "`";
 		jsonResponse += new ObjectMapper().writeValueAsString(users);
-		System.out.println(jsonResponse);
 		for(ChatSession chatSession : chatSessions.values()) {
 			if(sessionsToSkip != null) {
 				if(sessionsToSkip.containsKey(chatSession.getSessionId()))
