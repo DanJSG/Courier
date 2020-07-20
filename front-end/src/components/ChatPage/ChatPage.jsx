@@ -79,6 +79,10 @@ function ChatPage(props) {
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
         const chatWithId = await saveChat(name, currentChat.members, props.token);
+        if(chatWithId !== null && chatWithId.unauthorized !== null && chatWithId.unauthorized === true) {
+            // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
+            // TODO if no refresh token, call method in parent (app.js) to logout
+        }
         updatable = chats.get(id);
         updatable.id = chatWithId.id;
         chats.delete(id);
@@ -106,10 +110,18 @@ function ChatPage(props) {
     useEffect(() => {
         async function fetchHistory() {
             const messages = await loadChatHistory(currentChat.id, props.token);
+            if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
+                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
+                // TODO if no refresh token, call method in parent (app.js) to logout
+            }
             setMessages(messages);
         }
         async function fetchMembers() {
             const members = await loadChatMembers(currentChat.id, props.token);
+            if(members !== null && members.unauthorized !== null && members.unauthorized === true) {
+                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
+                // TODO if no refresh token, call method in parent (app.js) to logout
+            }
             if(members == null) {
                 console.log("Members is null...");
                 console.log(members);
@@ -158,6 +170,10 @@ function ChatPage(props) {
     useEffect(() => {
         async function loadChats() {
             const loadedChats = await loadAllChats(props.id, props.token);
+            if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
+                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
+                // TODO if no refresh token, call method in parent (app.js) to logout
+            }
             if(loadedChats == null || loadedChats.length == 0) {
                 setCurrentChatIsLoaded(true);
                 return;
