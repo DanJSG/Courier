@@ -8,39 +8,39 @@ import './App.scss';
 
 function App() {
 
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [id, setId] = useState(null);
-  const [displayName, setDisplayName] = useState(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [id, setId] = useState(null);
+    const [displayName, setDisplayName] = useState(null);
 
-  const awaitAuthCheck = async () => {
-    const result = await checkAuthorization();
-    setId(result.id);
-    setDisplayName(result.displayName);
-    setIsAuthorized(result.authorized);
-  }
+    const awaitAuthCheck = async () => {
+        const result = await checkAuthorization();
+        setId(result.id);
+        setDisplayName(result.displayName);
+        setIsAuthorized(result.authorized);
+    }
 
-  useEffect(() => {
-    awaitAuthCheck();
-  }, [])
+    useEffect(() => {
+        awaitAuthCheck();
+    }, [])
 
-  return (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          {
-            isAuthorized
-            ?
-            <ChatPage id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
-            :
-            <LandingPage />
-          }
-        </Route>
-        <Route exact path="/oauth2/auth_callback">
-          <CallbackPage />
-        </Route>
-      </Switch>
-    </Router>
-  );
+    return (
+        <Router>
+        <Switch>
+            <Route exact path="/">
+            {
+                isAuthorized
+                ?
+                <ChatPage id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
+                :
+                <LandingPage />
+            }
+            </Route>
+            <Route exact path="/oauth2/auth_callback">
+            <CallbackPage />
+            </Route>
+        </Switch>
+        </Router>
+    );
 }
 
 export default App;
