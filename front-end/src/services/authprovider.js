@@ -7,11 +7,7 @@ const UNAUTHORIZED_JSON = {
 export const checkAuthorization = async () => {
     const lsToken = localStorage.getItem("acc.tok");
     if(!lsToken) {
-      return {
-        authorized: false,
-        id: null,
-        displayName: null
-      };
+      return UNAUTHORIZED_JSON;
     };
     return await fetch(`http://local.courier.net:8080/api/v1/authorize`, {
       method: "POST",

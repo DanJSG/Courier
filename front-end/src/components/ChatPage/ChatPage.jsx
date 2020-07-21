@@ -8,7 +8,7 @@ import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers
 import {Scrollbars} from 'react-custom-scrollbars'
 
 function ChatPage(props) {
-
+    
     const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
@@ -81,7 +81,7 @@ function ChatPage(props) {
         const chatWithId = await saveChat(name, currentChat.members, props.token);
         if(chatWithId !== null && chatWithId.unauthorized !== null && chatWithId.unauthorized === true) {
             // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-            // TODO if no refresh token, call method in parent (app.js) to logout
+            props.checkAuth();
         }
         updatable = chats.get(id);
         updatable.id = chatWithId.id;
@@ -112,7 +112,7 @@ function ChatPage(props) {
             const messages = await loadChatHistory(currentChat.id, props.token);
             if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
                 // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                // TODO if no refresh token, call method in parent (app.js) to logout
+                props.checkAuth();
             }
             setMessages(messages);
         }
@@ -120,7 +120,7 @@ function ChatPage(props) {
             const members = await loadChatMembers(currentChat.id, props.token);
             if(members !== null && members.unauthorized !== null && members.unauthorized === true) {
                 // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                // TODO if no refresh token, call method in parent (app.js) to logout
+                props.checkAuth();
             }
             if(members == null) {
                 console.log("Members is null...");
@@ -172,7 +172,7 @@ function ChatPage(props) {
             const loadedChats = await loadAllChats(props.id, props.token);
             if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
                 // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                // TODO if no refresh token, call method in parent (app.js) to logout
+                props.checkAuth();
             }
             if(loadedChats == null || loadedChats.length == 0) {
                 setCurrentChatIsLoaded(true);

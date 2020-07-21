@@ -12,15 +12,19 @@ function App() {
     const [id, setId] = useState(null);
     const [displayName, setDisplayName] = useState(null);
 
-    const awaitAuthCheck = async () => {
+    const checkAuth = async () => {
         const result = await checkAuthorization();
         setId(result.id);
         setDisplayName(result.displayName);
         setIsAuthorized(result.authorized);
+        if(result.authorized === false) {
+            localStorage.removeItem("ref.tok");
+            localStorage.removeItem("acc.tok");
+        }
     }
 
     useEffect(() => {
-        awaitAuthCheck();
+        checkAuth();
     }, [])
 
     return (
@@ -30,7 +34,7 @@ function App() {
             {
                 isAuthorized
                 ?
-                <ChatPage id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
+                <ChatPage checkAuth={checkAuth} id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
                 :
                 <LandingPage />
             }
