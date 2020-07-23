@@ -174,7 +174,7 @@ function ChatPage(props) {
                 // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
                 props.checkAuth();
             }
-            if(loadedChats == null || loadedChats.length == 0) {
+            if(loadedChats == null || loadedChats.length === 0) {
                 setCurrentChatIsLoaded(true);
                 return;
             }

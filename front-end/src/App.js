@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import ChatPage from './components/ChatPage/ChatPage';
 import LandingPage from './components/LandingPage/LandingPage';
 import CallbackPage from './components/CallbackPage/CallbackPage';
-import {checkAuthorization} from './services/authprovider';
+import {checkAuthorization, refreshAccessToken} from './services/authprovider';
 import './App.scss';
 
 function App() {
@@ -13,14 +13,26 @@ function App() {
     const [displayName, setDisplayName] = useState(null);
 
     const checkAuth = async () => {
-        const result = await checkAuthorization();
+        let result = await checkAuthorization();
         setId(result.id);
         setDisplayName(result.displayName);
         setIsAuthorized(result.authorized);
-        if(result.authorized === false) {
-            localStorage.removeItem("ref.tok");
-            localStorage.removeItem("acc.tok");
+        if(result.authorized === true) {
+            return;
+        } 
+        localStorage.removeItem("acc.tok");
+        const refreshToken = localStorage.getItem("ref.tok");
+        if(refreshToken == null || refreshToken === undefined) {
+            return;
         }
+        const refreshed = await refreshAccessToken();
+        if(refreshed === false) {
+            return;
+        }
+        result = await checkAuthorization();
+        setId(result.id);
+        setDisplayName(result.displayName);
+        setIsAuthorized(result.authorized);
     }
 
     useEffect(() => {
