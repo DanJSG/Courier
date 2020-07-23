@@ -31,11 +31,16 @@ export const loadAllChats = async(userId, token) => {
         }
     })
     .then(response => {
+        if(response.status === 401) return {unauthorized: true};
         if(response.status !== 200) return null;
         return response.json();
     })
     .then(json => {
         if(!json) return null;
+        if(json.unauthorized !== null && json.unauthorized === true) {
+            console.log(json);
+            return json;
+        }
         const loadedChats = json.map(receivedChat => {
             return {
                 id: receivedChat.id,
@@ -61,15 +66,17 @@ export const loadChatHistory = async(chatId, token) => {
         }
     })
     .then(response => {
-        if(response.status === 204) {
-            return [];
-        } else if(response.status !== 200) {
-            return null;
-        }
+        if(response.status === 401) return {unauthorized: true};
+        if(response.status === 204) return [];
+        if(response.status !== 200) return null;
         return response.json();
     })
     .then(json => {
         if(!json) return null;
+        if(json.unauthorized !== null && json.unauthorized === true) {
+            console.log(json);
+            return json;
+        }
         const dateFixedJson = json.map(message => {
             message.timestamp = (new Date(message.timestamp)).toUTCString();
             return message;
@@ -97,11 +104,16 @@ export const saveChat = async(chatName, chatMembers, token) => {
         body: JSON.stringify(chat)
     })
     .then(response => {
+        if(response.status === 401) return {unauthorized: true};
         if(response.status !== 200) return null;
         return response.json();
     })
     .then(json => {
         if(!json) return null;
+        if(json.unauthorized !== null && json.unauthorized === true) {
+            console.log(json);
+            return json;
+        }
         chat.id = json.id;
         return chat;
     })
