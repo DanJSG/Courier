@@ -78,10 +78,13 @@ function ChatPage(props) {
         chats.set(id, updatable);
         setAddChatMembersInProgress(false);
         setNameChatInProgress(false);
-        const chatWithId = await saveChat(name, currentChat.members, props.token);
-        if(chatWithId !== null && chatWithId.unauthorized !== null && chatWithId.unauthorized === true) {
-            // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-            props.checkAuth();
+        let chatWithId = await saveChat(name, currentChat.members, props.token);
+        if(chatWithId != null && chatWithId.unauthorized != null && chatWithId.unauthorized === true) {
+            // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
+            let reAuthorized = await props.checkAuth();
+            if(reAuthorized) {
+                chatWithId = await saveChat(name, currentChat.members, props.token);
+            }
         }
         updatable = chats.get(id);
         updatable.id = chatWithId.id;
@@ -111,6 +114,7 @@ function ChatPage(props) {
         async function fetchHistory() {
             let messages = await loadChatHistory(currentChat.id, props.token);
             if((messages !== null && messages.unauthorized !== null) && messages.unauthorized === true) {
+                // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
                 const reAuthorized = await props.checkAuth();
                 if(reAuthorized) {
                     messages = await loadChatHistory(currentChat.id, props.token);
@@ -124,6 +128,7 @@ function ChatPage(props) {
         async function fetchMembers() {
             let members = await loadChatMembers(currentChat.id, props.token);
             if(members == null) {
+                // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
                 let reAuthorized = await props.checkAuth();
                 if(reAuthorized) {
                     members = await loadChatMembers(currentChat.id, props.token);
