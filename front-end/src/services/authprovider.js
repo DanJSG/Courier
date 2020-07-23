@@ -67,3 +67,35 @@ export const refreshAccessToken = async () => {
         return true;
     })
 }
+
+export const requestRefreshToken = async (params, state, code_verifier) => {
+    const url = `http://local.courier.net:8090/api/v1/token` +
+                `?client_id=${params.client_id}` + 
+                `&state=${state}` +
+                `&code=${params.code}` +
+                `&redirect_uri=${params.redirect_uri}` +
+                `&code_verifier=${code_verifier}` +
+                `&grant_type=authorization_code`;
+    return await fetch(url, {
+        method: "POST",
+        credentials: "include"
+    })
+    .then((response) => {
+        if(response.status !== 200) {
+            console.log(`Request failed. Returned status code ${response.status}. Response object logged below.`);
+            console.log(response);
+            return false;
+        }
+        return response.json();
+    })
+    .then((json) => {
+        if(!json) return false;
+        localStorage.setItem("ref.tok", json.token);
+        return true;
+        // requestAccessToken(params.client_id, json.token);
+    })
+    .catch((error) => {
+        console.log(error);
+        return false;
+    })
+}
