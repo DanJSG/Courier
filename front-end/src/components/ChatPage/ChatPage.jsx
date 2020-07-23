@@ -1,16 +1,14 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
 import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers, broadcastActiveChat} from './services/chatservice'
-import {Scrollbars} from 'react-custom-scrollbars'
 import {checkAuthorization, requestAccessToken} from '../../services/authprovider';
 
 function ChatPage(props) {
     
-    const messageScrollbar = useRef(null);
     const [messages, setMessages] = useState([]);
     const [wsConnection, setWsConnection] = useState(null);
     const [chats, setChats] = useState(new Map());
@@ -230,13 +228,6 @@ function ChatPage(props) {
         }
     }, []);
 
-    useEffect(() => {
-        // TODO review whether this is a good idea due to blocking other elements loading
-        if(currentChatIsLoaded) {
-            messageScrollbar.current.scrollToBottom();
-        }
-    });
-
     const handleSendMessage = (messageText) => {
         const response = sendMessage(wsConnection, messageText, props.id, props.displayName, currentChat.id);
         if(!response) {
@@ -275,11 +266,7 @@ function ChatPage(props) {
                                     {currentChat.name === "" || currentChat.name == null ? <i className="text-muted">New Chat</i>: currentChat.name}
                                 </h1>
                             }
-                            <div className="h-100 w-100 mh-100 flex-grow-1 border-top" style={{backgroundColor: "rgba(228, 229, 233, 0.4)"}}>
-                                <Scrollbars ref={messageScrollbar}>
-                                    <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
-                                </Scrollbars>
-                            </div>
+                            <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                             <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                         </div>
                     </div>
