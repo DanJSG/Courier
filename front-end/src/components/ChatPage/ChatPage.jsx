@@ -248,10 +248,6 @@ function ChatPage(props) {
         setMessages(prevMessages => [...prevMessages, response.message]);
     }
 
-    // TODO break this up into multiple smaller components
-    // TODO extract logic for each component
-    // TODO move layout within components
-    // basically do anything to shrink this component - it has gotten way too big + messy
     return (
         <React.Fragment>
         {
@@ -263,12 +259,11 @@ function ChatPage(props) {
             :
             <div className="container-fluid inherit-height mh-100">
                 <div className="row justify-content-center inherit-height">
-                    <div className="col-3 border pt-2 pl-0 pr-0 mh-100">
-                        <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
-                    </div>
+                    <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
                     <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                         <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
                             {
+                                // TODO refactor this into its own component and move the logic there too
                                 addChatMembersInProgress
                                 ?
                                 <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
@@ -288,9 +283,7 @@ function ChatPage(props) {
                             <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                         </div>
                     </div>
-                    <div className="col-2 border pt-2">
-                        <ChatInfo activeMembers={activeMembers} currentChat={currentChat}></ChatInfo>
-                    </div>
+                    <ChatInfo activeMembers={activeMembers} currentChat={currentChat}></ChatInfo>
                 </div>
             </div>
         }

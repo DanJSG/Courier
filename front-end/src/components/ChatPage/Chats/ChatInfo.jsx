@@ -2,7 +2,7 @@ import React from 'react';
 
 function ChatInfo(props) {
     return(
-        <div>
+        <div className="col-2 border pt-2">
             <h2 className="text-center">Members:</h2>
             <div className="list-group-flush">
                 {
