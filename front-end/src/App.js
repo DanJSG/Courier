@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import ChatPage from './components/ChatPage/ChatPage';
 import LandingPage from './components/LandingPage/LandingPage';
 import CallbackPage from './components/CallbackPage/CallbackPage';
-import {checkAuthorization, refreshAccessToken} from './services/authprovider';
+import {checkAuthorization, requestAccessToken} from './services/authprovider';
 import './App.scss';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
         if(refreshToken == null || refreshToken === undefined) {
             return false;
         }
-        const refreshed = await refreshAccessToken();
+        const refreshed = await requestAccessToken();
         if(refreshed === false) {
             return false;
         }

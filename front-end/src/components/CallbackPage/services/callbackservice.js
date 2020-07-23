@@ -1,4 +1,4 @@
-import {refreshAccessToken, requestRefreshToken} from '../../../services/authprovider'
+import {requestAccessToken, requestRefreshToken} from '../../../services/authprovider'
 
 // const requestRefreshToken = async (params, state, code_verifier) => {
 //     const url = `http://local.courier.net:8090/api/v1/token` +
@@ -70,7 +70,7 @@ export const requestTokens = async (params, state, code_verifier) => {
         // TODO add redirect to 401 page or something similar
         return;
     }
-    const fetchedAccessToken = await refreshAccessToken();
+    const fetchedAccessToken = await requestAccessToken();
     if(!fetchedAccessToken) {
         // TODO add redirect to 401 page or something similar
         return;

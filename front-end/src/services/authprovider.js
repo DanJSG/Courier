@@ -40,7 +40,7 @@ export const checkAuthorization = async () => {
     });
 }
 
-export const refreshAccessToken = async () => {
+export const requestAccessToken = async () => {
     const refreshToken = localStorage.getItem("ref.tok");
     if(!refreshToken) {
         return false;
