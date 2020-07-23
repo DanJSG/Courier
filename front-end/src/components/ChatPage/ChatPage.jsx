@@ -6,6 +6,7 @@ import MessageBuilder from './Messages/MessageBuilder'
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
 import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers, broadcastActiveChat} from './services/chatservice'
 import {Scrollbars} from 'react-custom-scrollbars'
+import {checkAuthorization, requestAccessToken} from '../../services/authprovider';
 
 function ChatPage(props) {
     
@@ -25,6 +26,23 @@ function ChatPage(props) {
     const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
     const [receivedMessage, setReceivedMessage] = useState(null);
     const [activeMembers, setActiveMembers] = useState(null);
+
+    const reAuthorize = async () => {
+        let result = await checkAuthorization();
+        if(result.authorized === true) {
+            return true;
+        }
+        const refreshToken = localStorage.getItem("ref.tok");
+        if(refreshToken == null || refreshToken === undefined) {
+            return false;
+        }
+        const refreshed = await requestAccessToken();
+        if(refreshed === false) {
+            return false;
+        }
+        result = await checkAuthorization();
+        return result.authorized;
+    }
 
     const changeCurrentChat = (id) => {
         let chat = chats.get(id);
@@ -80,8 +98,7 @@ function ChatPage(props) {
         setNameChatInProgress(false);
         let chatWithId = await saveChat(name, currentChat.members, props.token);
         if(chatWithId != null && chatWithId.unauthorized != null && chatWithId.unauthorized === true) {
-            // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
-            let reAuthorized = await props.checkAuth();
+            let reAuthorized = await reAuthorize();
             if(reAuthorized) {
                 chatWithId = await saveChat(name, currentChat.members, props.token);
             }
@@ -114,8 +131,7 @@ function ChatPage(props) {
         async function fetchHistory() {
             let messages = await loadChatHistory(currentChat.id, props.token);
             if((messages !== null && messages.unauthorized !== null) && messages.unauthorized === true) {
-                // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
-                const reAuthorized = await props.checkAuth();
+                let reAuthorized = await reAuthorize();
                 if(reAuthorized) {
                     messages = await loadChatHistory(currentChat.id, props.token);
                 }
@@ -128,8 +144,7 @@ function ChatPage(props) {
         async function fetchMembers() {
             let members = await loadChatMembers(currentChat.id, props.token);
             if(members == null) {
-                // TODO move reauthorization out of parent component so that it does not refresh the entire page when re-authorizing
-                let reAuthorized = await props.checkAuth();
+                let reAuthorized = await reAuthorize();
                 if(reAuthorized) {
                     members = await loadChatMembers(currentChat.id, props.token);
                 }
@@ -233,6 +248,10 @@ function ChatPage(props) {
         setMessages(prevMessages => [...prevMessages, response.message]);
     }
 
+    // TODO break this up into multiple smaller components
+    // TODO extract logic for each component
+    // TODO move layout within components
+    // basically do anything to shrink this component - it has gotten way too big + messy
     return (
         <React.Fragment>
         {

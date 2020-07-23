@@ -51,7 +51,7 @@ function App() {
             {
                 isAuthorized
                 ?
-                <ChatPage checkAuth={checkAuth} id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
+                <ChatPage id={id} displayName={displayName} token={localStorage.getItem("acc.tok")}/>
                 :
                 <LandingPage />
             }
