@@ -18,25 +18,30 @@ function App() {
         setDisplayName(result.displayName);
         setIsAuthorized(result.authorized);
         if(result.authorized === true) {
-            return;
-        } 
+            return true;
+        }
         localStorage.removeItem("acc.tok");
         const refreshToken = localStorage.getItem("ref.tok");
         if(refreshToken == null || refreshToken === undefined) {
-            return;
+            return false;
         }
         const refreshed = await refreshAccessToken();
         if(refreshed === false) {
-            return;
+            return false;
         }
         result = await checkAuthorization();
         setId(result.id);
         setDisplayName(result.displayName);
         setIsAuthorized(result.authorized);
+        if(isAuthorized) {
+            return true;
+        }
+        return false;
     }
 
     useEffect(() => {
         checkAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

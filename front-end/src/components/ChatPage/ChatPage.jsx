@@ -109,22 +109,28 @@ function ChatPage(props) {
 
     useEffect(() => {
         async function fetchHistory() {
-            const messages = await loadChatHistory(currentChat.id, props.token);
-            if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
-                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                props.checkAuth();
+            let messages = await loadChatHistory(currentChat.id, props.token);
+            if((messages !== null && messages.unauthorized !== null) && messages.unauthorized === true) {
+                const reAuthorized = await props.checkAuth();
+                if(reAuthorized) {
+                    messages = await loadChatHistory(currentChat.id, props.token);
+                }
+                if(!reAuthorized || messages == null || (messages.unauthorized != null && messages.unauthorized === true)) {
+                    messages = [];
+                }
             }
             setMessages(messages);
         }
         async function fetchMembers() {
-            const members = await loadChatMembers(currentChat.id, props.token);
-            if(members !== null && members.unauthorized !== null && members.unauthorized === true) {
-                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                props.checkAuth();
-            }
+            let members = await loadChatMembers(currentChat.id, props.token);
             if(members == null) {
-                console.log("Members is null...");
-                console.log(members);
+                let reAuthorized = await props.checkAuth();
+                if(reAuthorized) {
+                    members = await loadChatMembers(currentChat.id, props.token);
+                }
+                if(!reAuthorized || members == null) {
+                    members = [];
+                }
             }
             setCurrentChat(prevChat => {
                 return {
@@ -170,10 +176,6 @@ function ChatPage(props) {
     useEffect(() => {
         async function loadChats() {
             const loadedChats = await loadAllChats(props.id, props.token);
-            if(messages !== null && messages.unauthorized !== null && messages.unauthorized === true) {
-                // TODO check for refresh token and fetch new refresh token -> new method in authprovider + app.js
-                props.checkAuth();
-            }
             if(loadedChats == null || loadedChats.length === 0) {
                 setCurrentChatIsLoaded(true);
                 return;
@@ -196,13 +198,15 @@ function ChatPage(props) {
                                         updateMessagesCallback, updateCurrentChatCallback, logErrorCallback);
         setWsConnection(ws);
         return () => {
-            removeWebSocketListeners(
-                wsConnection, 
-                props.id, 
-                updateMessagesCallback, 
-                updateCurrentChatCallback, 
-                logErrorCallback);
-            wsConnection.close();
+            if(wsConnection) {
+                removeWebSocketListeners(
+                    wsConnection, 
+                    props.id, 
+                    updateMessagesCallback, 
+                    updateCurrentChatCallback, 
+                    logErrorCallback);
+                wsConnection.close();
+            }
         }
     }, []);
 
