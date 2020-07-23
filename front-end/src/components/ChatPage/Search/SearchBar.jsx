@@ -13,7 +13,7 @@ function SearchBar(props) {
     }
 
     const somethingTyped = async (e) => {
-        // implement something related to autocomplete here
+        // TODO implement something related to autocomplete here
     }
 
     return (

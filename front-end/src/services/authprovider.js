@@ -41,13 +41,13 @@ export const checkAuthorization = async () => {
 }
 
 export const refreshAccessToken = async () => {
-    const lsToken = localStorage.getItem("ref.tok");
-    if(!lsToken) {
+    const refreshToken = localStorage.getItem("ref.tok");
+    if(!refreshToken) {
         return false;
     }
     const url = `http://local.courier.net:8090/api/v1/token` +
                 `?client_id=${process.env.REACT_APP_OAUTH_CLIENT_ID}` + 
-                `&refresh_token=${lsToken}` + 
+                `&refresh_token=${refreshToken}` + 
                 `&grant_type=refresh_token`;
     return await fetch(url, {
         method: "POST",
