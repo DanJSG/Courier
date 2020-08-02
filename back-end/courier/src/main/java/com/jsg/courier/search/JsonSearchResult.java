@@ -5,11 +5,13 @@ import java.time.Instant;
 public class JsonSearchResult implements SearchResult<String> {
 	
 	private String result;
+	private String query;
 	private int hits;
 	private long timeRetrieved;
 	
-	public JsonSearchResult(String result) {
+	public JsonSearchResult(String query, String result) {
 		this.result = result;
+		this.query = query;
 		hits = 1;
 		timeRetrieved = Instant.now().getEpochSecond();
 	}
@@ -43,6 +45,11 @@ public class JsonSearchResult implements SearchResult<String> {
 	@Override
 	public int compareTo(SearchResult<String> o) {
 		return hits - o.getHits();
+	}
+
+	@Override
+	public String getQuery() {
+		return query;
 	}
 
 	

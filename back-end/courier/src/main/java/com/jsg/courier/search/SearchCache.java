@@ -24,10 +24,11 @@ public class SearchCache<T extends SearchResult<V>, V> implements Cache<T> {
 		if(size == capacity) {
 			cacheHeap.remove();
 			cache.remove(search);
+			size--;
 		}
 		cacheHeap.add(result);
 		cache.put(search, result);
-		printInfo();
+		size++;
 	}
 	
 	public void clear() {
@@ -61,15 +62,7 @@ public class SearchCache<T extends SearchResult<V>, V> implements Cache<T> {
 		if(result != null) {
 			result.incrementHits();
 		}
-		printInfo();
 		return result;
-	}
-	
-	private void printInfo() {
-		for(T item : cacheHeap) {
-			System.out.println(item.get() + ": " + item.getHits() + " hits.");
-			System.out.println("Size: " + size + "; Capacity: " + capacity);
-		}
 	}
 
 }

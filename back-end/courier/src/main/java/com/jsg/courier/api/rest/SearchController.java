@@ -25,8 +25,8 @@ import com.jsg.courier.search.SearchCache;
 
 @RestController
 public class SearchController extends APIController {
-
-	private static Cache<JsonSearchResult> searchCache = new SearchCache<JsonSearchResult, String>(8);
+	
+	private static Cache<JsonSearchResult> searchCache = new SearchCache<JsonSearchResult, String>(10000);
 	
 	protected SearchController(
 			@Value("${token.secret.access}") String accessTokenSecret,
@@ -38,9 +38,6 @@ public class SearchController extends APIController {
 	@GetMapping(value = "/search/searchUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String searchTerm) {
-//		if(!tokensAreValid(authorization, jwt)) {
-//			return UNAUTHORIZED_HTTP_RESPONSE;
-//		}
 		if(searchCache.contains(searchTerm)) {
 			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm).get());
 		}
@@ -50,11 +47,8 @@ public class SearchController extends APIController {
 		if(users == null) {
 			return NO_CONTENT_HTTP_RESPONSE;
 		}
-//		for(User user : users) {
-//			System.out.println(user.writeValueAsString());
-//		}
 		try {
-			JsonSearchResult result = new JsonSearchResult(new ObjectMapper().writeValueAsString(users));  
+			JsonSearchResult result = new JsonSearchResult(searchTerm, new ObjectMapper().writeValueAsString(users));  
 			searchCache.add(searchTerm, result);
 			return ResponseEntity.status(HttpStatus.OK).body(result.get());
 		} catch (JsonProcessingException e) {

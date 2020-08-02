@@ -12,4 +12,6 @@ public interface SearchResult<T> extends Comparable<SearchResult<T>>{
 	
 	public int getHits();
 	
+	public String getQuery();
+	
 }
