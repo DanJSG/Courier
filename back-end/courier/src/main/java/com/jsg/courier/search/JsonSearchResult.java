@@ -31,7 +31,7 @@ public class JsonSearchResult implements SearchResult<String> {
 	}
 
 	@Override
-	public String getResult() {
+	public String get() {
 		return result;
 	}
 

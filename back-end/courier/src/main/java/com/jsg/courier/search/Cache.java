@@ -12,4 +12,6 @@ public interface Cache<T> {
 	
 	public boolean remove(String key);
 	
+	public T get(String key);
+	
 }

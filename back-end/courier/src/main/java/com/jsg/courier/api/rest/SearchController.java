@@ -1,8 +1,6 @@
 package com.jsg.courier.api.rest;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,11 +19,14 @@ import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.libs.sql.SQLRepository;
+import com.jsg.courier.search.Cache;
+import com.jsg.courier.search.JsonSearchResult;
+import com.jsg.courier.search.SearchCache;
 
 @RestController
 public class SearchController extends APIController {
 
-	private static Map<String, String> searchCache = new ConcurrentHashMap<String, String>();
+	private static Cache<JsonSearchResult> searchCache = new SearchCache<JsonSearchResult, String>(8);
 	
 	protected SearchController(
 			@Value("${token.secret.access}") String accessTokenSecret,
@@ -40,8 +41,8 @@ public class SearchController extends APIController {
 //		if(!tokensAreValid(authorization, jwt)) {
 //			return UNAUTHORIZED_HTTP_RESPONSE;
 //		}
-		if(searchCache.containsKey(searchTerm)) {
-			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm));
+		if(searchCache.contains(searchTerm)) {
+			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm).get());
 		}
 		String searchQuery = searchTerm + "%";
 		SQLRepository<User> repo = new MySQLRepository<User>("Users");
@@ -49,13 +50,13 @@ public class SearchController extends APIController {
 		if(users == null) {
 			return NO_CONTENT_HTTP_RESPONSE;
 		}
-		for(User user : users) {
-			System.out.println(user.writeValueAsString());
-		}
+//		for(User user : users) {
+//			System.out.println(user.writeValueAsString());
+//		}
 		try {
-			String jsonList = new ObjectMapper().writeValueAsString(users);
-			searchCache.put(searchTerm, jsonList);
-			return ResponseEntity.status(HttpStatus.OK).body(jsonList);
+			JsonSearchResult result = new JsonSearchResult(new ObjectMapper().writeValueAsString(users));  
+			searchCache.add(searchTerm, result);
+			return ResponseEntity.status(HttpStatus.OK).body(result.get());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;

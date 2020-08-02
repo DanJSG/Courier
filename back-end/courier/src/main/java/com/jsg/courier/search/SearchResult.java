@@ -8,7 +8,7 @@ public interface SearchResult<T> extends Comparable<SearchResult<T>>{
 	
 	public long checkAge();
 	
-	public T getResult();
+	public T get();
 	
 	public int getHits();
 	
