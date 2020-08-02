@@ -95,6 +95,42 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
+	public <V> List<T> findWhereLike(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+		Connection connection = getConnection();
+		if(connection == null) {
+			return null;
+		}
+		if(!checkColumnName(searchColumn)) {
+			System.out.println("Column name contains dangerous characters.");
+			return null;
+		}
+		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + " LIKE ?;";
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setFetchSize(limit);
+			statement.setObject(1, value);
+			ResultSet results = statement.executeQuery();
+			connection.commit();
+			ArrayList<T> objectList = new ArrayList<>();
+			while(results.next()) {
+				objectList.add(builder.fromResultSet(results));
+			}
+			if(objectList.size() == 0) {
+				return null;
+			}
+			return objectList;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@Override
+	public <V> List<T> findWhereLike(String searchColumn, V value, SQLEntityBuilder<T> builder) {
+		return findWhereLike(searchColumn, value, 0, builder);
+	}
+	
+	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, SQLEntityBuilder<T> builder) {
 		return findWhereEqual(searchColumn, value, 0, builder);
 	}
@@ -164,5 +200,6 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			return null;
 		}
 	}
+
 	
 }

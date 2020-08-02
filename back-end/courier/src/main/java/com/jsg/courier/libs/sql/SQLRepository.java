@@ -12,6 +12,10 @@ public interface SQLRepository<T extends SQLEntity> {
 	
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder);
 	
+	public <V> List<T> findWhereLike(String searchColumn, V value, SQLEntityBuilder<T> builder);
+	
+	public <V> List<T> findWhereLike(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder);
+	
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue);
 	
 }
