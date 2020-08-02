@@ -1,6 +1,8 @@
 package com.jsg.courier.api.rest;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import com.jsg.courier.libs.sql.SQLRepository;
 @RestController
 public class SearchController extends APIController {
 
+	private static Map<String, String> searchCache = new ConcurrentHashMap<String, String>();
+	
 	protected SearchController(
 			@Value("${token.secret.access}") String accessTokenSecret,
 			@Value("${oauth2.client_id}") String client_id, 
@@ -33,8 +37,11 @@ public class SearchController extends APIController {
 	@GetMapping(value = "/search/searchUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String searchTerm) {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
+//		if(!tokensAreValid(authorization, jwt)) {
+//			return UNAUTHORIZED_HTTP_RESPONSE;
+//		}
+		if(searchCache.containsKey(searchTerm)) {
+			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm));
 		}
 		String searchQuery = searchTerm + "%";
 		SQLRepository<User> repo = new MySQLRepository<User>("Users");
@@ -47,6 +54,7 @@ public class SearchController extends APIController {
 		}
 		try {
 			String jsonList = new ObjectMapper().writeValueAsString(users);
+			searchCache.put(searchTerm, jsonList);
 			return ResponseEntity.status(HttpStatus.OK).body(jsonList);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
