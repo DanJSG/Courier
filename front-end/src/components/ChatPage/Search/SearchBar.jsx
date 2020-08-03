@@ -1,6 +1,9 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 function SearchBar(props) {
+
+    const [searchData, setSearchData] = useState(['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo'])
+    const [suggestions, setSuggestions] = useState([]);
 
     const searchTriggered = (e) => {
         e.preventDefault();
@@ -13,14 +16,39 @@ function SearchBar(props) {
     }
 
     const somethingTyped = async (e) => {
-        // TODO implement something related to autocomplete here
+        if((e.keyCode > 15 && e.keyCode < 19) || e.keyCode === 27 || e.keyCode === 20 || e.keyCode === 91) {
+            return;
+        }
+        const searchText = e.target.value.trim();
+        if(searchText == null || searchText === undefined || searchText === '') {
+            setSuggestions([]);
+            return;
+        }
+        setSuggestions(() => {
+            const regex = new RegExp(`^${searchText}`, 'gi');
+            const filtered = searchData.filter(val => val.match(regex));
+            return filtered;
+        })
     }
 
     return (
         <div className="flex-grow-1" style={{maxWidth: "80%"}}>
             <form onSubmit={searchTriggered}>
-                <input onKeyDown={somethingTyped} name="search" className="form-control input-hover rounded-pill" type="text" placeholder="Search chats..."/>
+                <input onChange={somethingTyped} name="search" className="form-control input-hover rounded-pill" type="text" placeholder="Search chats..."/>
             </form>
+            <div className='flex-grow-1' style={{
+                zIndex: 1,
+                position: 'absolute',
+                backgroundColor: 'white',
+                width: '85%',
+                maxWidth: '85%'
+            }}>
+                    {
+                        suggestions.map(val => {
+                            return <div className="card card-body mb-1" key={Math.random() * 1000}>{val}</div>
+                        })
+                    }
+            </div>
         </div>
     )
 
