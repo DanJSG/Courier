@@ -38,6 +38,9 @@ public class SearchController extends APIController {
 	@GetMapping(value = "/search/searchUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String searchTerm) {
+		if(!tokensAreValid(authorization, jwt)) {
+			return UNAUTHORIZED_HTTP_RESPONSE;
+		}
 		if(searchCache.contains(searchTerm)) {
 			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm).get());
 		}
