@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 
 function ChatHeader(props) {
     
-    const [fetchedUsers, setFetchedUsers] = useState(['Dan', 'Dan Jackson', 'Daniel Jones', 'ReGo', 'Reso', 'Philippa', 'Phil', 'T', 'Ting', 'Big T']);
+    const [fetchedUsers, setFetchedUsers] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
 
     const addMembers = (e) => {
@@ -22,16 +22,19 @@ function ChatHeader(props) {
             setSuggestions([]);
             return;
         }
-        await fetchUsers(searchText);
+        const users = await fetchUsers(searchText);
+        if(users != null && users !== []) {
+            setFetchedUsers(users);
+        }
         setSuggestions(() => {
             const regex = new RegExp(`^${searchText}`, 'gi');
-            const filtered = fetchedUsers.filter(val => val.match(regex));
+            const filtered = fetchedUsers.filter(val => val.displayName.match(regex));
             return filtered;
         })
     }
 
     const fetchUsers = async (search) => {
-        const url = `http://local.courier.net:8080/api/v1/search/searchUsers?searchTerm?${search}`;
+        const url = `http://local.courier.net:8080/api/v1/search/searchUsers?searchTerm=${search}`;
         return await fetch(url, {
             method: "GET",
             credentials: "include",
@@ -54,6 +57,11 @@ function ChatHeader(props) {
         })
     }
 
+    const suggestionClicked = (e) => {
+        e.preventDefault();
+        console.log(JSON.parse(e.target.user.value));
+    }
+
     return(
         props.isAddingMembers
         ?
@@ -72,7 +80,12 @@ function ChatHeader(props) {
             }}>
                 {
                     suggestions.map(val => {
-                        return <div className="card card-body mb-1" key={Math.random() * 1000}>{val}</div>
+                        return (
+                            <form onSubmit={suggestionClicked} key={val.id}>
+                                <input name="user" readOnly style={{display: 'None'}} value={JSON.stringify(val)}></input>
+                                <button className="w-100 text-left chat-hover card card-body mb-1">{val.displayName}</button>
+                            </form>
+                            )
                     })
                 }
             </div>
