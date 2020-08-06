@@ -1,4 +1,6 @@
 import requests as req, hashlib, secrets, base64, random, json
+import name_provider
+from random_user import RandomUser
 
 OAUTH = {
     'client_id': 'ThpDT2t2EDlO',
@@ -95,13 +97,20 @@ def authorize(access_token, access_cookie):
     return response.json()
 
 def main():
-    verifier, challenge = gen_code_challenge()
-    state = gen_state()
-    auth_code = login(challenge, state, 'dan@courier.net', 'password')
-    refresh_token, refresh_cookie = request_refresh_token(auth_code, verifier, state)
-    access_token, access_cookie = request_access_token(refresh_token, refresh_cookie)
-    user = authorize(access_token, access_cookie)
-    print(user)
+
+    count = 0
+
+    for _ in range(0, 25):
+        user = RandomUser()
+        print(user.email)
+
+    # verifier, challenge = gen_code_challenge()
+    # state = gen_state()
+    # auth_code = login(challenge, state, 'dan@courier.net', 'password')
+    # refresh_token, refresh_cookie = request_refresh_token(auth_code, verifier, state)
+    # access_token, access_cookie = request_access_token(refresh_token, refresh_cookie)
+    # user = authorize(access_token, access_cookie)
+    # print(user)
 
 if __name__ == '__main__':
     main()
