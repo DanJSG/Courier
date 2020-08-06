@@ -96,21 +96,21 @@ def authorize(access_token, access_cookie):
         return None
     return response.json()
 
+def save_account(user):
+    sign_up(user.email, user.username, user.password)
+    verifier, challenge = gen_code_challenge()
+    state = gen_state()
+    auth_code = login(challenge, state, user.email, user.password)
+    refresh_token, refresh_cookie = request_refresh_token(auth_code, verifier, state)
+    access_token, access_cookie = request_access_token(refresh_token, refresh_cookie)
+    fetched_user = authorize(access_token, access_cookie)
+    print(fetched_user)
+
 def main():
-
-    count = 0
-
-    for _ in range(0, 25):
+    for i in range(0, 1000):
         user = RandomUser()
-        print(user.email)
-
-    # verifier, challenge = gen_code_challenge()
-    # state = gen_state()
-    # auth_code = login(challenge, state, 'dan@courier.net', 'password')
-    # refresh_token, refresh_cookie = request_refresh_token(auth_code, verifier, state)
-    # access_token, access_cookie = request_access_token(refresh_token, refresh_cookie)
-    # user = authorize(access_token, access_cookie)
-    # print(user)
+        save_account(user)
+        print("Created " + str(i + 1) + " accounts!")
 
 if __name__ == '__main__':
     main()
