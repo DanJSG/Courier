@@ -4,6 +4,7 @@ function ChatHeader(props) {
     
     const [fetchedUsers, setFetchedUsers] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
+    const [prevSearches] = useState(new Map());
 
     const addMembers = (e) => {
         if(!props.isAddingMembers) return;
@@ -17,12 +18,19 @@ function ChatHeader(props) {
         if((e.keyCode > 15 && e.keyCode < 19) || e.keyCode === 27 || e.keyCode === 20 || e.keyCode === 91) {
             return;
         }
-        const searchText = e.target.value.trim();
+        const searchText = e.target.value.trim().toLowerCase();
         if(searchText == null || searchText === undefined || searchText === '') {
-            setSuggestions([]);
-            return;
+            return setSuggestions([]);
         }
-        const users = await fetchUsers(searchText);
+        let subSearch = searchText.substring(0, searchText.length - 1);
+        let users;
+        if(prevSearches.has(searchText)) {
+            users = prevSearches.get(searchText);
+        } else if(prevSearches.has(subSearch)) {
+            users = prevSearches.get(subSearch)
+        } else {
+            users = await fetchUsers(searchText);
+        }
         if(users != null && users !== []) {
             setFetchedUsers(users);
         }
@@ -31,6 +39,9 @@ function ChatHeader(props) {
             const filtered = fetchedUsers.filter(val => val.displayName.match(regex));
             return filtered;
         })
+        if(!prevSearches.has(searchText)) {
+            prevSearches.set(searchText, users);
+        }
     }
 
     const fetchUsers = async (search) => {
@@ -48,7 +59,7 @@ function ChatHeader(props) {
             return response.json();
         })
         .then(json => {
-            console.log(json);
+            // console.log(json);
             return json;
         })
         .catch(error => {
@@ -76,7 +87,9 @@ function ChatHeader(props) {
                 backgroundColor: 'white',
                 width: '85%',
                 maxWidth: '85%',
-                marginTop: 52
+                maxHeight: '50%',
+                marginTop: 52,
+                overflowY: 'scroll'
             }}>
                 {
                     suggestions.map(val => {
