@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {searchUsers, stripBadChars} from '../services/searchservice'
 
 function ChatHeader(props) {
@@ -6,13 +6,14 @@ function ChatHeader(props) {
     const [fetchedUsers, setFetchedUsers] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [prevSearches] = useState(new Map());
+    const [usersToAdd, setUsersToAdd] = useState([]);
+    const searchBox = useRef(null);
 
     const addMembers = (e) => {
         if(!props.isAddingMembers) return;
         e.preventDefault();
-        const membersText = e.target.elements.members.value.trim().split(",");
-        const members = membersText.map(member => {return {id: parseInt(member), displayName: member.trim()}});
-        props.addMembers(members);
+        props.addMembers(usersToAdd);
+        setUsersToAdd([]);
     }
 
     const somethingTyped = async (e) => {
@@ -37,7 +38,7 @@ function ChatHeader(props) {
         }
         setSuggestions(() => {
             const regex = new RegExp(`^${searchText}`, 'gi');
-            const filtered = fetchedUsers.filter(val => val.displayName.match(regex));
+            const filtered = fetchedUsers.filter(val => val.id === props.id ? false : val.displayName.match(regex));
             return filtered;
         })
         if(!prevSearches.has(searchText)) {
@@ -47,7 +48,18 @@ function ChatHeader(props) {
 
     const suggestionClicked = (e) => {
         e.preventDefault();
-        console.log(JSON.parse(e.target.user.value));
+        const user = JSON.parse(e.target.user.value);
+        let duplicateFound = false;
+        usersToAdd.forEach(currUser => {
+            if(currUser.id === user.id) {
+                duplicateFound = true;
+            }
+        });
+        if(duplicateFound) return;
+        setUsersToAdd(prev => [...prev, user]);
+        searchBox.current.value = '';
+        searchBox.current.focus();
+        setSuggestions([]);
     }
 
     return(
@@ -56,8 +68,16 @@ function ChatHeader(props) {
         <React.Fragment>
             <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
                 <label>To:&nbsp;</label>
-                <input onChange={somethingTyped} name="members" className="border-0"/>
+                {
+                    usersToAdd.map(user => 
+                        <label key={user.id}>{user.displayName},&nbsp;</label>
+                    )
+                }
+                <input ref={searchBox} onChange={somethingTyped} name="members" className="border-0"/>
             </form>
+            {
+                // TODO refactor this CSS into a class
+            }
             <div className='flex-grow-1' style={{
                 zIndex: 1,
                 position: 'absolute',

@@ -250,7 +250,7 @@ function ChatPage(props) {
                     <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
                     <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                         <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
-                            <ChatHeader addMembers={addMembers} isAddingMembers={addChatMembersInProgress} chatName={currentChat.name} token={props.token}></ChatHeader>
+                            <ChatHeader id={props.id} addMembers={addMembers} isAddingMembers={addChatMembersInProgress} chatName={currentChat.name} token={props.token}></ChatHeader>
                             <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                             <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                         </div>

@@ -22,5 +22,5 @@ export const searchUsers = async (search, token) => {
 }
 
 export const stripBadChars = (search) => {
-    return search.replace(/[\[\]\{\}\(\)\<\>\*\+\?\\\|\:\=\!\^\-]/gi, '');
+    return search.replace(/[\]{}()\\<>*+?|:=!^-]/gi, '');
 }
