@@ -66,14 +66,15 @@ function ChatHeader(props) {
         props.isAddingMembers
         ?
         <React.Fragment>
-            <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
-                <label>To:&nbsp;</label>
-                {
-                    usersToAdd.map(user => 
-                        <label key={user.id}>{user.displayName},&nbsp;</label>
-                    )
-                }
-                <input ref={searchBox} onChange={somethingTyped} name="members" className="border-0"/>
+            <form className="list-group-item border-0 rounded-pill" onSubmit={addMembers}>
+                    <label>To:&nbsp;</label>
+                    {
+                        usersToAdd.map(user =>
+                            <label key={user.id}>{user.displayName},&nbsp;</label>
+                        )
+                    }
+                    <input style={{outline:'None'}} ref={searchBox} onChange={somethingTyped} name="members" className="border-0"/>
+                    <button className="btn btn-primary float-right"><i className="fa fa-check"></i></button>
             </form>
             {
                 // TODO refactor this CSS into a class

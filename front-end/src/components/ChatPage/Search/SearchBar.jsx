@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 
 function SearchBar(props) {
 
-    const [searchData, setSearchData] = useState(['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo'])
+    const [searchData] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
 
     const searchTriggered = (e) => {
