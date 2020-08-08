@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {searchUsers, stripBadChars} from '../services/searchservice'
 
 function ChatHeader(props) {
     
@@ -18,7 +19,7 @@ function ChatHeader(props) {
         if((e.keyCode > 15 && e.keyCode < 19) || e.keyCode === 27 || e.keyCode === 20 || e.keyCode === 91) {
             return;
         }
-        const searchText = e.target.value.trim().toLowerCase();
+        const searchText = stripBadChars(e.target.value.trim().toLowerCase());
         if(searchText == null || searchText === undefined || searchText === '') {
             return setSuggestions([]);
         }
@@ -29,7 +30,7 @@ function ChatHeader(props) {
         } else if(prevSearches.has(subSearch)) {
             users = prevSearches.get(subSearch)
         } else {
-            users = await fetchUsers(searchText);
+            users = await searchUsers(searchText, props.token);
         }
         if(users != null && users !== []) {
             setFetchedUsers(users);
@@ -42,30 +43,6 @@ function ChatHeader(props) {
         if(!prevSearches.has(searchText)) {
             prevSearches.set(searchText, users);
         }
-    }
-
-    const fetchUsers = async (search) => {
-        const url = `http://local.courier.net:8080/api/v1/search/searchUsers?searchTerm=${search}`;
-        return await fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Authorization": `Bearer ${props.token}`,
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if(response.status !== 200) return [];
-            return response.json();
-        })
-        .then(json => {
-            // console.log(json);
-            return json;
-        })
-        .catch(error => {
-            console.log(error);
-            return [];
-        })
     }
 
     const suggestionClicked = (e) => {
