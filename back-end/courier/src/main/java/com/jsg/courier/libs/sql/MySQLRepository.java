@@ -15,8 +15,8 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	private final String tableName;
 	
-	public MySQLRepository(String tableName) {
-		this.tableName = tableName;
+	public MySQLRepository(SQLTable tableName) {
+		this.tableName = tableName.getName();
 	}
 	
 	@Override

@@ -28,6 +28,7 @@ import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLTable;
 
 @RestController
 public class ChatController extends APIController {
@@ -49,14 +50,14 @@ public class ChatController extends APIController {
 		chat.generateChatId();
 		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
 		chat.setMembers(new ArrayList<>(uniqueMembers));
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("Chats");
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS);
 		if(!chatRepo.save(chat)) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}
 		if(chat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>("ChatMembers");
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQLTable.CHAT_MEMBERS);
 		List<ChatMember> members = new ArrayList<>();
 		for(long memberId : chat.getMembers()) {
 			members.add(new ChatMember(chat.getId(), memberId));
@@ -73,7 +74,7 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>("ChatsFull");
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
 			return NO_CONTENT_HTTP_RESPONSE;
@@ -95,7 +96,7 @@ public class ChatController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<User> userRepo = new MySQLRepository<>("ChatsFull");
+		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
 		if(users == null || users.size() == 0) {
 			return NO_CONTENT_HTTP_RESPONSE;

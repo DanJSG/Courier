@@ -19,6 +19,7 @@ import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.libs.sql.SQLRepository;
+import com.jsg.courier.libs.sql.SQLTable;
 import com.jsg.courier.search.Cache;
 import com.jsg.courier.search.JsonSearchResult;
 import com.jsg.courier.search.SearchCache;
@@ -49,7 +50,7 @@ public class UserController extends APIController {
 			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm).get());
 		}
 		String searchQuery = searchTerm + "%";
-		SQLRepository<User> repo = new MySQLRepository<User>("Users");
+		SQLRepository<User> repo = new MySQLRepository<User>(SQLTable.USERS);
 		List<User> users = repo.findWhereLike("username", searchQuery, limit, new UserBuilder());
 		if(users == null) {
 			return NO_CONTENT_HTTP_RESPONSE;
