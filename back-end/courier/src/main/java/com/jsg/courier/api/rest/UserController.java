@@ -24,18 +24,18 @@ import com.jsg.courier.search.JsonSearchResult;
 import com.jsg.courier.search.SearchCache;
 
 @RestController
-public class SearchController extends APIController {
+public class UserController extends APIController {
 	
 	private static Cache<JsonSearchResult> searchCache = new SearchCache<JsonSearchResult, String>(10000);
 	
-	protected SearchController(
+	protected UserController(
 			@Value("${token.secret.access}") String accessTokenSecret,
 			@Value("${oauth2.client_id}") String client_id, 
 			@Value("${oauth2.client_secret}") String client_secret) {
 		super(accessTokenSecret, client_id, client_secret);
 	}
 	
-	@GetMapping(value = "/search/searchUsers", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/user/search", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam("q") String searchTerm, 
 			@RequestHeader(required = false) Integer limit) {
