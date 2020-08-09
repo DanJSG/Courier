@@ -31,7 +31,7 @@ function ChatHeader(props) {
         } else if(prevSearches.has(subSearch)) {
             users = prevSearches.get(subSearch)
         } else {
-            users = await searchUsers(searchText, props.token);
+            users = await searchUsers(searchText, 50, props.token);
         }
         if(users != null && users !== []) {
             setFetchedUsers(users);
@@ -71,7 +71,7 @@ function ChatHeader(props) {
                     {
                         usersToAdd.map(user =><label key={user.id}>{user.displayName},&nbsp;</label>)
                     }
-                    <input style={{outline:'None'}} ref={searchBox} onChange={somethingTyped} name="members" className="border-0"/>
+                    <input style={{outline:"None"}} ref={searchBox} onChange={somethingTyped} name="members" className="border-0"/>
                     <button className="btn btn-primary float-right"><i className="fa fa-check"></i></button>
             </form>
             {

@@ -37,7 +37,11 @@ public class SearchController extends APIController {
 	
 	@GetMapping(value = "/search/searchUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestParam String searchTerm) {
+			@RequestHeader String authorization, @RequestParam("q") String searchTerm, 
+			@RequestHeader(required = false) Integer limit) {
+		if(limit == null || limit > 100 || limit < 1) {
+			limit = 100;
+		}
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
@@ -46,7 +50,7 @@ public class SearchController extends APIController {
 		}
 		String searchQuery = searchTerm + "%";
 		SQLRepository<User> repo = new MySQLRepository<User>("Users");
-		List<User> users = repo.findWhereLike("username", searchQuery, new UserBuilder());
+		List<User> users = repo.findWhereLike("username", searchQuery, limit, new UserBuilder());
 		if(users == null) {
 			return NO_CONTENT_HTTP_RESPONSE;
 		}
