@@ -11,10 +11,10 @@ def get_rand_name():
     return choice(first_names), choice(last_names)
 
 def main():
-    for _ in range(0, 10):
+    for _ in range(0, 50):
         print(get_rand_name())
 
-# always run, whether imported or not
+# always run, whether imported or main function run
 read_file('./names/firstnames.txt', first_names)
 read_file('./names/surnames.txt', last_names)
 
