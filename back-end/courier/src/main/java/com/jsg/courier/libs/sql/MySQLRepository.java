@@ -53,6 +53,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 					System.out.println("Executing batched statement!");
 					statement.executeBatch();
 					connection.commit();
+					connection.close();
 				}
 			}
 			return true;
@@ -85,8 +86,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 				objectList.add(builder.fromResultSet(results));
 			}
 			if(objectList.size() == 0) {
+				connection.close();
 				return null;
 			}
+			connection.close();
 			return objectList;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -116,8 +119,10 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 				objectList.add(builder.fromResultSet(results));
 			}
 			if(objectList.size() == 0) {
+				connection.close();
 				return null;
 			}
+			connection.close();
 			return objectList;
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -151,6 +156,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			statement.setObject(2, clauseValue);
 			statement.executeUpdate();
 			connection.commit();
+			connection.close();
 			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
