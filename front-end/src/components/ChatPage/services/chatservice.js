@@ -18,7 +18,16 @@ export const broadcastActiveChat = (ws, chatId) => {
     console.log("Broadcasting active chat ID: ");
     console.log('~' + JSON.stringify({id: chatId}));
     ws.send('~' + JSON.stringify(chatId));
+    return true;
 }
+
+// export const broadcastNewChat = (ws, chatId) => {
+//     if(!ws) return false;
+//     console.log("Broadcasting new chat ID: ");
+//     console.log("#" + JSON.stringify({id: chatId}));
+//     ws.send("#" + JSON.stringify({id: chatId}));
+//     return true;
+// }
 
 export const loadAllChats = async(userId, token) => {
     const url = `http://local.courier.net:8080/api/v1/chat/getAll?id=${userId}`;

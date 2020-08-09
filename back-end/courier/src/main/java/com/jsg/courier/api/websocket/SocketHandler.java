@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
@@ -31,10 +32,10 @@ import com.jsg.courier.libs.nosql.MongoRepository;
 public class SocketHandler extends TextWebSocketHandler {
 
 	//							   Chat ID               Session ID    Session
-	private static ConcurrentHashMap<UUID, ConcurrentHashMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
+	private static ConcurrentMap<UUID, ConcurrentHashMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
 	
 	//                             Session ID     Session
-	private static ConcurrentHashMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
+	private static ConcurrentMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
 	
 	@Autowired
 	public SocketHandler() {}
@@ -50,6 +51,11 @@ public class SocketHandler extends TextWebSocketHandler {
 			String chatIdJson = messageJsonPayload.substring(1);
 			UUID activeChatId = new ObjectMapper().readValue(chatIdJson, UUID.class);
 			sessions.get(sessionId).setActiveChatId(activeChatId);
+			if(!chats.containsKey(activeChatId)) {
+				ConcurrentHashMap<UUID, ChatSession> newSub = new ConcurrentHashMap<>();
+				newSub.put(sessionId, sessions.get(sessionId));
+				chats.put(activeChatId, newSub);
+			}
 			broadcastSessions(activeChatId, null);
 			return;	
 		}
