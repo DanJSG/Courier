@@ -18,6 +18,7 @@ export const broadcastActiveChat = (ws, chatId) => {
     console.log("Broadcasting active chat ID: ");
     console.log('~' + JSON.stringify({id: chatId}));
     ws.send('~' + JSON.stringify(chatId));
+    return true;
 }
 
 export const loadAllChats = async(userId, token) => {

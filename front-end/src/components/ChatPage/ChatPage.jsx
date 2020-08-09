@@ -2,7 +2,8 @@ import React, {useState, useEffect} from 'react';
 import ChatList from './Chats/ChatList';
 import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
-import MessageBuilder from './Messages/MessageBuilder'
+import MessageBuilder from './Messages/MessageBuilder';
+import ChatHeader from './Chats/ChatHeader';
 import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
 import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers, broadcastActiveChat} from './services/chatservice'
 import {checkAuthorization, requestAccessToken} from '../../services/authprovider';
@@ -50,11 +51,7 @@ function ChatPage(props) {
         setChatHistoryIsLoaded(false);
     }
 
-    const addMembers = (e) => {
-        if(!addChatMembersInProgress) return;
-        e.preventDefault();
-        const membersText = e.target.elements.members.value.trim().split(",");
-        const members = membersText.map(member => {return {id: parseInt(member), displayName: member.trim()}});
+    const addMembers = (members) => {
         setCurrentChat(existingChat => {
             let newChat = {...existingChat};
             newChat.members = [{id: props.id, displayName: props.displayName}, ...members];
@@ -253,19 +250,7 @@ function ChatPage(props) {
                     <ChatList setChatName={setChatName} changeCurrentChat={changeCurrentChat} currentChat={currentChat} createChat={createChat} chats={chats}></ChatList>
                     <div className="col-7 border pt-2 mh-100 justify-content-between flex-column p-0">
                         <div className="d-flex flex-grow-1 h-100 mh-100 justify-content-between flex-column">
-                            {
-                                // TODO refactor this into its own component and move the logic there too
-                                addChatMembersInProgress
-                                ?
-                                <form className="list-group-item border-0 rounded-0" onSubmit={addMembers}>
-                                    <label>To:&nbsp;</label>
-                                    <input name="members" className="border-0"/>
-                                </form>
-                                :
-                                <h1 className="pl-3 pr-3">
-                                    {currentChat.name === "" || currentChat.name == null ? <i className="text-muted">New Chat</i>: currentChat.name}
-                                </h1>
-                            }
+                            <ChatHeader id={props.id} addMembers={addMembers} isAddingMembers={addChatMembersInProgress} chatName={currentChat.name} token={props.token}></ChatHeader>
                             <MessageList id={props.id} handleSendMessage={handleSendMessage} messages={messages} currentChat={currentChat}></MessageList>
                             <MessageBuilder handleSendMessage={handleSendMessage}></MessageBuilder>
                         </div>
