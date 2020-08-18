@@ -16,6 +16,7 @@ import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLTable;
 import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
@@ -36,7 +37,7 @@ public class AuthController extends APIController {
 		if(!tokensAreValid(authorization, jwt)) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
-		MySQLRepository<User> repo = new MySQLRepository<>("Users");
+		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long oauthId = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);
 		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
