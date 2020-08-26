@@ -1,0 +1,80 @@
+version:  '3'
+
+services: 
+    sql:
+        image: mysql:8.0
+        ports: 
+            - "3306:3306"
+        volumes: 
+            - /var/lib/mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=password
+            - MYSQL_USER=localDev
+            - MYSQL_PASSWORD=l0c4l_d3v!
+        networks: 
+            - primary
+
+    mongo:
+        image: mongo:4.4-bionic
+        ports:
+            - "27017:27017"
+        volumes:
+            - /var/lib/mongodb:/data/db
+        networks: 
+            - primary
+
+    courier_api:
+        build: ./back-end/courier/
+        ports: 
+            - "8080:8080"
+        depends_on: 
+            - sql
+            - mongo
+        networks: 
+            - primary
+
+    courier_ui:
+        build: ./front-end/
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./front-end:/app
+            - /app/node_modules
+        environment: 
+            - CHOKIDAR_USEPOLLING=true
+        stdin_open: true
+        tty: true
+        depends_on: 
+            - courier_api
+            - authentity_api
+        networks: 
+            - primary
+
+    authentity_api:
+        build: ../AuthServer/authserver/
+        ports:
+            - "8090:8090"
+        depends_on: 
+            - sql
+        networks: 
+            - primary
+    
+    authentity-ui:
+        build: ../AuthServer/account-screen/
+        ports:
+            - "3010:3010"
+        volumes:
+            - ../AuthServer/account-screen:/app
+            - /app/node_modules
+        stdin_open: true
+        tty: true
+        environment: 
+            - CHOKIDAR_USEPOLLING=true
+        depends_on: 
+            - authentity_api
+        networks: 
+            - primary
+
+networks: 
+    primary:
+        driver: bridge
