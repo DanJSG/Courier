@@ -59,7 +59,7 @@ services:
         networks: 
             - primary
     
-    authentity-ui:
+    authentity_ui:
         build: ../AuthServer/account-screen/
         ports:
             - "3010:3010"
