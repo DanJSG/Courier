@@ -32,6 +32,8 @@ services:
             - mongo
         networks: 
             - primary
+        env_file: 
+            ./.env
 
     courier_ui:
         build: ./front-end/

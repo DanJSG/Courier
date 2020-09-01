@@ -24,9 +24,9 @@ public class AuthController extends APIController {
 	
 	@Autowired
 	public AuthController(
-			@Value("${token.secret.access}") String accessTokenSecret,
-			@Value("${oauth2.client_id}") String client_id, 
-			@Value("${oauth2.client_secret}") String client_secret) {
+			@Value("${TOKEN_ACCESS_SECRET}") String accessTokenSecret,
+			@Value("${OAUTH2_CLIENT_ID}") String client_id, 
+			@Value("${OAUTH2_CLIENT_SECRET}") String client_secret) {
 		super(accessTokenSecret, client_id, client_secret);
 	}
 	

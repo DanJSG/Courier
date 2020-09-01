@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 	private static String[] origins;
 	
 	@Autowired
-	public WebSocketConfig(@Value("${cors.origins}") String[] origins) {
+	public WebSocketConfig(@Value("${CORS_ORIGINS}") String[] origins) {
 		WebSocketConfig.origins = origins;
 	}
 	
