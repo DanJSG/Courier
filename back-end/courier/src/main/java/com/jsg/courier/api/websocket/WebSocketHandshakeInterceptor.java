@@ -25,7 +25,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	private final String ACCESS_TOKEN_SECRET;
 	
 	@Autowired
-	public WebSocketHandshakeInterceptor(@Value("${token.secret.access}") String accessTokenSecret) {
+	public WebSocketHandshakeInterceptor(@Value("${TOKEN_ACCESS_SECRET}") String accessTokenSecret) {
 		ACCESS_TOKEN_SECRET = accessTokenSecret;
 	}
 	

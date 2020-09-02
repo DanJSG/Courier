@@ -15,8 +15,8 @@ public final class MongoConnectionPool {
 	private static MongoClient connection;
 	private static String databaseName;
 	
-	private MongoConnectionPool(@Value("${mongo.connectionstring}") String mongoConnectionString,
-								@Value("${mongo.database.name}") String mongoDbName) {
+	private MongoConnectionPool(@Value("${MONGO_CONNECTION_STRING}") String mongoConnectionString,
+								@Value("${MONGO_DATABASE_NAME}") String mongoDbName) {
 		Builder options = new MongoClientOptions.Builder();
 		options.minConnectionsPerHost(5);
 		options.connectionsPerHost(200);

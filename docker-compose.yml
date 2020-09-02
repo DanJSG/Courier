@@ -7,12 +7,9 @@ services:
             - "3306:3306"
         volumes: 
             - /var/lib/mysql:/var/lib/mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=password
-            - MYSQL_USER=localDev
-            - MYSQL_PASSWORD=l0c4l_d3v!
         networks: 
             - primary
+        env_file: ./sql.env
 
     mongo:
         image: mongo:4.4-bionic
@@ -32,6 +29,7 @@ services:
             - mongo
         networks: 
             - primary
+        env_file: ./courier.env
 
     courier_ui:
         build: ./front-end/
@@ -53,16 +51,17 @@ services:
     authentity_api:
         build: ../AuthServer/authserver/
         ports:
-            - "8090:8090"
+            - "8090:8080"
         depends_on: 
             - sql
         networks: 
             - primary
+        env_file: ./authentity.env
     
     authentity_ui:
         build: ../AuthServer/account-screen/
         ports:
-            - "3010:3010"
+            - "3010:3000"
         volumes:
             - ../AuthServer/account-screen:/app
             - /app/node_modules
