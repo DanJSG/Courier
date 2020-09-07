@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.libs.sql.SQLTable;
-import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
 public class AuthController extends APIController {
@@ -34,9 +34,6 @@ public class AuthController extends APIController {
 	public @ResponseBody ResponseEntity<String> authorize(
 			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long oauthId = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);

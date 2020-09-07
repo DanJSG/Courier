@@ -43,9 +43,6 @@ public class UserController extends APIController {
 		if(limit == null || limit > 100 || limit < 1) {
 			limit = 100;
 		}
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		if(searchCache.contains(searchTerm)) {
 			return ResponseEntity.status(HttpStatus.OK).body(searchCache.get(searchTerm).get());
 		}

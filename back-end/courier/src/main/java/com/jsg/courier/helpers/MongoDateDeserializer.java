@@ -1,4 +1,4 @@
-package com.jsg.courier.utilities;
+package com.jsg.courier.helpers;
 
 import java.io.IOException;
 import java.text.ParseException;

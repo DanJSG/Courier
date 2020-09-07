@@ -1,4 +1,4 @@
-package com.jsg.courier.utilities;
+package com.jsg.courier.auth;
 
 import java.util.Calendar;
 import java.util.Date;
