@@ -14,7 +14,7 @@ public class GlobalAuthConfig implements WebMvcConfigurer {
 	AuthorizationInterceptor authInterceptor;
 	
 	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
+	public void addInterceptors(InterceptorRegistry registry) {	
 		registry.addInterceptor(authInterceptor).addPathPatterns(
 				"/api/v1/authorize*",
 				"/api/v1/chat/create*",
