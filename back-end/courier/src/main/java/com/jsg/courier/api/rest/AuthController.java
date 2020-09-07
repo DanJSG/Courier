@@ -34,9 +34,6 @@ public class AuthController extends APIController {
 	public @ResponseBody ResponseEntity<String> authorize(
 			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long oauthId = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);

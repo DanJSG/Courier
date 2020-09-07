@@ -33,9 +33,6 @@ public class MessageController extends APIController {
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		MongoRepository<Message> repo = new MongoRepository<>();
 		try {
 			List<Message> messages = repo.findAll(chatId, new MessageBuilder());

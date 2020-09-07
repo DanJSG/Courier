@@ -44,9 +44,6 @@ public class ChatController extends APIController {
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> create(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestBody Chat chat) {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		chat.generateChatId();
 		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
 		chat.setMembers(new ArrayList<>(uniqueMembers));
@@ -71,9 +68,6 @@ public class ChatController extends APIController {
 	@GetMapping(value = "/chat/getAll")
 	public @ResponseBody ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt,
 			@RequestHeader String authorization, @RequestParam long id) {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
@@ -93,9 +87,6 @@ public class ChatController extends APIController {
 	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
-		if(!tokensAreValid(authorization, jwt)) {
-			return UNAUTHORIZED_HTTP_RESPONSE;
-		}
 		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
 		if(users == null || users.size() == 0) {
