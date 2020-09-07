@@ -16,7 +16,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.util.WebUtils;
 
-import com.jsg.courier.utilities.JWTHandler;
+import com.jsg.courier.auth.JWTHandler;
 
 @Component
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {

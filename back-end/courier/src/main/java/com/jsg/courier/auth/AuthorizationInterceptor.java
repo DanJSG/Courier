@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.jsg.courier.utilities.AuthHeaderHandler;
-import com.jsg.courier.utilities.JWTHandler;
-
 @Component
 public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
 	

@@ -1,4 +1,4 @@
-package com.jsg.courier.utilities;
+package com.jsg.courier.auth;
 
 public final class AuthHeaderHandler {
 	

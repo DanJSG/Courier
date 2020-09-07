@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.libs.sql.SQLTable;
-import com.jsg.courier.utilities.JWTHandler;
 
 @RestController
 public class AuthController extends APIController {

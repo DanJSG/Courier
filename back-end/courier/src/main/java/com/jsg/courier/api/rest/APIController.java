@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.jsg.courier.utilities.AuthHeaderHandler;
-import com.jsg.courier.utilities.JWTHandler;
+import com.jsg.courier.auth.AuthHeaderHandler;
+import com.jsg.courier.auth.JWTHandler;
 
 @RequestMapping("/api/v1")
 public abstract class APIController {
