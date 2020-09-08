@@ -15,29 +15,25 @@ public class User implements SQLEntity, JsonObject {
 	@JsonProperty
 	private long id;
 	
-	private long oauthId;
-	
 	@JsonProperty("displayName")
 	private String username;
 	
 	@JsonCreator
 	private User() {}
 	
-	public User(long id, long oauthId, String username) {
+	public User(long id, String username) {
 		this.id = id;
-		this.oauthId = oauthId;
 		this.username = username;
 	}
 
-	public User(long oauthId, String username) {
-		this.oauthId = oauthId;
+	public User(String username) {
 		this.username = username;
 	}
 
 	@Override
 	public Map<String, Object> toSqlMap() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("oauthid", oauthId);
+		map.put("id", id);
 		map.put("username", username);
 		return map;
 	}
