@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.auth.AuthHeaderHandler;
 import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Message;
@@ -39,7 +40,7 @@ public class MessageController extends APIController {
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
-		long id = JWTHandler.getIdFromToken(authorization);
+		long id = JWTHandler.getIdFromToken(AuthHeaderHandler.getBearerToken(authorization));
 		MongoRepository<Message> repo = new MongoRepository<>();
 		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		// TODO add order by functionality to avoid linear searches
