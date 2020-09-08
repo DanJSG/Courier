@@ -35,13 +35,13 @@ public class AuthController extends APIController {
 			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization) throws Exception {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
-		long oauthId = JWTHandler.getIdFromToken(jwt);
+		long id = JWTHandler.getIdFromToken(jwt);
 		String name = JWTHandler.getNameFromToken(jwt);
-		List<User> foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		List<User> foundUsers = repo.findWhereEqual("id", id, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
-			repo.save(new User(oauthId, name));
+			repo.save(new User(id, name));
 		}
-		foundUsers = repo.findWhereEqual("oauthid", oauthId, new UserBuilder());
+		foundUsers = repo.findWhereEqual("id", id, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}

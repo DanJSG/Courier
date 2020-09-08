@@ -10,9 +10,8 @@ public class UserBuilder implements SQLEntityBuilder<User> {
 	public User fromResultSet(ResultSet sqlResults) {
 		try {
 			long id = sqlResults.getLong("id");
-			long oauthId = sqlResults.getLong("oauthid");
 			String username = sqlResults.getString("username");
-			return new User(id, oauthId, username);
+			return new User(id, username);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
