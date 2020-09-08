@@ -163,7 +163,7 @@ function ChatPage(props) {
                 fetchHistory();
                 setChatHistoryIsLoaded(true);
             }
-            if(!chatMembersAreLoaded) {
+            if(!chatMembersAreLoaded && wsConnection.readyState === 1) {
                 broadcastActiveChat(wsConnection, currentChat.id);
                 fetchMembers();
                 setChatMembersAreLoaded(true);
@@ -175,6 +175,7 @@ function ChatPage(props) {
         if(!wsConnection) return;
         if(!chats || chats.length === 0) return;
         if(currentChat.id != null && !currentChat.id.includes("-")) return;
+        if(wsConnection.readyState !== 1) return;
         broadcastChats(wsConnection, chats);
     }, [chats]);
 
