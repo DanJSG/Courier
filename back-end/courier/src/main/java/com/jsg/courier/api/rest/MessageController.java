@@ -14,10 +14,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.MessageBuilder;
+import com.jsg.courier.datatypes.User;
+import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.nosql.MongoRepository;
+import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLRepository;
+import com.jsg.courier.libs.sql.SQLTable;
 
 @RestController
 public class MessageController extends APIController {
@@ -33,7 +39,21 @@ public class MessageController extends APIController {
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
 			@RequestHeader String authorization, @RequestParam String chatId) {
+		long id = JWTHandler.getIdFromToken(authorization);
 		MongoRepository<Message> repo = new MongoRepository<>();
+		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
+		// TODO add order by functionality to avoid linear searches
+		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
+		boolean accessAllowed = false;
+		for(User user : users) {
+			if(user.getId() == id) {
+				accessAllowed = true;
+				break;
+			}
+		}
+		if(!accessAllowed) {
+			return UNAUTHORIZED_HTTP_RESPONSE;
+		}
 		try {
 			List<Message> messages = repo.findAll(chatId, new MessageBuilder());
 			if(messages.size() == 0) {
