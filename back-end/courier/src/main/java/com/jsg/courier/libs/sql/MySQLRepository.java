@@ -98,6 +98,53 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
+	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, int limit, SQLEntityBuilder<T> builder) {
+		Connection connection = getConnection();
+		if(connection == null) {
+			return null;
+		}
+		if(searchColumns.size() != values.size()) {
+			return null;
+		}
+		String baseQuery = "SELECT * FROM `" + tableName + "` WHERE ";
+		String queryCondition = "";
+		for(int i=0; i < searchColumns.size(); i++) {
+			if(checkColumnName(searchColumns.get(i))) {
+				System.out.println("Column name contains potentially dangerous characters.");
+				return null;
+			}
+			queryCondition += searchColumns.get(i) + "=?";
+			if(i < searchColumns.size() - 1) {
+				queryCondition += " AND ";
+			}
+		}
+		queryCondition += ";";
+		String query = baseQuery + queryCondition;
+		try {
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setFetchSize(limit);
+			for(V value : values) {
+				statement.setObject(1, value);
+			}
+			ResultSet results = statement.executeQuery();
+			connection.commit();
+			ArrayList<T> objectList = new ArrayList<>();
+			while(results.next()) {
+				objectList.add(builder.fromResultSet(results));
+			}
+			if(objectList.size() == 0) {
+				connection.close();
+				return null;
+			}
+			connection.close();
+			return objectList;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@Override
 	public <V> List<T> findWhereLike(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
 		Connection connection = getConnection();
 		if(connection == null) {
@@ -138,6 +185,11 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, SQLEntityBuilder<T> builder) {
 		return findWhereEqual(searchColumn, value, 0, builder);
+	}
+	
+	@Override
+	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, SQLEntityBuilder<T> builder) {
+		return findWhereEqual(searchColumns, values, 0, builder);
 	}
 	
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
