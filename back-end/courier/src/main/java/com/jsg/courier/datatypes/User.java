@@ -29,6 +29,10 @@ public class User implements SQLEntity, JsonObject {
 	public User(String username) {
 		this.username = username;
 	}
+	
+	public long getId() {
+		return this.id;
+	}
 
 	@Override
 	public Map<String, Object> toSqlMap() {

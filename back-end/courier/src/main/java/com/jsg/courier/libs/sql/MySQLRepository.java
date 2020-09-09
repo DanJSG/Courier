@@ -66,31 +66,34 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+		return findWhereEqual(Arrays.asList(searchColumn), Arrays.asList(value), limit, builder);
+	}
+	
+	@Override
+	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, int limit, SQLEntityBuilder<T> builder) {
 		Connection connection = getConnection();
 		if(connection == null) {
 			return null;
 		}
-		if(!checkColumnName(searchColumn)) {
-			System.out.println("Column name contains dangerous characters.");
+		if(searchColumns.size() != values.size()) {
 			return null;
 		}
-		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + "=?;";
-		try {
-			PreparedStatement statement = connection.prepareStatement(query);
-			statement.setFetchSize(limit);
-			statement.setObject(1, value);
-			ResultSet results = statement.executeQuery();
-			connection.commit();
-			ArrayList<T> objectList = new ArrayList<>();
-			while(results.next()) {
-				objectList.add(builder.fromResultSet(results));
-			}
-			if(objectList.size() == 0) {
-				connection.close();
+		String baseQuery = "SELECT * FROM `" + tableName + "` WHERE ";
+		String queryCondition = "";
+		for(int i=0; i < searchColumns.size(); i++) {
+			if(!checkColumnName(searchColumns.get(i))) {
+				System.out.println("Column name contains potentially dangerous characters.");
 				return null;
 			}
-			connection.close();
-			return objectList;
+			queryCondition += searchColumns.get(i) + "=?";
+			if(i < searchColumns.size() - 1) {
+				queryCondition += " AND ";
+			}
+		}
+		queryCondition += ";";
+		String query = baseQuery + queryCondition;
+		try {
+			return runCustomSelectQuery(connection, query, values, limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -109,21 +112,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + " LIKE ?;";
 		try {
-			PreparedStatement statement = connection.prepareStatement(query);
-			statement.setFetchSize(limit);
-			statement.setObject(1, value);
-			ResultSet results = statement.executeQuery();
-			connection.commit();
-			ArrayList<T> objectList = new ArrayList<>();
-			while(results.next()) {
-				objectList.add(builder.fromResultSet(results));
-			}
-			if(objectList.size() == 0) {
-				connection.close();
-				return null;
-			}
-			connection.close();
-			return objectList;
+			return runCustomSelectQuery(connection, query, Arrays.asList(value), limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -140,6 +129,12 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		return findWhereEqual(searchColumn, value, 0, builder);
 	}
 	
+	@Override
+	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, SQLEntityBuilder<T> builder) {
+		return findWhereEqual(searchColumns, values, 0, builder);
+	}
+	
+	@Override
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
 		Connection connection = getConnection();
 		if(connection == null) {
@@ -187,6 +182,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		return paramString;
 	}
 	
+	// TODO remove this and start using a whitelist
 	private Boolean checkColumnName(String columnName) {
 		// Blocks SQL column name from including dangerous input:
 		// spaces or --. This helps prevent SQL injection through a badly 
@@ -205,6 +201,26 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	private <V> List<T> runCustomSelectQuery(Connection connection, String query, List<V> values, int limit, SQLEntityBuilder<T> builder) throws Exception {
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setFetchSize(limit);
+		for(int i=0; i < values.size(); i++) {
+			statement.setObject(i + 1, values.get(i));
+		}
+		ResultSet results = statement.executeQuery();
+		connection.commit();
+		ArrayList<T> objectList = new ArrayList<>();
+		while(results.next()) {
+			objectList.add(builder.fromResultSet(results));
+		}
+		if(objectList.size() == 0) {
+			connection.close();
+			return null;
+		}
+		connection.close();
+		return objectList;
 	}
 
 	
