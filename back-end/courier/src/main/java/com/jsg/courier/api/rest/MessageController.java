@@ -1,5 +1,6 @@
 package com.jsg.courier.api.rest;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +44,8 @@ public class MessageController extends APIController {
 		long id = JWTHandler.getIdFromToken(AuthHeaderHandler.getBearerToken(authorization));
 		MongoRepository<Message> repo = new MongoRepository<>();
 		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
-		// TODO add order by functionality to avoid linear searches
-		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
-		boolean accessAllowed = false;
-		for(User user : users) {
-			if(user.getId() == id) {
-				accessAllowed = true;
-				break;
-			}
-		}
-		if(!accessAllowed) {
+		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
+		if(users == null) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		try {

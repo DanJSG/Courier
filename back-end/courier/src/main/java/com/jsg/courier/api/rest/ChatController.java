@@ -1,6 +1,7 @@
 package com.jsg.courier.api.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,16 +94,8 @@ public class ChatController extends APIController {
 			@RequestHeader String authorization, @RequestParam String chatId) {
 		long id = JWTHandler.getIdFromToken(AuthHeaderHandler.getBearerToken(authorization));
 		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
-		// TODO implement SQL select ordering to avoid using linear search for user ID 
-		List<User> users = userRepo.findWhereEqual("chatid", chatId, new UserBuilder());
-		boolean userFound = false;
-		for(User user : users) {
-			if(user.getId() == id) {
-				userFound = true;
-				break;
-			}
-		}
-		if(!userFound) {
+		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
+		if(users == null) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
 		if(users == null || users.size() == 0) {
