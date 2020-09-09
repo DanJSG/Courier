@@ -109,7 +109,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		String baseQuery = "SELECT * FROM `" + tableName + "` WHERE ";
 		String queryCondition = "";
 		for(int i=0; i < searchColumns.size(); i++) {
-			if(checkColumnName(searchColumns.get(i))) {
+			if(!checkColumnName(searchColumns.get(i))) {
 				System.out.println("Column name contains potentially dangerous characters.");
 				return null;
 			}
@@ -123,8 +123,8 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		try {
 			PreparedStatement statement = connection.prepareStatement(query);
 			statement.setFetchSize(limit);
-			for(V value : values) {
-				statement.setObject(1, value);
+			for(int i=0; i < values.size(); i++) {
+				statement.setObject(i + 1, values.get(i));
 			}
 			ResultSet results = statement.executeQuery();
 			connection.commit();
