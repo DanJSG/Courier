@@ -66,21 +66,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	@Override
 	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
-		Connection connection = getConnection();
-		if(connection == null) {
-			return null;
-		}
-		if(!checkColumnName(searchColumn)) {
-			System.out.println("Column name contains dangerous characters.");
-			return null;
-		}
-		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + "=?;";
-		try {
-			return runSelectQuery(connection, query, Arrays.asList(value), limit, builder);
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return findWhereEqual(Arrays.asList(searchColumn), Arrays.asList(value), limit, builder);
 	}
 	
 	@Override
@@ -107,7 +93,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		queryCondition += ";";
 		String query = baseQuery + queryCondition;
 		try {
-			return runSelectQuery(connection, query, values, limit, builder);
+			return runCustomSelectQuery(connection, query, values, limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -126,7 +112,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + " LIKE ?;";
 		try {
-			return runSelectQuery(connection, query, Arrays.asList(value), limit, builder);
+			return runCustomSelectQuery(connection, query, Arrays.asList(value), limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -217,7 +203,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 	}
 	
-	private <V> List<T> runSelectQuery(Connection connection, String query, List<V> values, int limit, SQLEntityBuilder<T> builder) throws Exception {
+	private <V> List<T> runCustomSelectQuery(Connection connection, String query, List<V> values, int limit, SQLEntityBuilder<T> builder) throws Exception {
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setFetchSize(limit);
 		for(int i=0; i < values.size(); i++) {
