@@ -76,21 +76,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + "=?;";
 		try {
-			PreparedStatement statement = connection.prepareStatement(query);
-			statement.setFetchSize(limit);
-			statement.setObject(1, value);
-			ResultSet results = statement.executeQuery();
-			connection.commit();
-			ArrayList<T> objectList = new ArrayList<>();
-			while(results.next()) {
-				objectList.add(builder.fromResultSet(results));
-			}
-			if(objectList.size() == 0) {
-				connection.close();
-				return null;
-			}
-			connection.close();
-			return objectList;
+			return runSelectQuery(connection, query, Arrays.asList(value), limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -121,23 +107,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		queryCondition += ";";
 		String query = baseQuery + queryCondition;
 		try {
-			PreparedStatement statement = connection.prepareStatement(query);
-			statement.setFetchSize(limit);
-			for(int i=0; i < values.size(); i++) {
-				statement.setObject(i + 1, values.get(i));
-			}
-			ResultSet results = statement.executeQuery();
-			connection.commit();
-			ArrayList<T> objectList = new ArrayList<>();
-			while(results.next()) {
-				objectList.add(builder.fromResultSet(results));
-			}
-			if(objectList.size() == 0) {
-				connection.close();
-				return null;
-			}
-			connection.close();
-			return objectList;
+			return runSelectQuery(connection, query, values, limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -156,21 +126,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + " LIKE ?;";
 		try {
-			PreparedStatement statement = connection.prepareStatement(query);
-			statement.setFetchSize(limit);
-			statement.setObject(1, value);
-			ResultSet results = statement.executeQuery();
-			connection.commit();
-			ArrayList<T> objectList = new ArrayList<>();
-			while(results.next()) {
-				objectList.add(builder.fromResultSet(results));
-			}
-			if(objectList.size() == 0) {
-				connection.close();
-				return null;
-			}
-			connection.close();
-			return objectList;
+			return runSelectQuery(connection, query, Arrays.asList(value), limit, builder);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -192,6 +148,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		return findWhereEqual(searchColumns, values, 0, builder);
 	}
 	
+	@Override
 	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
 		Connection connection = getConnection();
 		if(connection == null) {
@@ -239,6 +196,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		return paramString;
 	}
 	
+	// TODO remove this and start using a whitelist
 	private Boolean checkColumnName(String columnName) {
 		// Blocks SQL column name from including dangerous input:
 		// spaces or --. This helps prevent SQL injection through a badly 
@@ -257,6 +215,26 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	private <V> List<T> runSelectQuery(Connection connection, String query, List<V> values, int limit, SQLEntityBuilder<T> builder) throws Exception {
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setFetchSize(limit);
+		for(int i=0; i < values.size(); i++) {
+			statement.setObject(i + 1, values.get(i));
+		}
+		ResultSet results = statement.executeQuery();
+		connection.commit();
+		ArrayList<T> objectList = new ArrayList<>();
+		while(results.next()) {
+			objectList.add(builder.fromResultSet(results));
+		}
+		if(objectList.size() == 0) {
+			connection.close();
+			return null;
+		}
+		connection.close();
+		return objectList;
 	}
 
 	
