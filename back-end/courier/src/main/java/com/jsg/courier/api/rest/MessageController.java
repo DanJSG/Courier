@@ -38,8 +38,7 @@ public class MessageController extends APIController {
 	}
 
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization, @RequestParam String chatId) {
+	public ResponseEntity<String> getAll(@RequestHeader AuthToken authorization, @RequestParam String chatId) {
 		long id = authorization.getId();
 		MongoRepository<Message> repo = new MongoRepository<>();
 		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);

@@ -31,9 +31,7 @@ public class AuthController extends APIController {
 	}
 	
 	@PostMapping(value = "/authorize")
-	public @ResponseBody ResponseEntity<String> authorize(
-			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization) throws Exception {
+	public @ResponseBody ResponseEntity<String> authorize(@RequestHeader AuthToken authorization) throws Exception {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long id = authorization.getId();
 		String name = authorization.getName();

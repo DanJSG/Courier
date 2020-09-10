@@ -38,9 +38,7 @@ public class UserController extends APIController {
 	}
 	
 	@GetMapping(value = "/user/search", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader AuthToken authorization, @RequestParam("q") String searchTerm, 
-			@RequestParam(required = false) Integer limit) {
+	public ResponseEntity<String> searchUsers(@RequestParam("q") String searchTerm, @RequestParam(required = false) Integer limit) {
 		if(limit == null || limit > 100 || limit < 1) {
 			limit = 100;
 		}

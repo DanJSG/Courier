@@ -44,9 +44,7 @@ public class ChatController extends APIController {
 	}
 	
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<String> create(
-			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization, @RequestBody Chat chat) {
+	public @ResponseBody ResponseEntity<String> create(@RequestBody Chat chat) {
 		chat.generateChatId();
 		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
 		chat.setMembers(new ArrayList<>(uniqueMembers));
@@ -69,8 +67,7 @@ public class ChatController extends APIController {
 	}
 	
 	@GetMapping(value = "/chat/getAll")
-	public @ResponseBody ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt,
-			@RequestHeader AuthToken authorization) {
+	public @ResponseBody ResponseEntity<String> getAll(@RequestHeader AuthToken authorization) {
 		long id = authorization.getId();
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
@@ -89,8 +86,7 @@ public class ChatController extends APIController {
 	}
 	
 	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization, @RequestParam String chatId) {
+	public ResponseEntity<String> getMembers(@RequestHeader AuthToken authorization, @RequestParam String chatId) {
 		long id = authorization.getId();
 		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
