@@ -16,7 +16,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.util.WebUtils;
 
-import com.jsg.courier.auth.JWTHandler;
+import com.jsg.courier.datatypes.AuthToken;
 
 @Component
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
@@ -52,11 +52,11 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}
-		String token = cookie.getValue();
+		AuthToken token = new AuthToken(cookie.getValue());
 		System.out.println("Cookie token is: " + token);
-		String headerToken = protocolHeaders[1].trim();
-		if(!JWTHandler.tokenIsValid(token, ACCESS_TOKEN_SECRET) || 
-				!JWTHandler.tokenIsValid(headerToken, ACCESS_TOKEN_SECRET)) {
+		AuthToken headerToken = new AuthToken(protocolHeaders[1].trim());
+		if(!token.verify(ACCESS_TOKEN_SECRET) || 
+				!headerToken.verify(ACCESS_TOKEN_SECRET)) {
 			response.setStatusCode(HttpStatus.UNAUTHORIZED);
 			return false;
 		}

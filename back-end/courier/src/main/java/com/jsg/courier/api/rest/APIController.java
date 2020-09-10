@@ -5,9 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.jsg.courier.auth.AuthHeaderHandler;
-import com.jsg.courier.auth.JWTHandler;
-
 @RequestMapping("/api/v1")
 public abstract class APIController {
 
@@ -25,15 +22,6 @@ public abstract class APIController {
 		ACCESS_TOKEN_SECRET = accessTokenSecret;
 		CLIENT_ID = client_id;
 		CLIENT_SECRET = client_secret;
-	}
-	
-	protected Boolean tokensAreValid(String authHeader, String jwtCookie) {
-		String headerJwt = AuthHeaderHandler.getBearerToken(authHeader);
-		if(!JWTHandler.tokenIsValid(jwtCookie, ACCESS_TOKEN_SECRET) || 
-				!JWTHandler.tokenIsValid(headerJwt, ACCESS_TOKEN_SECRET)) {
-			return false;
-		}
-		return true;
 	}
 	
 }

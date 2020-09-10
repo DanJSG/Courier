@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.constants.OAuth2;
+import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
@@ -38,8 +39,8 @@ public class UserController extends APIController {
 	
 	@GetMapping(value = "/user/search", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestParam("q") String searchTerm, 
-			@RequestHeader(required = false) Integer limit) {
+			@RequestHeader AuthToken authorization, @RequestParam("q") String searchTerm, 
+			@RequestParam(required = false) Integer limit) {
 		if(limit == null || limit > 100 || limit < 1) {
 			limit = 100;
 		}
