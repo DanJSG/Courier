@@ -22,9 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.auth.AuthHeaderHandler;
-import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
+import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.ChatBuilder;
 import com.jsg.courier.datatypes.ChatMember;
@@ -46,8 +45,8 @@ public class ChatController extends APIController {
 	
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<String> create(
-			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestBody Chat chat) {
+			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
+			@RequestHeader AuthToken authorization, @RequestBody Chat chat) {
 		chat.generateChatId();
 		Set<Long> uniqueMembers = new HashSet<>(chat.getMembers());
 		chat.setMembers(new ArrayList<>(uniqueMembers));
@@ -70,9 +69,9 @@ public class ChatController extends APIController {
 	}
 	
 	@GetMapping(value = "/chat/getAll")
-	public @ResponseBody ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt,
-			@RequestHeader String authorization) {
-		long id = JWTHandler.getIdFromToken(AuthHeaderHandler.getBearerToken(authorization));
+	public @ResponseBody ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt,
+			@RequestHeader AuthToken authorization) {
+		long id = authorization.getId();
 		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
@@ -90,9 +89,9 @@ public class ChatController extends APIController {
 	}
 	
 	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization, @RequestParam String chatId) {
-		long id = JWTHandler.getIdFromToken(AuthHeaderHandler.getBearerToken(authorization));
+	public ResponseEntity<String> getMembers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
+			@RequestHeader AuthToken authorization, @RequestParam String chatId) {
+		long id = authorization.getId();
 		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
 		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
 		if(users == null) {

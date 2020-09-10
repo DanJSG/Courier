@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jsg.courier.auth.JWTHandler;
 import com.jsg.courier.constants.OAuth2;
+import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
@@ -32,11 +32,11 @@ public class AuthController extends APIController {
 	
 	@PostMapping(value = "/authorize")
 	public @ResponseBody ResponseEntity<String> authorize(
-			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader String authorization) throws Exception {
+			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
+			@RequestHeader AuthToken authorization) throws Exception {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
-		long id = JWTHandler.getIdFromToken(jwt);
-		String name = JWTHandler.getNameFromToken(jwt);
+		long id = authorization.getId();
+		String name = authorization.getName();
 		List<User> foundUsers = repo.findWhereEqual("id", id, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
 			repo.save(new User(id, name));
