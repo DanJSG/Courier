@@ -6,16 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.constants.OAuth2;
-import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
@@ -38,9 +34,7 @@ public class UserController extends APIController {
 	}
 	
 	@GetMapping(value = "/user/search", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> searchUsers(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) String jwt, 
-			@RequestHeader AuthToken authorization, @RequestParam("q") String searchTerm, 
-			@RequestParam(required = false) Integer limit) {
+	public ResponseEntity<String> searchUsers(@RequestParam("q") String searchTerm, @RequestParam(required = false) Integer limit) {
 		if(limit == null || limit > 100 || limit < 1) {
 			limit = 100;
 		}

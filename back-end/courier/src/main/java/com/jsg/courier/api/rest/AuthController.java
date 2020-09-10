@@ -6,13 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
@@ -31,9 +29,7 @@ public class AuthController extends APIController {
 	}
 	
 	@PostMapping(value = "/authorize")
-	public @ResponseBody ResponseEntity<String> authorize(
-			@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization) throws Exception {
+	public @ResponseBody ResponseEntity<String> authorize(@RequestHeader AuthToken authorization) throws Exception {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long id = authorization.getId();
 		String name = authorization.getName();

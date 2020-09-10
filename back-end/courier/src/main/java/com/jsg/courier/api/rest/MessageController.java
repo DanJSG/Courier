@@ -8,14 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.courier.constants.OAuth2;
 import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.MessageBuilder;
@@ -38,8 +36,7 @@ public class MessageController extends APIController {
 	}
 
 	@GetMapping(value = "/message/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> getAll(@CookieValue(name = OAuth2.ACCESS_TOKEN_NAME, required = false) AuthToken jwt, 
-			@RequestHeader AuthToken authorization, @RequestParam String chatId) {
+	public ResponseEntity<String> getAll(@RequestHeader AuthToken authorization, @RequestParam String chatId) {
 		long id = authorization.getId();
 		MongoRepository<Message> repo = new MongoRepository<>();
 		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
