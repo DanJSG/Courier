@@ -28,6 +28,7 @@ import com.jsg.courier.datatypes.ChatMember;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLTable;
 
 @RestController
@@ -53,7 +54,7 @@ public class ChatController extends APIController {
 		if(chat.getMembers().size() == 0) {
 			return BAD_REQUEST_HTTP_RESPONSE;
 		}
-		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQLTable.CHAT_MEMBERS);
+		MySQLRepository<ChatMember> memberRepo = new MySQLRepository<>(SQLTable.CHATMEMBERS);
 		List<ChatMember> members = new ArrayList<>();
 		for(long memberId : chat.getMembers()) {
 			members.add(new ChatMember(chat.getId(), memberId));
@@ -67,8 +68,8 @@ public class ChatController extends APIController {
 	@GetMapping(value = "/chat/getAll")
 	public @ResponseBody ResponseEntity<String> getAll(@RequestHeader AuthToken authorization) {
 		long id = authorization.getId();
-		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
-		List<Chat> chats = chatRepo.findWhereEqual("id", id, new ChatBuilder());
+		MySQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.CHATSFULL);
+		List<Chat> chats = chatRepo.findWhereEqual(SQLColumn.ID, id, new ChatBuilder());
 		if(chats == null || chats.size() == 0) {
 			return NO_CONTENT_HTTP_RESPONSE;
 		}
@@ -86,8 +87,8 @@ public class ChatController extends APIController {
 	@GetMapping(value = "/chat/getMembers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> getMembers(@RequestHeader AuthToken authorization, @RequestParam String chatId) {
 		long id = authorization.getId();
-		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
-		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
+		MySQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATSFULL);
+		List<User> users = userRepo.findWhereEqual(Arrays.asList(SQLColumn.CHATID, SQLColumn.ID), Arrays.asList(chatId, id), new UserBuilder());
 		if(users == null) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}

@@ -9,6 +9,7 @@ import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLTable;
 
 public class ChatSession {
@@ -47,7 +48,7 @@ public class ChatSession {
 	
 	private void setUser(long id) {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
-		List<User> results = repo.findWhereEqual("id", id, new UserBuilder());
+		List<User> results = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
 		if(results == null) {
 			user = null;
 			return;

@@ -6,10 +6,11 @@ services:
         ports: 
             - "3306:3306"
         volumes: 
-            - /var/lib/mysql:/var/lib/mysql
+            - /courier/mysql:/var/lib/mysql
         networks: 
             - primary
         env_file: ./sql.env
+        command: --lower_case_table_names=1
 
     mongo:
         image: mongo:4.4-bionic

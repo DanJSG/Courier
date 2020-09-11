@@ -8,15 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	private final String tableName;
 	
 	public MySQLRepository(SQLTable tableName) {
-		this.tableName = tableName.getName();
+		this.tableName = tableName.name();
 	}
 	
 	@Override
@@ -65,12 +63,12 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
-	public <V> List<T> findWhereEqual(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereEqual(SQLColumn searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
 		return findWhereEqual(Arrays.asList(searchColumn), Arrays.asList(value), limit, builder);
 	}
 	
 	@Override
-	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, int limit, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereEqual(List<SQLColumn> searchColumns, List<V> values, int limit, SQLEntityBuilder<T> builder) {
 		Connection connection = getConnection();
 		if(connection == null) {
 			return null;
@@ -81,11 +79,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		String baseQuery = "SELECT * FROM `" + tableName + "` WHERE ";
 		String queryCondition = "";
 		for(int i=0; i < searchColumns.size(); i++) {
-			if(!checkColumnName(searchColumns.get(i))) {
-				System.out.println("Column name contains potentially dangerous characters.");
-				return null;
-			}
-			queryCondition += searchColumns.get(i) + "=?";
+			queryCondition += searchColumns.get(i).name() + "=?";
 			if(i < searchColumns.size() - 1) {
 				queryCondition += " AND ";
 			}
@@ -101,16 +95,12 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
-	public <V> List<T> findWhereLike(String searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereLike(SQLColumn searchColumn, V value, int limit, SQLEntityBuilder<T> builder) {
 		Connection connection = getConnection();
 		if(connection == null) {
 			return null;
 		}
-		if(!checkColumnName(searchColumn)) {
-			System.out.println("Column name contains dangerous characters.");
-			return null;
-		}
-		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn + " LIKE ?;";
+		String query = "SELECT * FROM `" + tableName + "` WHERE " + searchColumn.name() + " LIKE ?;";
 		try {
 			return runCustomSelectQuery(connection, query, Arrays.asList(value), limit, builder);
 		} catch(Exception e) {
@@ -120,31 +110,27 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
-	public <V> List<T> findWhereLike(String searchColumn, V value, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereLike(SQLColumn searchColumn, V value, SQLEntityBuilder<T> builder) {
 		return findWhereLike(searchColumn, value, 0, builder);
 	}
 	
 	@Override
-	public <V> List<T> findWhereEqual(String searchColumn, V value, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereEqual(SQLColumn searchColumn, V value, SQLEntityBuilder<T> builder) {
 		return findWhereEqual(searchColumn, value, 0, builder);
 	}
 	
 	@Override
-	public <V> List<T> findWhereEqual(List<String> searchColumns, List<V> values, SQLEntityBuilder<T> builder) {
+	public <V> List<T> findWhereEqual(List<SQLColumn> searchColumns, List<V> values, SQLEntityBuilder<T> builder) {
 		return findWhereEqual(searchColumns, values, 0, builder);
 	}
 	
 	@Override
-	public <V, U> Boolean updateWhereEquals(String clauseColumn, V clauseValue, String updateColumn, U updateValue) {
+	public <V, U> Boolean updateWhereEquals(SQLColumn clauseColumn, V clauseValue, SQLColumn updateColumn, U updateValue) {
 		Connection connection = getConnection();
 		if(connection == null) {
 			return false;
 		}
-		if(!checkColumnName(clauseColumn) || !checkColumnName(updateColumn)) {
-			System.out.println("Column name contains dangerous characters.");
-			return false;
-		}
-		String query = "UPDATE `" + tableName + "` SET " + updateColumn + "= ? WHERE " + clauseColumn + " = ?;";
+		String query = "UPDATE `" + tableName + "` SET " + updateColumn.name() + "= ? WHERE " + clauseColumn.name() + " = ?;";
 		try {
 			PreparedStatement statement = connection.prepareStatement(query);
 			statement.setObject(1, updateValue);
@@ -180,16 +166,6 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			}
 		}
 		return paramString;
-	}
-	
-	// TODO remove this and start using a whitelist
-	private Boolean checkColumnName(String columnName) {
-		// Blocks SQL column name from including dangerous input:
-		// spaces or --. This helps prevent SQL injection through a badly 
-		// implemented query.
-		Pattern blacklist = Pattern.compile("[ ][--]*");
-		Matcher matcher = blacklist.matcher(columnName);
-		return !matcher.find();
 	}
 	
 	private Connection getConnection() {

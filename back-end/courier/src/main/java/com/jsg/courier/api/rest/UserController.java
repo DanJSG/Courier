@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLRepository;
 import com.jsg.courier.libs.sql.SQLTable;
 import com.jsg.courier.search.Cache;
@@ -43,7 +44,7 @@ public class UserController extends APIController {
 		}
 		String searchQuery = searchTerm + "%";
 		SQLRepository<User> repo = new MySQLRepository<User>(SQLTable.USERS);
-		List<User> users = repo.findWhereLike("username", searchQuery, limit, new UserBuilder());
+		List<User> users = repo.findWhereLike(SQLColumn.USERNAME, searchQuery, limit, new UserBuilder());
 		if(users == null) {
 			return NO_CONTENT_HTTP_RESPONSE;
 		}
