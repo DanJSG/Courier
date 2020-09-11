@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -22,6 +23,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.Chat;
 import com.jsg.courier.datatypes.Message;
 import com.jsg.courier.datatypes.MessageBuilder;
@@ -31,42 +33,75 @@ import com.jsg.courier.libs.nosql.MongoRepository;
 @Service
 public class SocketHandler extends TextWebSocketHandler {
 
-	//							   Chat ID               Session ID    Session
+	//							<Chat ID, <Session ID, Session>>
 	private static ConcurrentMap<UUID, ConcurrentHashMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
 	
-	//                             Session ID     Session
+	//                          <Session ID, Session>
 	private static ConcurrentMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
 	
+	//							<Session ID, authorized?>
+	private static ConcurrentMap<UUID, Boolean> sessionAuth = new ConcurrentHashMap<>();
+	
+	private final String ACCESS_TOKEN_SECRET;
+	
 	@Autowired
-	public SocketHandler() {}
+	public SocketHandler(@Value("${TOKEN_ACCESS_SECRET}") String accessTokenSecret) {
+		ACCESS_TOKEN_SECRET = accessTokenSecret;
+	}
 	
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage messageJson) throws Exception {
 		String messageJsonPayload = messageJson.getPayload();
 		UUID sessionId = UUID.fromString(session.getId());
-		if(messageJsonPayload.charAt(0) == '@') {
-			addChatSession(session, messageJsonPayload);
-			return;
-		} else if(messageJsonPayload.charAt(0) == '~') {
-			String chatIdJson = messageJsonPayload.substring(1);
-			UUID activeChatId = new ObjectMapper().readValue(chatIdJson, UUID.class);
-			sessions.get(sessionId).setActiveChatId(activeChatId);
-			if(!chats.containsKey(activeChatId)) {
-				ConcurrentHashMap<UUID, ChatSession> newSub = new ConcurrentHashMap<>();
-				newSub.put(sessionId, sessions.get(sessionId));
-				chats.put(activeChatId, newSub);
+		char firstChar = messageJsonPayload.charAt(0);
+		switch(firstChar) {
+			case '@':
+				addChatSession(session, sessionId, messageJsonPayload);
+				return;
+			case '~':
+				registerActiveChat(sessionId, messageJsonPayload);
+				return;
+			case '#':
+				authorizeSession(session, sessionId, messageJsonPayload);
+				return;
+			default:
+				if(!sessionAuth.get(sessionId)) {
+					return;
+				}
+				Message message = new MessageBuilder().fromJson(messageJsonPayload);
+				if(message.getChatId() == null) {
+					return;
+				}
+				MongoRepository<Message> repo = new MongoRepository<>();
+				String collectionName = message.getChatId().toString();
+				repo.save(message, collectionName);
+				broadcastMessage(message, sessionId);
 			}
-			broadcastSessions(activeChatId, null);
-			return;	
-		}
-		Message message = new MessageBuilder().fromJson(messageJsonPayload);
-		if(message.getChatId() == null) {
+	}
+	
+	private void registerActiveChat(UUID sessionId, String message) throws Exception {
+		if(!sessionAuth.get(sessionId)) {
 			return;
 		}
-		MongoRepository<Message> repo = new MongoRepository<>();
-		String collectionName = message.getChatId().toString();
-		repo.save(message, collectionName);
-		broadcastMessage(message, sessionId);
+		String chatIdJson = message.substring(1);
+		UUID activeChatId = new ObjectMapper().readValue(chatIdJson, UUID.class);
+		sessions.get(sessionId).setActiveChatId(activeChatId);
+		if(!chats.containsKey(activeChatId)) {
+			ConcurrentHashMap<UUID, ChatSession> newSub = new ConcurrentHashMap<>();
+			newSub.put(sessionId, sessions.get(sessionId));
+			chats.put(activeChatId, newSub);
+		}
+		broadcastSessions(activeChatId, null);
+	}
+	
+	private void authorizeSession(WebSocketSession session, UUID sessionId, String message) throws Exception {
+		AuthToken authToken = new AuthToken(message.substring(1));
+		if(!authToken.verify(ACCESS_TOKEN_SECRET)) {
+			return;
+		}
+		sessionAuth.put(sessionId, true);
+		sessions.get(sessionId).setUser(authToken.getId());
+		session.sendMessage(new TextMessage("#"));
 	}
 	
 	@Override
@@ -77,6 +112,7 @@ public class SocketHandler extends TextWebSocketHandler {
 			return;
 		}
 		sessions.put(sessionId, new ChatSession(session));
+		sessionAuth.put(sessionId, false);
 		System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
 	}
 	
@@ -142,10 +178,11 @@ public class SocketHandler extends TextWebSocketHandler {
 		return;
 	}
 	
-	private void addChatSession(WebSocketSession session, String receivedChats) {
+	private void addChatSession(WebSocketSession session, UUID sessionId, String receivedChats) {
+		if(!sessionAuth.get(sessionId)) {
+			return;
+		}
 		String chatsJson = receivedChats.substring(1);
-		UUID sessionId = UUID.fromString(session.getId());
-		System.out.println(chatsJson);
 		List<Chat> chatList;
 		try {
 			chatList = Arrays.asList(new ObjectMapper().readValue(chatsJson, Chat[].class));

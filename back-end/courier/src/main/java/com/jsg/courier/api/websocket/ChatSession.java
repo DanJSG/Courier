@@ -7,7 +7,6 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
-import com.jsg.courier.datatypes.WebSocketHeaders;
 import com.jsg.courier.libs.sql.MySQLRepository;
 import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLTable;
@@ -22,7 +21,6 @@ public class ChatSession {
 	public ChatSession(WebSocketSession session) {
 		this.session = session;
 		this.sessionId = UUID.fromString(session.getId());
-		setUser(new WebSocketHeaders(session).getId());
 		activeChatId = null;
 	}
 	
@@ -46,7 +44,7 @@ public class ChatSession {
 		this.activeChatId = id;
 	}
 	
-	private void setUser(long id) {
+	public void setUser(long id) {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		List<User> results = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
 		if(results == null) {
