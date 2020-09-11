@@ -15,6 +15,7 @@ import com.jsg.courier.datatypes.AuthToken;
 import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLTable;
 
 @RestController
@@ -33,11 +34,11 @@ public class AuthController extends APIController {
 		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 		long id = authorization.getId();
 		String name = authorization.getName();
-		List<User> foundUsers = repo.findWhereEqual("id", id, new UserBuilder());
+		List<User> foundUsers = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
 			repo.save(new User(id, name));
 		}
-		foundUsers = repo.findWhereEqual("id", id, new UserBuilder());
+		foundUsers = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
 		if(foundUsers == null || foundUsers.size() == 0) {
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		}

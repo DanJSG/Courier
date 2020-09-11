@@ -1,20 +1,23 @@
 package com.jsg.courier.libs.sql;
 
-public enum SQLTable {
+import java.util.HashMap;
+import java.util.Map;
+
+public enum SQLTable implements Whitelist {
 	
-	CHAT_MEMBERS("chatmembers"),
-	CHATS("chats"),
-	USERS("users"),
-	CHATS_VIEW("chatsfull");
+	CHATMEMBERS, CHATS, USERS, CHATSFULL;
 	
-	private String name;
+	private static final Map<String, SQLTable> mappings = new HashMap<>(16);
 	
-	SQLTable(String tableName) {
-		name = tableName;
+	static {
+		for(SQLTable table : SQLTable.values()) {
+			mappings.put(table.name(), table);
+		}
 	}
-	
-	public String getName() {
-		return name;
+
+	@Override
+	public boolean validate(String value) {
+		return mappings.containsKey(value);
 	}
 	
 }

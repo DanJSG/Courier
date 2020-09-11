@@ -21,6 +21,7 @@ import com.jsg.courier.datatypes.User;
 import com.jsg.courier.datatypes.UserBuilder;
 import com.jsg.courier.libs.nosql.MongoRepository;
 import com.jsg.courier.libs.sql.MySQLRepository;
+import com.jsg.courier.libs.sql.SQLColumn;
 import com.jsg.courier.libs.sql.SQLRepository;
 import com.jsg.courier.libs.sql.SQLTable;
 
@@ -39,8 +40,8 @@ public class MessageController extends APIController {
 	public ResponseEntity<String> getAll(@RequestHeader AuthToken authorization, @RequestParam String chatId) {
 		long id = authorization.getId();
 		MongoRepository<Message> repo = new MongoRepository<>();
-		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATS_VIEW);
-		List<User> users = userRepo.findWhereEqual(Arrays.asList("chatid", "id"), Arrays.asList(chatId, id), new UserBuilder());
+		SQLRepository<User> userRepo = new MySQLRepository<>(SQLTable.CHATSFULL);
+		List<User> users = userRepo.findWhereEqual(Arrays.asList(SQLColumn.CHATID, SQLColumn.ID), Arrays.asList(chatId, id), new UserBuilder());
 		if(users == null) {
 			return UNAUTHORIZED_HTTP_RESPONSE;
 		}
