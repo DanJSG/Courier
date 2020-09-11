@@ -1,5 +1,5 @@
-const wsOpenListener = (id) => {
-    console.log(`WebSocket connection opened for user with ID ${id}.` )
+const wsOpenListener = () => {
+    console.log(`WebSocket connection opened.`);
 }
 
 const wsErrorListener = (errorCallback) => {
@@ -35,16 +35,16 @@ const wsMessageListener = (e, messageCallback, chatCallback, authCallback) => {
     return;
 }
 
-export const initializeWebSocket = (url, id, token, messageCallback, chatCallback, errorCallback, authCallback) => {
-    const ws = new WebSocket(url, [id, token]);
-    ws.addEventListener("open", () => wsOpenListener(id));
+export const initializeWebSocket = (url, messageCallback, chatCallback, errorCallback, authCallback) => {
+    const ws = new WebSocket(url);
+    ws.addEventListener("open", () => wsOpenListener());
     ws.addEventListener("error", () => wsErrorListener(errorCallback));
     ws.addEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback, authCallback));
     return ws;
 }
 
-export const removeWebSocketListeners = (ws, id, messageCallback, chatCallback, errorCallback) => {
-    ws.removeEventListener("open", () => wsOpenListener(id));
+export const removeWebSocketListeners = (ws, messageCallback, chatCallback, errorCallback) => {
+    ws.removeEventListener("open", () => wsOpenListener());
     ws.removeEventListener("error", () => wsErrorListener(errorCallback));
     ws.removeEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback));
 }

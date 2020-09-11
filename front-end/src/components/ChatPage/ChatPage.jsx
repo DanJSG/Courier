@@ -219,14 +219,14 @@ function ChatPage(props) {
             });
         }
         loadChats();
-        const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", props.id, props.token,
-                                        updateMessagesCallback, updateCurrentChatCallback, logErrorCallback, authorizeWebsocketCallback);
+        const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws",
+                                       updateMessagesCallback, updateCurrentChatCallback,
+                                       logErrorCallback, authorizeWebsocketCallback);
         setWsConnection(ws);
         return () => {
             if(wsConnection) {
                 removeWebSocketListeners(
                     wsConnection, 
-                    props.id, 
                     updateMessagesCallback, 
                     updateCurrentChatCallback, 
                     logErrorCallback);
