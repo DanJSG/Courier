@@ -32,32 +32,14 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	@Override
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) throws Exception {
+		response.setStatusCode(HttpStatus.UNAUTHORIZED);
 		HttpServletRequest req = ((ServletServerHttpRequest) request).getServletRequest();
 		Cookie cookie = WebUtils.getCookie(req, ACCESS_TOKEN_NAME);
-		String protocolHeader = request.getHeaders().getFirst("sec-websocket-protocol");
-		System.out.println("Protocol header is:" + protocolHeader);
-		if(cookie == null || protocolHeader == null || protocolHeader.contentEquals("")) {
-			System.out.println("Cookies not present...");
-			System.out.println(cookie);
-			response.setStatusCode(HttpStatus.UNAUTHORIZED);
-			return false;
-		}
-		String[] protocolHeaders = protocolHeader.split(",");
-		if(protocolHeaders.length != 2) {
-			response.setStatusCode(HttpStatus.UNAUTHORIZED);
-			return false;
-		}
-		String idString = protocolHeaders[0];
-		if(idString == null || idString.contentEquals("")) {
-			response.setStatusCode(HttpStatus.UNAUTHORIZED);
+		if(cookie == null) {
 			return false;
 		}
 		AuthToken token = new AuthToken(cookie.getValue());
-		System.out.println("Cookie token is: " + token);
-		AuthToken headerToken = new AuthToken(protocolHeaders[1].trim());
-		if(!token.verify(ACCESS_TOKEN_SECRET) || 
-				!headerToken.verify(ACCESS_TOKEN_SECRET)) {
-			response.setStatusCode(HttpStatus.UNAUTHORIZED);
+		if(!token.verify(ACCESS_TOKEN_SECRET)) {
 			return false;
 		}
 		response.setStatusCode(HttpStatus.OK);

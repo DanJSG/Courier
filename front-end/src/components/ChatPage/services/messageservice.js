@@ -10,26 +10,36 @@ const wsErrorListener = (errorCallback) => {
     errorCallback("wsErrorListener");
 }
 
-const wsMessageListener = (e, messageCallback, chatCallback) => {
+export const authorizeWebsocket = (ws, token) => {
+    if(!ws) return false;
+    ws.send('#' + token);
+    return true;
+}
+
+const wsMessageListener = (e, messageCallback, chatCallback, authCallback) => {
     if(messageCallback === null || messageCallback === undefined ||
         chatCallback === null || chatCallback === undefined) {
         return;
     }
-    if(e.data.charAt(0) !== "`") {
-        const receivedMessage = JSON.parse(e.data);
-        receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
-        messageCallback(receivedMessage);
+    if(e.data.charAt(0) === "`") {
+        const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
+        chatCallback(chatMembers);
+        return;
+    } else if(e.data.charAt(0) === "#") {
+        authCallback();
         return;
     }
-    const chatMembers = JSON.parse(e.data.slice(1, e.data.length));
-    chatCallback(chatMembers);
+    const receivedMessage = JSON.parse(e.data);
+    receivedMessage.timestamp = new Date(receivedMessage.timestamp).toUTCString();
+    messageCallback(receivedMessage);
+    return;
 }
 
-export const initializeWebSocket = (url, id, token, messageCallback, chatCallback, errorCallback) => {
+export const initializeWebSocket = (url, id, token, messageCallback, chatCallback, errorCallback, authCallback) => {
     const ws = new WebSocket(url, [id, token]);
     ws.addEventListener("open", () => wsOpenListener(id));
     ws.addEventListener("error", () => wsErrorListener(errorCallback));
-    ws.addEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback));
+    ws.addEventListener("message", (e) => wsMessageListener(e, messageCallback, chatCallback, authCallback));
     return ws;
 }
 

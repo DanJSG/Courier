@@ -4,7 +4,7 @@ import MessageList from './Messages/MessageList';
 import ChatInfo from './Chats/ChatInfo';
 import MessageBuilder from './Messages/MessageBuilder';
 import ChatHeader from './Chats/ChatHeader';
-import {initializeWebSocket, removeWebSocketListeners, sendMessage} from './services/messageservice';
+import {initializeWebSocket, removeWebSocketListeners, sendMessage, authorizeWebsocket} from './services/messageservice';
 import {loadAllChats, loadChatHistory, broadcastChats, saveChat, loadChatMembers, broadcastActiveChat} from './services/chatservice'
 import {checkAuthorization, requestAccessToken} from '../../services/authprovider';
 
@@ -25,6 +25,7 @@ function ChatPage(props) {
     const [chatHistoryIsLoaded, setChatHistoryIsLoaded] = useState(false);
     const [receivedMessage, setReceivedMessage] = useState(null);
     const [activeMembers, setActiveMembers] = useState(null);
+    const [websocketAuthorized, setWebsocketAuthorized] = useState(false);
 
     const reAuthorize = async () => {
         let result = await checkAuthorization();
@@ -118,6 +119,10 @@ function ChatPage(props) {
         setReceivedMessage(message);
     }
 
+    const authorizeWebsocketCallback = () => {
+        setWebsocketAuthorized(true);
+    }
+
     const logErrorCallback = (error) => {
         console.log(error);
     }
@@ -164,18 +169,22 @@ function ChatPage(props) {
                 setChatHistoryIsLoaded(true);
             }
             if(!chatMembersAreLoaded && wsConnection.readyState === 1) {
+                if(!websocketAuthorized) {
+                    authorizeWebsocket(wsConnection, props.token);
+                }
                 broadcastActiveChat(wsConnection, currentChat.id);
                 fetchMembers();
                 setChatMembersAreLoaded(true);
             }
         }
-    }, [currentChat]);
+    }, [currentChat, websocketAuthorized]);
 
     useEffect(() => {
         if(!wsConnection) return;
         if(!chats || chats.length === 0) return;
         if(currentChat.id != null && !currentChat.id.includes("-")) return;
         if(wsConnection.readyState !== 1) return;
+        if(!websocketAuthorized) return;
         broadcastChats(wsConnection, chats);
     }, [chats]);
 
@@ -211,7 +220,7 @@ function ChatPage(props) {
         }
         loadChats();
         const ws = initializeWebSocket("ws://local.courier.net:8080/api/v1/ws", props.id, props.token,
-                                        updateMessagesCallback, updateCurrentChatCallback, logErrorCallback);
+                                        updateMessagesCallback, updateCurrentChatCallback, logErrorCallback, authorizeWebsocketCallback);
         setWsConnection(ws);
         return () => {
             if(wsConnection) {
