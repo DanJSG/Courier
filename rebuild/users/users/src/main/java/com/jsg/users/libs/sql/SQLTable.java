@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum SQLTable implements Whitelist {
 	
-	CHATMEMBERS, CHATS, USERS, CHATSFULL;
+	USERS;
 	
 	private static final Map<String, SQLTable> mappings = new HashMap<>(16);
 	

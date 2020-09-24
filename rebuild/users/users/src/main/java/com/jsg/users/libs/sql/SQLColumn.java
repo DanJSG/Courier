@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum SQLColumn implements Whitelist {
 	
-	CHATID, ID, MEMBERID, NAME, USERNAME;
+	ID, USERNAME;
 	
 	private static final Map<String, SQLColumn> mapping = new HashMap<>(16);
 	
