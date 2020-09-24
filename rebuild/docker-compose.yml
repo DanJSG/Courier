@@ -1,0 +1,27 @@
+version: '3'
+
+services: 
+    sql:
+        image: mysql:8.0
+        ports: 
+            - "3306:3306"
+        volumes: 
+            - /courier/rebuild/mysql:/var/lib/mysql
+        networks: 
+            - primary
+        env_file: ./sql.env
+        command: --lower_case_table_names=1
+
+    user:
+        build: ./users/users
+        ports: 
+            - "8081:8080"
+        depends_on: 
+            - sql
+        networks: 
+            - primary
+        env_file: ./user.env
+        
+networks: 
+    primary:
+        driver: bridge
