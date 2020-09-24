@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.users.libs.sql.SQLColumn;
 import com.jsg.users.libs.sql.SQLEntity;
 
 public class User implements SQLEntity, JsonObject {
@@ -33,10 +34,10 @@ public class User implements SQLEntity, JsonObject {
 	}
 	
 	@Override
-	public Map<String, Object> toSqlMap() {
-		Map<String, Object> map = new HashMap<>(2);
-		map.put("id", id);
-		map.put("username", username);
+	public Map<SQLColumn, Object> toSqlMap() {
+		Map<SQLColumn, Object> map = new HashMap<>(2);
+		map.put(SQLColumn.ID, id);
+		map.put(SQLColumn.USERNAME, username);
 		return map;
 	}
 

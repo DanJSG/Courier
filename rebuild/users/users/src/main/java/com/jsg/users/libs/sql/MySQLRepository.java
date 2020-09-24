@@ -28,7 +28,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		if(connection == null || objects.size() == 0) {
 			return false;
 		}
-		Map<String, Object> valueMap = objects.get(0).toSqlMap();
+		Map<SQLColumn, Object> valueMap = objects.get(0).toSqlMap();
 		Object[] values = valueMap.values().toArray();
 		String query = 
 				"INSERT INTO `" + tableName + "` (" + stringifyKeys(valueMap) + 
@@ -190,11 +190,11 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		}
 	}
 	
-	private String stringifyKeys(Map<String, Object> valueMap) {
+	private String stringifyKeys(Map<SQLColumn, Object> valueMap) {
 		String keyString = new String();
-		Object[] keys = valueMap.keySet().toArray();
+		SQLColumn[] keys = (SQLColumn[]) valueMap.keySet().toArray();
 		for(int i=0; i< valueMap.keySet().size(); i++) {
-			keyString += keys[i];
+			keyString += keys[i].name();
 			if(i != valueMap.keySet().size() - 1) {
 				keyString += ",";
 			}
