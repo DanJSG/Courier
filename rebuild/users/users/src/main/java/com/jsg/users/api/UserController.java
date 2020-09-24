@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import com.jsg.users.types.UserBuilder;
 public class UserController extends Version1Controller implements RestApi<User, Long> {
 	
 	@Override
-	@GetMapping("/user/get/{id}")
+	@GetMapping(value = "/user/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> get(@PathVariable("id") Long id) {
 		if(id == null || id < 0)
 			return BAD_REQUEST_HTTP_RESPONSE;
@@ -40,7 +41,7 @@ public class UserController extends Version1Controller implements RestApi<User, 
 	}
 	
 	@Override
-	@PostMapping("/user/create")
+	@PostMapping(value = "/user/create", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> post(@RequestBody User user) {
 		if(user == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
@@ -51,7 +52,7 @@ public class UserController extends Version1Controller implements RestApi<User, 
 	}
 	
 	@Override
-	@PutMapping("/user/update")
+	@PutMapping(value = "/user/update", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> put(@RequestBody User user) {
 		if(user == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
@@ -65,7 +66,7 @@ public class UserController extends Version1Controller implements RestApi<User, 
 	}
 	
 	@Override
-	@DeleteMapping("/user/delete/{id}")
+	@DeleteMapping(value = "/user/delete/{id}")
 	public ResponseEntity<String> delete(@PathVariable("id") Long id) {
 		if(id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
