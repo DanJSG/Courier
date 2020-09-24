@@ -12,15 +12,15 @@ services:
         env_file: ./sql.env
         command: --lower_case_table_names=1
 
-    user:
-        build: ./users/users
+    campus:
+        build: ./campus/campus
         ports: 
             - "8081:8080"
         depends_on: 
             - sql
         networks: 
             - primary
-        env_file: ./user.env
+        env_file: ./campus.env
         
 networks: 
     primary:
