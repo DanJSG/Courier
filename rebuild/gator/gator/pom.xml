@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jsg</groupId>
-	<artifactId>gateway</artifactId>
+	<artifactId>gator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gateway</name>
-	<description>Gateway</description>
+	<name>gator</name>
+	<description>Gator</description>
 
 	<properties>
 		<java.version>13</java.version>
@@ -56,7 +56,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>gateway</finalName>
+		<finalName>gator</finalName>
 	</build>
 
 </project>
