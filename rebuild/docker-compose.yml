@@ -21,6 +21,16 @@ services:
         networks: 
             - primary
         env_file: ./campus.env
+
+    chatterbox:
+        build: ./chatterbox/chatterbox
+        ports:
+            - "8082:8080"
+        depends_on: 
+            - sql
+        networks: 
+            - primary
+        env_file: ./chatterbox.env
         
 networks: 
     primary:
