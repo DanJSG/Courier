@@ -3,6 +3,7 @@ package com.jsg.chatterbox.types;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLEntity;
@@ -13,6 +14,7 @@ public class Member implements SQLEntity {
 	private long id;
 	
 	@JsonProperty
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String username;
 	
 	@JsonCreator

@@ -15,11 +15,12 @@ import com.jsg.chatterbox.libs.sql.SQLTable;
 import com.jsg.chatterbox.types.Chat;
 import com.jsg.chatterbox.types.ChatBuilder;
 
-public class ChatController extends Version1Controller implements RestApi<Chat, UUID> {
+@RestController
+public class ChatController extends Version1Controller implements RestApi<Chat, String> {
 
 	@Override
 	@GetMapping(value = "/chat/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> get(@PathVariable("id") UUID id) {
+	public ResponseEntity<String> get(@PathVariable("id") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
@@ -37,21 +38,28 @@ public class ChatController extends Version1Controller implements RestApi<Chat, 
 	public ResponseEntity<String> post(@RequestBody Chat chat) {
 		if (chat == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
+		if (chat.getId() != null)
+			chat.generateId();
 		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
 		if (!repo.save(chat))
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
+	}
+
+	@Override
+	@PutMapping(value = "/chat/update")
+	public ResponseEntity<String> put(Chat chat) {
+		if (chat == null)
+			return BAD_REQUEST_HTTP_RESPONSE;
+		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
+		if (!repo.updateWhereEquals(SQLColumn.ID, chat.getId().toString(), chat.toSqlMap()))
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
 
 	@Override
-	@PutMapping(value = "/chat/update")
-	public ResponseEntity<String> put(Chat body) {
-		return METHOD_NOT_ALLOWED_HTTP_RESPONSE;
-	}
-
-	@Override
 	@DeleteMapping(value = "/chat/delete/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
+	public ResponseEntity<String> delete(@PathVariable("id") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);

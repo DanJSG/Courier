@@ -19,9 +19,10 @@ public class GlobalCorsConfig implements WebMvcConfigurer {
 	
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/api/v1/chat/get/*").allowedMethods(HttpMethod.GET.toString()).allowedOrigins(origins);
-		registry.addMapping("/api/v1/chat/create").allowedMethods(HttpMethod.POST.toString()).allowedOrigins(origins);
-		registry.addMapping("/api/v1/chat/delete/*").allowedMethods(HttpMethod.DELETE.toString()).allowedOrigins(origins);
+		registry.addMapping("/chat/get/*").allowedMethods(HttpMethod.GET.toString()).allowedOrigins(origins);
+		registry.addMapping("/chat/create").allowedMethods(HttpMethod.POST.toString()).allowedOrigins(origins);
+		registry.addMapping("/chat/delete/*").allowedMethods(HttpMethod.DELETE.toString()).allowedOrigins(origins);
+		registry.addMapping("/chat/update").allowedMethods(HttpMethod.PUT.toString()).allowedOrigins(origins);
 	}
 	
 }

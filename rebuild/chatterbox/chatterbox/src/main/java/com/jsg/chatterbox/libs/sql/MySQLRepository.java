@@ -192,9 +192,9 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	
 	private String stringifyKeys(Map<SQLColumn, Object> valueMap) {
 		StringBuilder keyString = new StringBuilder();
-		SQLColumn[] keys = (SQLColumn[]) valueMap.keySet().toArray();
+		List<SQLColumn> keys = new ArrayList<>(valueMap.keySet());
 		for(int i=0; i< valueMap.keySet().size(); i++) {
-			keyString.append(keys[i].name());
+			keyString.append(keys.get(i).name());
 			if(i != valueMap.keySet().size() - 1) {
 				keyString.append(",");
 			}
