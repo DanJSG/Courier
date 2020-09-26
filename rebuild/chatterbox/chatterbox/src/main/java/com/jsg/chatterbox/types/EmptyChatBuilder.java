@@ -11,7 +11,7 @@ public class EmptyChatBuilder implements SQLEntityBuilder<EmptyChat>{
 	@Override
 	public EmptyChat fromResultSet(ResultSet sqlResults) {
 		try {
-			UUID id = UUID.fromString(sqlResults.getString(SQLColumn.ID.toString()));
+			UUID id = UUID.fromString(sqlResults.getString(SQLColumn.CHAT_ID.toString()));
 			String name = sqlResults.getString(SQLColumn.NAME.toString());
 			return new EmptyChat(id, name);
 		} catch (Exception e) {

@@ -47,7 +47,7 @@ public class EmptyChat implements JsonObject, SQLEntity {
 	@Override
 	public Map<SQLColumn, Object> toSqlMap() {
 		Map<SQLColumn, Object> map = new HashMap<>(2);
-		map.put(SQLColumn.ID, id.toString());
+		map.put(SQLColumn.CHAT_ID, id.toString());
 		map.put(SQLColumn.NAME, name);
 		return map;
 	}

@@ -3,6 +3,8 @@ package com.jsg.chatterbox.api;
 import java.sql.SQLRecoverableException;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.types.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,13 +19,13 @@ import com.jsg.chatterbox.libs.sql.SQLTable;
 @RestController
 public class ChatController extends Version1Controller {
 
-	@GetMapping(value = "/chat/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> get(@PathVariable("id") String id) {
+	@GetMapping(value = "/chat/get/{chatId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<EmptyChat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
 		SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
-		List<EmptyChat> emptyChats = chatRepo.findWhereEqual(SQLColumn.ID, id, new EmptyChatBuilder());
+		List<EmptyChat> emptyChats = chatRepo.findWhereEqual(SQLColumn.CHAT_ID, id, new EmptyChatBuilder());
 		List<Member> members = memberRepo.findWhereEqual(SQLColumn.CHAT_ID, id, new MemberBuilder());
 		if (emptyChats == null || members == null)
 			return NOT_FOUND_HTTP_RESPONSE;
@@ -32,8 +34,17 @@ public class ChatController extends Version1Controller {
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 
+	@GetMapping(value = "/chats/get/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public static ResponseEntity<String> get(@PathVariable("userId") long userId) {
+		if (userId < 0)
+			return BAD_REQUEST_HTTP_RESPONSE;
+		SQLRepository<EmptyChat> repo = new MySQLRepository<>(SQLTable.CHATS);
+		List<EmptyChat> chats = repo.findWhereEqual(SQLColumn.MEMBER_ID, userId, new EmptyChatBuilder());
+		return mapListToJson(chats);
+	}
+
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> create(@RequestBody Chat chat) {
+	public static ResponseEntity<String> create(@RequestBody Chat chat) {
 		if (chat == null || chat.getMembers() == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
@@ -46,22 +57,22 @@ public class ChatController extends Version1Controller {
 	}
 
 	@PutMapping(value = "/chat/update")
-	public ResponseEntity<String> update(EmptyChat chat) {
+	public static ResponseEntity<String> update(EmptyChat chat) {
 		if (chat == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<EmptyChat> repo = new MySQLRepository<>(SQLTable.DETAILS);
-		if (!repo.updateWhereEquals(SQLColumn.ID, chat.getId(), chat.toSqlMap()))
+		if (!repo.updateWhereEquals(SQLColumn.CHAT_ID, chat.getId(), chat.toSqlMap()))
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
 
-	@DeleteMapping(value = "/chat/delete/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> delete(@PathVariable("id") String id) {
+	@DeleteMapping(value = "/chat/delete/{chatId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public static ResponseEntity<String> delete(@PathVariable("chatId") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		SQLRepository<EmptyChat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
 		SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
-		if (!chatRepo.deleteWhereEquals(SQLColumn.ID, id) || !memberRepo.deleteWhereEquals(SQLColumn.CHAT_ID, id))
+		if (!chatRepo.deleteWhereEquals(SQLColumn.CHAT_ID, id) || !memberRepo.deleteWhereEquals(SQLColumn.CHAT_ID, id))
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
