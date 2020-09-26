@@ -76,14 +76,14 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			return null;
 		}
 		String baseQuery = "SELECT * FROM `" + tableName + "` WHERE ";
-		String queryCondition = "";
+		StringBuilder queryCondition = new StringBuilder();
 		for(int i=0; i < searchColumns.size(); i++) {
-			queryCondition += searchColumns.get(i).name() + "=?";
+			queryCondition.append(searchColumns.get(i).name()).append("=?");
 			if(i < searchColumns.size() - 1) {
-				queryCondition += " AND ";
+				queryCondition.append(" AND ");
 			}
 		}
-		queryCondition += ";";
+		queryCondition.append(";");
 		String query = baseQuery + queryCondition;
 		try {
 			return runCustomSelectQuery(connection, query, values, limit, builder);
@@ -145,17 +145,17 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 		if(connection == null) {
 			return false;
 		}
-		String query = "UPDATE `" + tableName + "` SET ";
+		StringBuilder query = new StringBuilder("UPDATE `" + tableName + "` SET ");
 		if(updateColumns.size() != updateValues.size())
 			return false;
 		for(int i=0; i < updateColumns.size(); i++) {
-			query += updateColumns.get(i).name() + "=?";
+			query.append(updateColumns.get(i).name()).append("=?");
 			if(i < updateColumns.size() - 1)
-				query += ", ";
+				query.append(", ");
 		}
-		query += " WHERE " + clauseColumn.name() + "=?;";
+		query.append(" WHERE ").append(clauseColumn.name()).append("=?;");
 		try {
-			PreparedStatement statement = connection.prepareStatement(query);
+			PreparedStatement statement = connection.prepareStatement(query.toString());
 			int i = 0;
 			for(; i < updateColumns.size(); i++) {
 				statement.setObject(i + 1, updateValues.get(i));
@@ -172,7 +172,7 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	@Override
-	public <V, U> Boolean deleteWhereEquals(SQLColumn clauseColumn, V clauseValue) {
+	public <V> Boolean deleteWhereEquals(SQLColumn clauseColumn, V clauseValue) {
 		Connection connection = getConnection();
 		if(connection == null)
 			return false;
@@ -191,26 +191,26 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 	}
 	
 	private String stringifyKeys(Map<SQLColumn, Object> valueMap) {
-		String keyString = new String();
+		StringBuilder keyString = new StringBuilder();
 		SQLColumn[] keys = (SQLColumn[]) valueMap.keySet().toArray();
 		for(int i=0; i< valueMap.keySet().size(); i++) {
-			keyString += keys[i].name();
+			keyString.append(keys[i].name());
 			if(i != valueMap.keySet().size() - 1) {
-				keyString += ",";
+				keyString.append(",");
 			}
 		}
-		return keyString;
+		return keyString.toString();
 	}
 	
 	private String createParamMarkers(Object[] values) {
-		String paramString = new String();
+		StringBuilder paramString = new StringBuilder();
 		for(int i=0; i < values.length; i++) {
-			paramString += "?";
+			paramString.append("?");
 			if(i < values.length - 1) {
-				paramString += ",";
+				paramString.append(",");
 			}
 		}
-		return paramString;
+		return paramString.toString();
 	}
 	
 	private Connection getConnection() {

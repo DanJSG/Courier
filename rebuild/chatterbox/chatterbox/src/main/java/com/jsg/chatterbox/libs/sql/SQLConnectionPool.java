@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public final class SQLConnectionPool {
 	
-	private static BasicDataSource dataSource = new BasicDataSource();
+	private static final BasicDataSource dataSource = new BasicDataSource();
 	
 	@Autowired
 	private SQLConnectionPool(@Value("${SQL_USERNAME}") String sqlUsername,

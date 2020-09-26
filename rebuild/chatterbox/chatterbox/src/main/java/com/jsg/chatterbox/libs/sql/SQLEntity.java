@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface SQLEntity {
 	
-	public Map<SQLColumn, Object> toSqlMap();
+	Map<SQLColumn, Object> toSqlMap();
 	
 }
