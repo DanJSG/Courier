@@ -7,12 +7,14 @@ import com.jsg.chatterbox.libs.sql.SQLTable;
 import com.jsg.chatterbox.types.Member;
 import com.jsg.chatterbox.types.MemberBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeEditor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class ChatMemberController extends Version1Controller {
+public class MemberController extends Version1Controller {
 
     @GetMapping(value = "/chat/{chatId}/members", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
@@ -46,7 +48,7 @@ public class ChatMemberController extends Version1Controller {
             return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
         return ChatController.get(id);
     }
-    
+
     @PutMapping(value = "/member/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> update(Member member) {
         if (member == null)
