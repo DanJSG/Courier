@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum SQLTable implements Whitelist {
-	
-	CHATS, MEMBERS;
+
+	CHATS, DETAILS, MEMBERS;
 	
 	private static final Map<String, SQLTable> mappings = new HashMap<>(16);
 	

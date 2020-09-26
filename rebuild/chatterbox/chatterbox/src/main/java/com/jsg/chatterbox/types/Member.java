@@ -1,6 +1,8 @@
 package com.jsg.chatterbox.types;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,16 +16,36 @@ public class Member implements SQLEntity {
 	private long id;
 	
 	@JsonProperty
-	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String username;
+
+	private UUID associatedChatId;
 	
 	@JsonCreator
-	private Member() {}
-	
+	public Member(@JsonProperty long id, @JsonProperty String username) {
+		this.id = id;
+		this.username = username;
+		this.associatedChatId = null;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setAssociatedChatId(UUID associatedChatId) {
+		this.associatedChatId = associatedChatId;
+	}
+
+	public long getId() {
+		return id;
+	}
+
 	@Override
 	public Map<SQLColumn, Object> toSqlMap() {
-		// TODO Auto-generated method stub
-		return null;
+		Map<SQLColumn, Object> map = new HashMap<>();
+		map.put(SQLColumn.CHAT_ID, associatedChatId.toString());
+		map.put(SQLColumn.MEMBER_ID, id);
+		map.put(SQLColumn.USERNAME, username);
+		return map;
 	}
 
 }

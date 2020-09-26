@@ -6,14 +6,14 @@ import java.util.UUID;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLEntityBuilder;
 
-public class ChatBuilder implements SQLEntityBuilder<Chat>{
+public class EmptyChatBuilder implements SQLEntityBuilder<EmptyChat>{
 
 	@Override
-	public Chat fromResultSet(ResultSet sqlResults) {
+	public EmptyChat fromResultSet(ResultSet sqlResults) {
 		try {
 			UUID id = UUID.fromString(sqlResults.getString(SQLColumn.ID.toString()));
 			String name = sqlResults.getString(SQLColumn.NAME.toString());
-			return new Chat(id, name);
+			return new EmptyChat(id, name);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

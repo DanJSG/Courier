@@ -41,8 +41,9 @@ DROP TABLE IF EXISTS `members`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `members` (
   `entry` bigint NOT NULL AUTO_INCREMENT,
-  `member_id` bigint NOT NULL,
   `chat_id` varchar(36) NOT NULL,
+  `member_id` bigint NOT NULL,
+  `username` varchar(255) NOT NULL,
   PRIMARY KEY (`entry`),
   UNIQUE KEY `entry_UNIQUE` (`entry`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -57,4 +58,4 @@ CREATE TABLE `members` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-09-26  0:05:22
+-- Dump completed on 2020-09-26 13:44:18

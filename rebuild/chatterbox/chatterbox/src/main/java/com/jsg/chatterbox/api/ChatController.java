@@ -1,8 +1,9 @@
 package com.jsg.chatterbox.api;
 
+import java.sql.SQLRecoverableException;
 import java.util.List;
-import java.util.UUID;
 
+import com.jsg.chatterbox.types.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,60 +13,56 @@ import com.jsg.chatterbox.libs.sql.MySQLRepository;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLRepository;
 import com.jsg.chatterbox.libs.sql.SQLTable;
-import com.jsg.chatterbox.types.Chat;
-import com.jsg.chatterbox.types.ChatBuilder;
 
 @RestController
-public class ChatController extends Version1Controller implements RestApi<Chat, String> {
+public class ChatController extends Version1Controller {
 
-	@Override
 	@GetMapping(value = "/chat/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> get(@PathVariable("id") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
-		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
-		List<Chat> chats = repo.findWhereEqual(SQLColumn.ID, id, new ChatBuilder());
-		if (chats == null) 
+		SQLRepository<EmptyChat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
+		SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
+		List<EmptyChat> emptyChats = chatRepo.findWhereEqual(SQLColumn.ID, id, new EmptyChatBuilder());
+		List<Member> members = memberRepo.findWhereEqual(SQLColumn.CHAT_ID, id, new MemberBuilder());
+		if (emptyChats == null || members == null)
 			return NOT_FOUND_HTTP_RESPONSE;
-		String chatResponse = chats.get(0).writeValueAsString();
-		if (chatResponse == null)
-			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
-		return ResponseEntity.status(HttpStatus.OK).body(chatResponse);
-	}
-
-	@Override
-	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> post(@RequestBody Chat chat) {
-		if (chat == null)
-			return BAD_REQUEST_HTTP_RESPONSE;
-		if (chat.getId() != null)
-			chat.generateId();
-		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
-		if (!repo.save(chat))
-			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		EmptyChat emptyChat = emptyChats.get(0);
+		Chat chat = new Chat(emptyChat.getId(), emptyChat.getName(), members);
 		return ResponseEntity.status(HttpStatus.OK).body(chat.writeValueAsString());
 	}
 
-	@Override
+	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> create(@RequestBody Chat chat) {
+		if (chat == null || chat.getMembers() == null)
+			return BAD_REQUEST_HTTP_RESPONSE;
+		SQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
+		SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
+		for(Member member : chat.getMembers())
+			System.out.println(member.getUsername() + " [" + member.getId() + "]");
+		if (!chatRepo.save(chat) || !memberRepo.saveMany(chat.getMembers()))
+			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+		return ResponseEntity.ok(chat.writeValueAsString());
+	}
+
 	@PutMapping(value = "/chat/update")
-	public ResponseEntity<String> put(Chat chat) {
+	public ResponseEntity<String> update(EmptyChat chat) {
 		if (chat == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
-		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
-		if (!repo.updateWhereEquals(SQLColumn.ID, chat.getId().toString(), chat.toSqlMap()))
+		SQLRepository<EmptyChat> repo = new MySQLRepository<>(SQLTable.DETAILS);
+		if (!repo.updateWhereEquals(SQLColumn.ID, chat.getId(), chat.toSqlMap()))
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
 
-	@Override
 	@DeleteMapping(value = "/chat/delete/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> delete(@PathVariable("id") String id) {
 		if (id == null)
 			return BAD_REQUEST_HTTP_RESPONSE;
-		SQLRepository<Chat> repo = new MySQLRepository<>(SQLTable.CHATS);
-		if (!repo.deleteWhereEquals(SQLColumn.ID, id))
+		SQLRepository<EmptyChat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
+		SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
+		if (!chatRepo.deleteWhereEquals(SQLColumn.ID, id) || !memberRepo.deleteWhereEquals(SQLColumn.CHAT_ID, id))
 			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
-		// TODO delete associated members too
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
 

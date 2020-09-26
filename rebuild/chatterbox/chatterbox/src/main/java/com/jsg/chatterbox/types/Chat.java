@@ -1,63 +1,39 @@
 package com.jsg.chatterbox.types;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.lang.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsg.chatterbox.libs.sql.SQLColumn;
-import com.jsg.chatterbox.libs.sql.SQLEntity;
+import org.springframework.lang.Nullable;
 
-public class Chat implements JsonObject, SQLEntity {
-	
-	@JsonProperty
-	private UUID id;
-	
-	@JsonProperty
-	private String name;
+import java.util.List;
+import java.util.UUID;
 
-	@JsonCreator
-	public Chat(@JsonProperty @Nullable UUID id, @JsonProperty String name) {
-		this.name = name;
-		this.id = id == null ? generateId() : id;
-	}
-	
-	public UUID getId() {
-		return id;
-	}
-	
-	public String getName() {
-		return name;
-	}
+public class Chat extends EmptyChat {
 
-	public UUID generateId() {
-		id = UUID.randomUUID();
-		return id;
-	}
+    @JsonProperty
+    private List<Member> members;
 
-	@Override
-	public String writeValueAsString() {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.writeValueAsString(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    @JsonCreator
+    public Chat(@JsonProperty @Nullable UUID id, @JsonProperty String name, @JsonProperty List<Member> members) {
+        super(id, name);
+        this.members = members;
+        for(Member member : this.members)
+            member.setAssociatedChatId(getId());
+    }
 
-	@Override
-	public Map<SQLColumn, Object> toSqlMap() {
-		Map<SQLColumn, Object> map = new HashMap<>(2);
-		map.put(SQLColumn.ID, id.toString());
-		map.put(SQLColumn.NAME, name);
-		return map;
-	}
-	
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[").append(getId()).append("] ").append(getName()).append(": {").append(System.lineSeparator());
+        int count = 0;
+        for(Member member : members) {
+            builder.append("\t").append(member.getUsername()).append(" (").append(member.getId()).append(")");
+            builder.append(count == members.size() - 1 ? "" : ",").append(System.lineSeparator());
+        }
+        builder.append("}");
+        return builder.toString();
+    }
 }
