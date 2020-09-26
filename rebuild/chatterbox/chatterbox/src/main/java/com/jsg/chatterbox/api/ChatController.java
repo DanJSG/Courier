@@ -1,20 +1,16 @@
 package com.jsg.chatterbox.api;
 
-import java.sql.SQLRecoverableException;
-import java.util.List;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.chatterbox.libs.sql.MySQLRepository;
+import com.jsg.chatterbox.libs.sql.SQLColumn;
+import com.jsg.chatterbox.libs.sql.SQLRepository;
+import com.jsg.chatterbox.libs.sql.SQLTable;
 import com.jsg.chatterbox.types.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.jsg.chatterbox.libs.sql.MySQLRepository;
-import com.jsg.chatterbox.libs.sql.SQLColumn;
-import com.jsg.chatterbox.libs.sql.SQLRepository;
-import com.jsg.chatterbox.libs.sql.SQLTable;
+import java.util.List;
 
 @RestController
 public class ChatController extends Version1Controller {

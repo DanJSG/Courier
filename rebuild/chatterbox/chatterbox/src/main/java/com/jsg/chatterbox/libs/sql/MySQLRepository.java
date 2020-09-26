@@ -189,6 +189,38 @@ public class MySQLRepository<T extends SQLEntity> implements SQLRepository<T>{
 			return false;
 		}
 	}
+
+	@Override
+	public <V, U> Boolean deleteWhereEquals(Map<SQLColumn, U> conditionMap) {
+		Connection connection = getConnection();
+		if (connection == null)
+			return false;
+		StringBuilder queryBuilder = new StringBuilder("DELETE FROM `").append(tableName).append("` WHERE ");
+		List<SQLColumn> keys = new ArrayList<>();
+		List<U> values = new ArrayList<>();
+		conditionMap.forEach((key, value) -> {
+			keys.add(key);
+			values.add(value);
+		});
+		for (int i = 0; i < conditionMap.size(); i++) {
+			queryBuilder.append(keys.get(i).toString()).append("=?");
+			if (i != conditionMap.size() - 1)
+				queryBuilder.append(" AND ");
+		}
+		queryBuilder.append(";");
+		try {
+			PreparedStatement statement = connection.prepareStatement(queryBuilder.toString());
+			for (int i = 0; i < values.size(); i++)
+				statement.setObject(i + 1, values.get(i));
+			statement.executeUpdate();
+			connection.commit();
+			connection.close();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 	private String stringifyKeys(Map<SQLColumn, Object> valueMap) {
 		StringBuilder keyString = new StringBuilder();

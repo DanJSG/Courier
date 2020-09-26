@@ -7,23 +7,14 @@ import com.jsg.chatterbox.libs.sql.SQLTable;
 import com.jsg.chatterbox.types.Member;
 import com.jsg.chatterbox.types.MemberBuilder;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeEditor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MemberController extends Version1Controller {
-
-    @GetMapping(value = "/chat/{chatId}/members", produces = MediaType.APPLICATION_JSON_VALUE)
-    public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
-        if (id == null)
-            return BAD_REQUEST_HTTP_RESPONSE;
-        SQLRepository<Member> repo = new MySQLRepository<>(SQLTable.CHATS);
-        List<Member> members = repo.findWhereEqual(SQLColumn.CHAT_ID, id, new MemberBuilder());
-        return mapListToJson(members);
-    }
 
     @GetMapping(value = "/member/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(@PathVariable("userId") long id) {
@@ -34,6 +25,35 @@ public class MemberController extends Version1Controller {
         if (members == null)
             return NOT_FOUND_HTTP_RESPONSE;
         return ResponseEntity.ok(members.get(0).writeValueAsString());
+    }
+
+    @PutMapping(value = "/member/update", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public static ResponseEntity<String> update(Member member) {
+        if (member == null)
+            return BAD_REQUEST_HTTP_RESPONSE;
+        SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
+        if (!memberRepo.updateWhereEquals(SQLColumn.MEMBER_ID, member.getId(), member.toSqlMap()))
+            return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        return get(member.getId());
+    }
+
+    @DeleteMapping(value = "/member/delete/{userId}")
+    public static ResponseEntity<String> delete(@PathVariable("userId") long id) {
+        if (id < 0)
+            return BAD_REQUEST_HTTP_RESPONSE;
+        SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
+        if (!memberSQLRepository.deleteWhereEquals(SQLColumn.MEMBER_ID, id))
+            return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        return EMPTY_OK_HTTP_RESPONSE;
+    }
+
+    @GetMapping(value = "/chat/{chatId}/members", produces = MediaType.APPLICATION_JSON_VALUE)
+    public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
+        if (id == null)
+            return BAD_REQUEST_HTTP_RESPONSE;
+        SQLRepository<Member> repo = new MySQLRepository<>(SQLTable.CHATS);
+        List<Member> members = repo.findWhereEqual(SQLColumn.CHAT_ID, id, new MemberBuilder());
+        return mapListToJson(members);
     }
 
     @PostMapping(value = "/chat/{chatId}/member/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,24 +69,17 @@ public class MemberController extends Version1Controller {
         return ChatController.get(id);
     }
 
-    @PutMapping(value = "/member/update", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public static ResponseEntity<String> update(Member member) {
-        if (member == null)
+    @DeleteMapping(value = "/chat/{chatId}/member/{userId}/remove", produces = MediaType.APPLICATION_JSON_VALUE)
+    public static ResponseEntity<String> remove(@PathVariable("chatId") String chatId, @PathVariable("userId") long userId) {
+        if (chatId == null || userId < 0)
             return BAD_REQUEST_HTTP_RESPONSE;
-        SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
-        if (!memberRepo.updateWhereEquals(SQLColumn.MEMBER_ID, member.getId(), member.toSqlMap()))
+        Map<SQLColumn, Object> removalConditions = new HashMap<>();
+        removalConditions.put(SQLColumn.CHAT_ID, chatId);
+        removalConditions.put(SQLColumn.MEMBER_ID, userId);
+        SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
+        if (!memberSQLRepository.deleteWhereEquals(removalConditions))
             return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
-        return get(member.getId());
-    }
-
-    @PutMapping
-    public static ResponseEntity<String> put(Member body) {
-        return METHOD_NOT_ALLOWED_HTTP_RESPONSE;
-    }
-
-    @DeleteMapping
-    public static ResponseEntity<String> delete(Long param) {
-        return METHOD_NOT_ALLOWED_HTTP_RESPONSE;
+        return EMPTY_OK_HTTP_RESPONSE;
     }
 
 }
