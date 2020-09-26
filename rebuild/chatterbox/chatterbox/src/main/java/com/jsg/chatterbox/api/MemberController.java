@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class MemberController extends Version1Controller {
 
-    @GetMapping(value = "/member/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/member/get/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(@PathVariable("userId") long id) {
         if (id < 0)
             return BAD_REQUEST_HTTP_RESPONSE;
@@ -47,7 +47,7 @@ public class MemberController extends Version1Controller {
         return EMPTY_OK_HTTP_RESPONSE;
     }
 
-    @GetMapping(value = "/chat/{chatId}/members", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/chat/{chatId}/members/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
         if (id == null)
             return BAD_REQUEST_HTTP_RESPONSE;
