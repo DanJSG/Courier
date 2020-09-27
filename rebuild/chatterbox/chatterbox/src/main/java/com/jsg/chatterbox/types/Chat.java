@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +14,11 @@ public class Chat extends EmptyChat {
     private List<Member> members;
 
     @JsonCreator
-    public Chat(@JsonProperty @Nullable UUID id, @JsonProperty String name, @JsonProperty List<Member> members) {
+    public Chat(@JsonProperty("id") @Nullable UUID id, @NotNull @JsonProperty("name") String name, @NotNull @JsonProperty("members") List<Member> members) {
         super(id, name);
         this.members = members;
+        if (members == null)
+            return;
         for(Member member : this.members)
             member.setAssociatedChatId(getId());
     }

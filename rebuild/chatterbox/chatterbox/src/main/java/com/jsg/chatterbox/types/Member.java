@@ -23,7 +23,7 @@ public class Member implements SQLEntity, JsonObject {
 	private UUID associatedChatId;
 	
 	@JsonCreator
-	public Member(@JsonProperty long id, @JsonProperty String username) {
+	public Member(@JsonProperty("id") long id, @JsonProperty("username") String username) {
 		this.id = id;
 		this.username = username;
 		this.associatedChatId = null;
