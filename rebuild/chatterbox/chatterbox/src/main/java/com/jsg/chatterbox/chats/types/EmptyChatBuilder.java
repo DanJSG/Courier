@@ -1,4 +1,4 @@
-package com.jsg.chatterbox.types;
+package com.jsg.chatterbox.chats.types;
 
 import java.sql.ResultSet;
 import java.util.UUID;

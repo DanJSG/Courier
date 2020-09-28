@@ -2,7 +2,7 @@ package com.jsg.chatterbox.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.Chatterbox;
-import com.jsg.chatterbox.types.Chat;
+import com.jsg.chatterbox.chats.types.Chat;
 import com.jsg.chatterbox.types.Member;
 import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;

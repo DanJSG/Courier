@@ -1,10 +1,11 @@
-package com.jsg.chatterbox.types;
+package com.jsg.chatterbox.chats.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLEntity;
+import com.jsg.chatterbox.types.JsonObject;
 import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
