@@ -2,6 +2,7 @@ package com.jsg.chatterbox.members.api;
 
 import com.jsg.chatterbox.api.Version1Controller;
 import com.jsg.chatterbox.chats.types.Chat;
+import com.jsg.chatterbox.libs.httpexceptions.HttpException;
 import com.jsg.chatterbox.members.service.MemberService;
 import com.jsg.chatterbox.members.types.Member;
 import org.springframework.http.MediaType;
@@ -47,8 +48,14 @@ public class MemberController extends Version1Controller {
     public static ResponseEntity<String> add(@PathVariable("chatId") String id, @RequestBody Member member) {
         if (id == null)
             return BAD_REQUEST_HTTP_RESPONSE;
-        Chat chat = MemberService.addMemberToChat(id, member);
-        return chat != null ? ResponseEntity.ok(chat.writeValueAsString()) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        try {
+            Chat chat = MemberService.addMemberToChat(id, member);
+            return chat != null ? ResponseEntity.ok(chat.writeValueAsString()) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        } catch (HttpException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
+
     }
 
     @DeleteMapping(value = "/chat/{chatId}/member/{userId}/remove", produces = MediaType.APPLICATION_JSON_VALUE)
