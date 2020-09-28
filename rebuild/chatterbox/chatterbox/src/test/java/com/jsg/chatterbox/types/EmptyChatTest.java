@@ -1,5 +1,8 @@
 package com.jsg.chatterbox.types;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.Chatterbox;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import net.bytebuddy.pool.TypePool;
@@ -20,8 +23,8 @@ public class EmptyChatTest {
         UUID id = UUID.randomUUID();
         String name = "emptyChatShouldBeCreatedWithIdAndName";
         EmptyChat chat = new EmptyChat(id, name);
-        assert (chat.getId() == id);
-        assert (chat.getName() == name);
+        assert (chat.getId().equals(id));
+        assert (chat.getName().contentEquals(name));
     }
 
     @Test
@@ -52,7 +55,7 @@ public class EmptyChatTest {
         UUID id = UUID.randomUUID();
         EmptyChat chat = new EmptyChat(id, null);
         assert (chat.getName() == null);
-        assert (chat.getId() == id);
+        assert (chat.getId().equals(id));
     }
 
     @Test
@@ -68,6 +71,39 @@ public class EmptyChatTest {
         EmptyChat chat = new EmptyChat(null, null);
         assert (chat.getId() != null);
         assert (chat.getName() == null);
+    }
+
+    @Test
+    public void chatShouldBeCreatedFromJson() {
+        UUID id = UUID.randomUUID();
+        String name = "chatShouldBeCreatedFromJson";
+        StringBuilder jsonBuilder = new StringBuilder("{\"id\":\"").append(id.toString());
+        String json = jsonBuilder.append("\",\"name\":\"").append(name).append("\"}").toString();
+        ObjectMapper mapper = new ObjectMapper();
+        EmptyChat chat = null;
+        try {
+            chat = mapper.readValue(json, EmptyChat.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert (false);
+        }
+        assert (chat != null);
+        assert (chat.getName().contentEquals(name));
+        assert (chat.getId().equals(id));
+    }
+
+    @Test
+    public void chatShouldFailToBeCreatedFromJson() {
+        String json = "{\"field\":\"value\"}";
+        ObjectMapper mapper = new ObjectMapper();
+        EmptyChat chat = null;
+        try {
+            chat = mapper.readValue(json, EmptyChat.class);
+            assert (false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert (true);
+        }
     }
 
 }

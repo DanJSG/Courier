@@ -20,7 +20,7 @@ public class EmptyChat implements JsonObject, SQLEntity {
 	private String name;
 
 	@JsonCreator
-	public EmptyChat(@JsonProperty @Nullable UUID id, @JsonProperty String name) {
+	public EmptyChat(@JsonProperty("id") @Nullable UUID id, @JsonProperty("name") String name) {
 		this.name = name;
 		this.id = id == null ? UUID.randomUUID() : id;
 	}
