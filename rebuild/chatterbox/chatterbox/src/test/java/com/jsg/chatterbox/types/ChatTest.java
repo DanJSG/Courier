@@ -9,4 +9,6 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(locations = "/chatterbox.test.env")
 public class ChatTest {
 
+
+
 }
