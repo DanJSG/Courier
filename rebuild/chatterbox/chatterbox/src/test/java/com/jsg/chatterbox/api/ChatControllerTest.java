@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.Chatterbox;
 import com.jsg.chatterbox.types.Chat;
 import com.jsg.chatterbox.types.Member;
+import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,18 @@ public class ChatControllerTest {
         Chat chat = new Chat(null, "chatShouldFailToCreateWithNoMembers", null);
         ResponseEntity<String> response = ChatController.create(chat);
         assert (response.getStatusCode() == HttpStatus.BAD_REQUEST) : "HTTP status code is not 400 Bad Request.";
+    }
+
+    @Test
+    public void chatShouldFailToCreateDueToNameLength() {
+        List<Member> members = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            String name = "JUnit Test User " + i;
+            members.add(new Member(i, name));
+        }
+        Chat chat = new Chat(null, RandomString.make(260), members);
+        ResponseEntity<String> response = ChatController.create(chat);
+        assert (response.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) : "The request succeeded when it should not have.";
     }
 
 }
