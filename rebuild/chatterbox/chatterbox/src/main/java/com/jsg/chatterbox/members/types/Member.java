@@ -1,4 +1,4 @@
-package com.jsg.chatterbox.types;
+package com.jsg.chatterbox.members.types;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLEntity;
+import com.jsg.chatterbox.types.JsonObject;
 
 public class Member implements SQLEntity, JsonObject {
 

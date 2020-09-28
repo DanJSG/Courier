@@ -1,4 +1,4 @@
-package com.jsg.chatterbox.types;
+package com.jsg.chatterbox.members.types;
 
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLEntityBuilder;

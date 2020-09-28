@@ -7,8 +7,8 @@ import com.jsg.chatterbox.libs.sql.MySQLRepository;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
 import com.jsg.chatterbox.libs.sql.SQLRepository;
 import com.jsg.chatterbox.libs.sql.SQLTable;
-import com.jsg.chatterbox.types.Member;
-import com.jsg.chatterbox.types.MemberBuilder;
+import com.jsg.chatterbox.members.types.Member;
+import com.jsg.chatterbox.members.types.MemberBuilder;
 
 import java.util.List;
 
@@ -34,6 +34,21 @@ public class ChatService {
         SQLRepository<Chat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
         SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
         if (!chatRepo.save(chat) || !memberRepo.saveMany(chat.getMembers()))
+            return false;
+        return true;
+    }
+
+    public static boolean renameExistingChat(EmptyChat chat) {
+        SQLRepository<EmptyChat> repo = new MySQLRepository<>(SQLTable.DETAILS);
+        if (!repo.updateWhereEquals(SQLColumn.CHAT_ID, chat.getId(), chat.toSqlMap()))
+            return false;
+        return true;
+    }
+
+    public static boolean deleteExistingChat(String chatId) {
+        SQLRepository<EmptyChat> chatRepo = new MySQLRepository<>(SQLTable.DETAILS);
+        SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
+        if (!chatRepo.deleteWhereEquals(SQLColumn.CHAT_ID, chatId) || !memberRepo.deleteWhereEquals(SQLColumn.CHAT_ID, chatId))
             return false;
         return true;
     }

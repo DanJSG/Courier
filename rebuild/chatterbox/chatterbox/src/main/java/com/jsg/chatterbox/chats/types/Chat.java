@@ -2,7 +2,7 @@ package com.jsg.chatterbox.chats.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jsg.chatterbox.types.Member;
+import com.jsg.chatterbox.members.types.Member;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;

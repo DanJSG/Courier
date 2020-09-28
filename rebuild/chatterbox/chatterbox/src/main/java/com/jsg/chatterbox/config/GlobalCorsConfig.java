@@ -1,4 +1,4 @@
-package com.jsg.chatterbox.api.config;
+package com.jsg.chatterbox.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

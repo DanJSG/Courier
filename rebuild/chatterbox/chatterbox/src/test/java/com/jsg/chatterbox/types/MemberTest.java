@@ -3,6 +3,7 @@ package com.jsg.chatterbox.types;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.chatterbox.Chatterbox;
 import com.jsg.chatterbox.libs.sql.SQLColumn;
+import com.jsg.chatterbox.members.types.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
