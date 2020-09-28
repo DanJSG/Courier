@@ -40,7 +40,7 @@ public class MemberController extends Version1Controller {
         if (id == null)
             return BAD_REQUEST_HTTP_RESPONSE;
         List<Member> members = MemberService.getChatMembers(id);
-        return members != null ? mapListToJson(members) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        return members != null ? ResponseEntity.ok(mapListToJson(members)) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
     }
 
     @PostMapping(value = "/chat/{chatId}/member/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

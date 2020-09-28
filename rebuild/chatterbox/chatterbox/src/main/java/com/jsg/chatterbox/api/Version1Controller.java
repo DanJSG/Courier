@@ -20,15 +20,13 @@ public abstract class Version1Controller {
 	protected static final ResponseEntity<String> METHOD_NOT_ALLOWED_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(null);
 	protected static final ResponseEntity<String> NOT_FOUND_HTTP_RESPONSE = ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
-	protected static <T> ResponseEntity<String> mapListToJson(List<T> list) {
-		if (list == null)
-			return NOT_FOUND_HTTP_RESPONSE;
+	protected static <T> String mapListToJson(List<T> list) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return ResponseEntity.ok(mapper.writeValueAsString(list));
+			return mapper.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
-			return INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+			return null;
 		}
 	}
 

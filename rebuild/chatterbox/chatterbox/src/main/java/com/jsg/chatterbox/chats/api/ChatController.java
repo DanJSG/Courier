@@ -26,7 +26,7 @@ public class ChatController extends Version1Controller {
 		if (userId < 0)
 			return BAD_REQUEST_HTTP_RESPONSE;
 		List<EmptyChat> chats = ChatService.getUsersChats(userId);
-		return mapListToJson(chats);
+		return chats != null ? ResponseEntity.ok(mapListToJson(chats)) : NOT_FOUND_HTTP_RESPONSE;
 	}
 
 	@PostMapping(value = "/chat/create", consumes = MediaType.APPLICATION_JSON_VALUE)
