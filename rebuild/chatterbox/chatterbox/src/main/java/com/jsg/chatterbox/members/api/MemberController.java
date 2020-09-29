@@ -17,31 +17,48 @@ public class MemberController extends Version1Controller {
     public static ResponseEntity<String> get(@PathVariable("userId") long id) {
         if (id < 0)
             return BAD_REQUEST_HTTP_RESPONSE;
-        Member member = MemberService.getMember(id);
-        return member != null ? ResponseEntity.ok(member.writeValueAsString()) : NOT_FOUND_HTTP_RESPONSE;
+        try {
+            Member member = MemberService.getMember(id);
+            return ResponseEntity.ok(member.writeValueAsString());
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
     }
 
     @PutMapping(value = "/member/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> update(Member member) {
         if (member == null)
             return BAD_REQUEST_HTTP_RESPONSE;
-        Member updatedMember = MemberService.updateMember(member);
-        return updatedMember != null ? ResponseEntity.ok(member.writeValueAsString()) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        try {
+            Member updatedMember = MemberService.updateMember(member);
+            return ResponseEntity.ok(updatedMember.writeValueAsString());
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
     }
 
     @DeleteMapping(value = "/member/delete/{userId}")
     public static ResponseEntity<String> delete(@PathVariable("userId") long id) {
         if (id < 0)
             return BAD_REQUEST_HTTP_RESPONSE;
-        return MemberService.deleteMember(id) ? EMPTY_OK_HTTP_RESPONSE : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        try {
+            MemberService.deleteMember(id);
+            return EMPTY_OK_HTTP_RESPONSE;
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
     }
 
     @GetMapping(value = "/chat/{chatId}/members/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(@PathVariable("chatId") String id) {
         if (id == null)
             return BAD_REQUEST_HTTP_RESPONSE;
-        List<Member> members = MemberService.getChatMembers(id);
-        return members != null ? ResponseEntity.ok(mapListToJson(members)) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        try {
+            List<Member> members = MemberService.getChatMembers(id);
+            return ResponseEntity.ok(mapListToJson(members));
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
     }
 
     @PostMapping(value = "/chat/{chatId}/member/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,7 +67,7 @@ public class MemberController extends Version1Controller {
             return BAD_REQUEST_HTTP_RESPONSE;
         try {
             Chat chat = MemberService.addMemberToChat(id, member);
-            return chat != null ? ResponseEntity.ok(chat.writeValueAsString()) : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+            return ResponseEntity.ok(chat.writeValueAsString());
         } catch (HttpException e) {
             e.printStackTrace();
             return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
@@ -62,7 +79,12 @@ public class MemberController extends Version1Controller {
     public static ResponseEntity<String> remove(@PathVariable("chatId") String chatId, @PathVariable("userId") long userId) {
         if (chatId == null || userId < 0)
             return BAD_REQUEST_HTTP_RESPONSE;
-        return MemberService.removeMemberFromChat(chatId, userId) ? EMPTY_OK_HTTP_RESPONSE : INTERNAL_SERVER_ERROR_HTTP_RESPONSE;
+        try {
+            MemberService.removeMemberFromChat(chatId, userId);
+            return EMPTY_OK_HTTP_RESPONSE;
+        } catch (HttpException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getErrorMessage());
+        }
     }
 
 }

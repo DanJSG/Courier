@@ -20,22 +20,25 @@ public class MemberService {
 
     // TODO add HttpException to each of these functions and then handle the exceptions in the rest controllers
 
-    public static Member getMember(long memberId) {
+    public static Member getMember(long memberId) throws HttpException {
         SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
         List<Member> members = memberSQLRepository.findWhereEqual(SQLColumn.MEMBER_ID, memberId, 0, new MemberBuilder());
-        return members == null ? null : members.get(0);
+        if (members == null)
+            throw new NotFoundHttpException("Failed to find member with given ID.");
+        return members.get(0);
     }
 
-    public static Member updateMember(Member member) {
+    public static Member updateMember(Member member) throws HttpException {
         SQLRepository<Member> memberRepo = new MySQLRepository<>(SQLTable.MEMBERS);
         if (!memberRepo.updateWhereEquals(SQLColumn.MEMBER_ID, member.getId(), member.toSqlMap()))
-            return null;
+            throw new InternalServerErrorHttpException("An error occurred whilst trying to update user " + member.getUsername() + ".");
         return getMember(member.getId());
     }
 
-    public static boolean deleteMember(long userId) {
+    public static void deleteMember(long userId) throws HttpException {
         SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
-        return memberSQLRepository.deleteWhereEquals(SQLColumn.MEMBER_ID, userId);
+        if (!memberSQLRepository.deleteWhereEquals(SQLColumn.MEMBER_ID, userId))
+            throw new InternalServerErrorHttpException("An error occurred whilst trying to delete user from chat.");
     }
 
     public static List<Member> getChatMembers(String chatId) throws HttpException {
@@ -56,12 +59,13 @@ public class MemberService {
         return ChatService.getChat(chatId);
     }
 
-    public static boolean removeMemberFromChat(String chatId, long userId) {
+    public static void removeMemberFromChat(String chatId, long userId) throws HttpException {
         Map<SQLColumn, Object> removalConditions = new HashMap<>();
         removalConditions.put(SQLColumn.CHAT_ID, chatId);
         removalConditions.put(SQLColumn.MEMBER_ID, userId);
         SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
-        return memberSQLRepository.deleteWhereEquals(removalConditions);
+        if (!memberSQLRepository.deleteWhereEquals(removalConditions))
+            throw new InternalServerErrorHttpException("Failed to remove member from existing chat.");
     }
 
 }
