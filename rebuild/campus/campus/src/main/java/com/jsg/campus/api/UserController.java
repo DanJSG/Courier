@@ -76,5 +76,4 @@ public class UserController extends Version1Controller implements RestApi<User, 
 		return EMPTY_OK_HTTP_RESPONSE;
 	}
 
-
 }
