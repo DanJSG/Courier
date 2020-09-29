@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MemberService {
-
-    // TODO add HttpException to each of these functions and then handle the exceptions in the rest controllers
-
+    
     public static Member getMember(long memberId) throws HttpException {
         SQLRepository<Member> memberSQLRepository = new MySQLRepository<>(SQLTable.MEMBERS);
         List<Member> members = memberSQLRepository.findWhereEqual(SQLColumn.MEMBER_ID, memberId, 0, new MemberBuilder());
