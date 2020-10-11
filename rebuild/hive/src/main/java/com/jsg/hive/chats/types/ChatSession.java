@@ -1,5 +1,9 @@
 package com.jsg.hive.chats.types;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jsg.hive.libs.http.HttpRequestBuilder;
+import com.jsg.hive.libs.http.HttpResponse;
 import com.jsg.hive.users.types.User;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -49,15 +53,27 @@ public class ChatSession {
 	}
 	
 	public void setUser(long id) {
-		// TODO replace with something which calls the campus microservice
-
-//		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
-//		List<User> results = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
-//		if(results == null) {
-//			user = null;
-//			return;
-//		}
-//		user = results.get(0);
+		// TODO add some kind of auth header in here
+		// TODO refactor URL into environment variable
+		HttpRequestBuilder requestBuilder = new HttpRequestBuilder("http://campus:8081/api/v1/user/get/" + id);
+		String userJson;
+		try {
+			HttpResponse response = new HttpResponse(requestBuilder.toHttpURLConnection());
+			if (response.getStatus() != 200)
+				throw new Exception();
+			userJson = response.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			user = null;
+			return;
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			user = mapper.readValue(userJson, User.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			user = null;
+		}
 	}
 	
 }
