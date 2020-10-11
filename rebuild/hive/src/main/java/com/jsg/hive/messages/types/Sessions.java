@@ -18,13 +18,6 @@ public class Sessions {
     //                          <Session ID, Session>
     private static ConcurrentMap<UUID, ChatSession> sessions = new ConcurrentHashMap<>();
 
-    //							<Session ID, authorized?>
-    private static ConcurrentMap<UUID, Boolean> sessionAuth = new ConcurrentHashMap<>();
-
-    public static ConcurrentMap<UUID, Boolean> getSessionsAuth() {
-        return sessionAuth;
-    }
-
     public static ConcurrentMap<UUID, ChatSession> getSessions() {
         return sessions;
     }
@@ -35,17 +28,16 @@ public class Sessions {
 
     public static void addSession(WebSocketSession session, UUID sessionId) {
         sessions.put(sessionId, new ChatSession(session));
-        sessionAuth.put(sessionId, false);
     }
 
     public static boolean isAuthorized(UUID sessionId) {
-        return sessionAuth.get(sessionId);
+        return sessions.get(sessionId).isAuthorized();
     }
 
     public static void authorizeSession(UUID sessionId, AuthToken token, String tokenSecret) {
         if (!token.verify(tokenSecret))
             return;
-        sessionAuth.put(sessionId, true);
+        sessions.get(sessionId).setAuthorized(true);
         sessions.get(sessionId).setUser(token.getId());
     }
 

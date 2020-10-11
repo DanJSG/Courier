@@ -11,11 +11,13 @@ public class ChatSession {
 	private UUID activeChatId;
 	private User user;
 	private UUID sessionId;
+	private boolean authorized;
 	
 	public ChatSession(WebSocketSession session) {
 		this.session = session;
 		this.sessionId = UUID.fromString(session.getId());
 		activeChatId = null;
+		authorized = false;
 	}
 	
 	public WebSocketSession getSession() {
@@ -29,7 +31,15 @@ public class ChatSession {
 	public User getUser() {
 		return user;
 	}
-	
+
+	public boolean isAuthorized() {
+		return authorized;
+	}
+
+	public void setAuthorized(boolean authStatus) {
+		authorized = authStatus;
+	}
+
 	public UUID getSessionId() {
 		return sessionId;
 	}
