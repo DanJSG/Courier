@@ -1,10 +1,9 @@
-package com.jsg.hive.messages.api.service;
+package com.jsg.hive.messages.types;
 
 import com.jsg.hive.auth.AuthToken;
 import com.jsg.hive.chats.types.Chat;
 import com.jsg.hive.chats.types.ChatSession;
 import com.jsg.hive.users.types.User;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.*;
@@ -39,6 +38,10 @@ public class Sessions {
         sessionAuth.put(sessionId, false);
     }
 
+    public static boolean isAuthorized(UUID sessionId) {
+        return sessionAuth.get(sessionId);
+    }
+
     public static void authorizeSession(UUID sessionId, AuthToken token, String tokenSecret) {
         if (!token.verify(tokenSecret))
             return;
@@ -70,6 +73,26 @@ public class Sessions {
         for (ChatSession session : chats.get(chatId).values())
             users.add(session.getUser());
         return Arrays.asList((User[]) users.toArray());
+    }
+
+    public static List<UUID> removeChatSession(UUID sessionId) {
+        List<UUID> emptyChatIds = new ArrayList<>();
+        List<UUID> chatIds = new ArrayList<>();
+        chats.forEach((currentChatId, currentSessionMap) -> {
+            if(currentSessionMap.containsKey(sessionId)) {
+                chatIds.add(currentChatId);
+            }
+            currentSessionMap.remove(sessionId);
+            if(currentSessionMap.size() == 0) {
+                emptyChatIds.add(currentChatId);
+                chatIds.remove(currentChatId);
+            }
+        });
+        for(UUID chatId : emptyChatIds) {
+            chats.remove(chatId);
+        }
+        sessions.remove(sessionId);
+        return chatIds;
     }
 
 }
