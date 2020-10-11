@@ -16,7 +16,7 @@ public class MessageController extends Version1Controller {
 
     @GetMapping(value = "/chat/{chatId}/messages/get", produces = MediaType.APPLICATION_JSON_VALUE)
     public static ResponseEntity<String> get(
-            @PathVariable("chatId") String chatId, @RequestParam(required = false) int limit) {
+            @PathVariable("chatId") String chatId, @RequestParam(required = false) Integer limit) {
         if (chatId == null)
             return BAD_REQUEST_HTTP_RESPONSE;
         try {

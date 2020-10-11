@@ -12,6 +12,15 @@ services:
         env_file: ./sql.env
         command: --lower_case_table_names=1
 
+    mongo:
+        image: mongo:4.4-bionic
+        ports:
+            - "27017:27017"
+        volumes:
+            - /var/lib/mongodb:/data/db
+        networks:
+            - primary
+
     campus:
         build: ./campus/campus
         ports: 
@@ -31,6 +40,17 @@ services:
         networks: 
             - primary
         env_file: ./chatterbox.env
+
+    postie:
+        build: ./postie
+        ports:
+            - "8083:8080"
+        depends_on:
+            - mongo
+        networks:
+            - primary
+        env_file: ./postie.env
+
         
 networks: 
     primary:
