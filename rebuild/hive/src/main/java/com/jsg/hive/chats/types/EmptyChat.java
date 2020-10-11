@@ -1,4 +1,4 @@
-package com.jsg.hive.messages.types;
+package com.jsg.hive.chats.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

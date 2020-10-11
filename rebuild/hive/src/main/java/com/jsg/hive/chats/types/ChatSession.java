@@ -1,5 +1,6 @@
-package com.jsg.hive.messages.types;
+package com.jsg.hive.chats.types;
 
+import com.jsg.hive.users.types.User;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.UUID;

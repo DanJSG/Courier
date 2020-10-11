@@ -1,8 +1,8 @@
-package com.jsg.hive.messages.types;
+package com.jsg.hive.chats.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jsg.chatterbox.members.types.Member;
+import com.jsg.hive.members.types.Member;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
