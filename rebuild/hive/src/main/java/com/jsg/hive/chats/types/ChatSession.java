@@ -50,6 +50,7 @@ public class ChatSession {
 	
 	public void setUser(long id) {
 		// TODO replace with something which calls the campus microservice
+
 //		MySQLRepository<User> repo = new MySQLRepository<>(SQLTable.USERS);
 //		List<User> results = repo.findWhereEqual(SQLColumn.ID, id, new UserBuilder());
 //		if(results == null) {
