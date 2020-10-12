@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.hive.auth.AuthToken;
 import com.jsg.hive.chats.types.Chat;
 import com.jsg.hive.chats.types.ChatSession;
+import com.jsg.hive.messages.services.MessageService;
 import com.jsg.hive.messages.types.Message;
 import com.jsg.hive.messages.types.MessageBuilder;
-import com.jsg.hive.messages.types.Sessions;
+import com.jsg.hive.messages.services.SessionService;
 import com.jsg.hive.users.types.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +23,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 @Controller
-public class SocketController extends TextWebSocketHandler {
+public class MessageSocketController extends TextWebSocketHandler {
 
     private final String ACCESS_TOKEN_SECRET;
 
     @Autowired
-    public SocketController(@Value("${TOKEN_ACCESS_SECRET}") String accessTokenSecret) {
+    public MessageSocketController(@Value("${TOKEN_ACCESS_SECRET}") String accessTokenSecret) {
         ACCESS_TOKEN_SECRET = accessTokenSecret;
     }
 
@@ -40,49 +41,53 @@ public class SocketController extends TextWebSocketHandler {
             case '@':
                 String chatsJson = messageJsonPayload.substring(1);
                 List<Chat> chatList = Arrays.asList(new ObjectMapper().readValue(chatsJson, Chat[].class));
-                Sessions.addChatSessions(chatList, sessionId);
+                SessionService.addChatSessions(chatList, sessionId);
                 return;
             case '~':
-                registerActiveChat(sessionId, messageJsonPayload);
+                setActiveChat(sessionId, messageJsonPayload);
                 return;
             case '#':
-                Sessions.authorizeSession(sessionId, new AuthToken(messageJsonPayload.substring(1)), ACCESS_TOKEN_SECRET);
+                SessionService.authorizeSession(sessionId, new AuthToken(messageJsonPayload.substring(1)), ACCESS_TOKEN_SECRET);
                 session.sendMessage(new TextMessage("#"));
                 return;
             default:
-                if (!Sessions.isAuthorized(sessionId))
-                    return;
                 Message message = new MessageBuilder().fromJson(messageJsonPayload);
-                if(message.getChatId() == null)
+                if (!persistMessage(sessionId, message))
                     return;
-                // TODO replace this with a call to postie service
-//                MongoRepository<Message> repo = new MongoRepository<>();
-//                String collectionName = message.getChatId().toString();
-//                repo.save(message, collectionName);
                 broadcastMessage(message, sessionId);
         }
     }
 
-    private void registerActiveChat(UUID sessionId, String message) throws Exception {
+    private void setActiveChat(UUID sessionId, String message) throws Exception {
         String chatIdJson = message.substring(1);
         UUID activeChatId = new ObjectMapper().readValue(chatIdJson, UUID.class);
-        Sessions.setActiveChat(sessionId, activeChatId);
+        SessionService.setActiveChat(sessionId, activeChatId);
         broadcastSessions(activeChatId, null);
+    }
+
+    private boolean persistMessage(UUID sessionId, Message message) {
+        if (!SessionService.isAuthorized(sessionId))
+            return false;
+        if (message.getChatId() == null)
+            return false;
+        if (!MessageService.saveMessage(message))
+            return false;
+        return true;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         UUID sessionId = UUID.fromString(session.getId());
-        if (Sessions.sessionExists(sessionId))
+        if (SessionService.sessionExists(sessionId))
             return;
-        Sessions.addSession(session, sessionId);
+        SessionService.addSession(session, sessionId);
         System.out.println("WebSocket connection established between server and session with ID: " + session.getId() + ".");
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         UUID sessionId = UUID.fromString(session.getId());
-        List<UUID> chatIds = Sessions.removeChatSession(sessionId);
+        List<UUID> chatIds = SessionService.removeChatSession(sessionId);
         Map<UUID, Boolean> contactedSessions = new HashMap<>();
         for(UUID chatId : chatIds) {
             broadcastSessions(chatId, contactedSessions);
@@ -90,9 +95,9 @@ public class SocketController extends TextWebSocketHandler {
     }
 
     private void broadcastMessage(Message message, UUID sessionId) throws Exception {
-        if (!Sessions.chatExists(message.getChatId()))
+        if (!SessionService.chatExists(message.getChatId()))
             return;
-        Map<UUID, ChatSession> chatSessions = Sessions.getChat(message.getChatId());
+        Map<UUID, ChatSession> chatSessions = SessionService.getChat(message.getChatId());
         chatSessions.forEach((currentSessionId, currentSession) -> {
             if(currentSessionId.equals(sessionId))
                 return; // equivalent to continue
@@ -105,8 +110,8 @@ public class SocketController extends TextWebSocketHandler {
     }
 
     private void broadcastSessions(UUID chatId, @Nullable Map<UUID, Boolean> sessionsToSkip) throws Exception {
-        ConcurrentMap<UUID, ChatSession> chatSessions = Sessions.getChat(chatId);
-        List<User> users = Sessions.getAllUsersInChat(chatId);
+        ConcurrentMap<UUID, ChatSession> chatSessions = SessionService.getChat(chatId);
+        List<User> users = SessionService.getAllUsersInChat(chatId);
         String jsonResponse = "`";
         jsonResponse += new ObjectMapper().writeValueAsString(users);
         for(ChatSession chatSession : chatSessions.values()) {

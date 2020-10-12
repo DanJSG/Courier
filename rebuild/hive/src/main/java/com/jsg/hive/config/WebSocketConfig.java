@@ -1,7 +1,7 @@
 package com.jsg.hive.config;
 
 import com.jsg.hive.messages.api.HandshakeInterceptor;
-import com.jsg.hive.messages.api.SocketController;
+import com.jsg.hive.messages.api.MessageSocketController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -13,17 +13,17 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 	
-	private SocketController socketHandler;
+	private MessageSocketController socketHandler;
 
 	private HandshakeInterceptor handshakeInterceptor;
 	
 	private static String[] origins;
 	
 	@Autowired
-	public WebSocketConfig(@Value("${CORS_ORIGINS}") String[] origins, SocketController socketController,
-						   HandshakeInterceptor handshakeInterceptor) {
+	public WebSocketConfig(@Value("${CORS_ORIGINS}") String[] origins, MessageSocketController messageSocketController,
+                           HandshakeInterceptor handshakeInterceptor) {
 		WebSocketConfig.origins = origins;
-		this.socketHandler = socketController;
+		this.socketHandler = messageSocketController;
 		this.handshakeInterceptor = handshakeInterceptor;
 	}
 	

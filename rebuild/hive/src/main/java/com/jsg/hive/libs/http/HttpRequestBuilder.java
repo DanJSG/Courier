@@ -3,8 +3,10 @@ package com.jsg.hive.libs.http;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +22,9 @@ public class HttpRequestBuilder {
     private Boolean useCache = true;
     private int timeouts = 0;
     private Boolean allowInput = true;
-    private Boolean allowOutput = false;
+    private Boolean allowOutput = true;
     private Boolean followRedirects = true;
+    private String body;
 
     public HttpRequestBuilder() {
         parameters = new ArrayList<>();
@@ -36,6 +39,10 @@ public class HttpRequestBuilder {
 
     public HttpRequestBuilder(URL url) {
         setUrl(url.toString());
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public void setUrl(String url) {
@@ -114,6 +121,11 @@ public class HttpRequestBuilder {
         conn.setDoOutput(allowOutput);
         conn.setUseCaches(useCache);
         conn.setInstanceFollowRedirects(followRedirects);
+        if (body != null) {
+            OutputStream out = conn.getOutputStream();
+            byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+            out.write(bodyBytes, 0, bodyBytes.length);
+        }
         if(headers != null && headers.size() > 0) {
             headers.forEach(conn::setRequestProperty);
         }

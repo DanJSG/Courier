@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsg.hive.libs.http.HttpRequestBuilder;
 import com.jsg.hive.libs.http.HttpResponse;
 import com.jsg.hive.users.types.User;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.validation.constraints.Null;
 import java.util.UUID;
 
 public class ChatSession {
@@ -56,6 +58,7 @@ public class ChatSession {
 		// TODO add some kind of auth header in here
 		// TODO refactor URL into environment variable
 		HttpRequestBuilder requestBuilder = new HttpRequestBuilder("http://campus:8081/api/v1/user/get/" + id);
+		requestBuilder.setRequestMethod(HttpMethod.GET);
 		String userJson;
 		try {
 			HttpResponse response = new HttpResponse(requestBuilder.toHttpURLConnection());

@@ -1,4 +1,4 @@
-package com.jsg.hive.messages.types;
+package com.jsg.hive.messages.services;
 
 import com.jsg.hive.auth.AuthToken;
 import com.jsg.hive.chats.types.Chat;
@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class Sessions {
+public class SessionService {
 
     //							<Chat ID, <Session ID, Session>>
     private static ConcurrentMap<UUID, ConcurrentMap<UUID, ChatSession>> chats = new ConcurrentHashMap<>();
