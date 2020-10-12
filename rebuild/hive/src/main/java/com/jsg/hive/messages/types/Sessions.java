@@ -26,12 +26,24 @@ public class Sessions {
         return chats;
     }
 
+    public static ConcurrentMap<UUID, ChatSession> getChat(UUID id) {
+        return chats.get(id);
+    }
+
     public static void addSession(WebSocketSession session, UUID sessionId) {
         sessions.put(sessionId, new ChatSession(session));
     }
 
     public static boolean isAuthorized(UUID sessionId) {
         return sessions.get(sessionId).isAuthorized();
+    }
+
+    public static boolean sessionExists(UUID sessionId) {
+        return sessions.containsKey(sessionId);
+    }
+
+    public static boolean chatExists(UUID chatId) {
+        return chats.containsKey(chatId);
     }
 
     public static void authorizeSession(UUID sessionId, AuthToken token, String tokenSecret) {
@@ -42,6 +54,8 @@ public class Sessions {
     }
 
     public static void addChatSessions(List<Chat> chatList, UUID sessionId) {
+        if (!isAuthorized(sessionId))
+            return;
         for (Chat chat : chatList) {
             if (!chats.containsKey(chat.getId())) {
                 ConcurrentMap<UUID, ChatSession> sessionMap = new ConcurrentHashMap<>();
@@ -52,6 +66,8 @@ public class Sessions {
     }
 
     public static void setActiveChat(UUID sessionId, UUID chatId) {
+        if (!isAuthorized(sessionId))
+            return;
         sessions.get(sessionId).setActiveChatId(chatId);
         if (!chats.containsKey(chatId)) {
             ConcurrentMap<UUID, ChatSession> newSubscriber = new ConcurrentHashMap<>();
@@ -71,9 +87,8 @@ public class Sessions {
         List<UUID> emptyChatIds = new ArrayList<>();
         List<UUID> chatIds = new ArrayList<>();
         chats.forEach((currentChatId, currentSessionMap) -> {
-            if(currentSessionMap.containsKey(sessionId)) {
+            if(currentSessionMap.containsKey(sessionId))
                 chatIds.add(currentChatId);
-            }
             currentSessionMap.remove(sessionId);
             if(currentSessionMap.size() == 0) {
                 emptyChatIds.add(currentChatId);
